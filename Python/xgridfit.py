@@ -3,6 +3,7 @@ from fontTools import ttLib
 import sys
 import re
 import tempfile
+import os
 
 
 #      This file is part of xgridfit, version 3.
@@ -76,12 +77,13 @@ def fixupShort(s):
 # Read and parse the temporary file to get an etree
 # Transform the etree.
 
+xslfile = os.path.split(os.path.dirname(__file__))[0] + "/XSL/xgridfit-ft.xsl"
 f = open(inputfile)
 fstr = f.read().replace("\n", " ")
 f.close()
 tf = tempfile.TemporaryFile()
 tf.write(bytearray(fixupShort(fstr), 'utf-8'))
-xgfprog = etree.parse("../XSL/xgridfit-ft.xsl")
+xgfprog = etree.parse(xslfile)
 tf.seek(0)
 xgffile = etree.parse(tf)
 tf.close()
