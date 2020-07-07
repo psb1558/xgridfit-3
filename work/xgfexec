@@ -9,3 +9,4 @@ if [ "$#" -ne 2 ]; then
 fi
 
 python ../Python/xgridfit.py $1 > $2
+

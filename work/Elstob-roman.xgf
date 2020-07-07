@@ -111,16 +111,16 @@
   <mo nm="cap-serif-sh">
     <pm nm="pt-a"/>
     <pm nm="pt-b"/>
-    <pm nm="sh-a" val="0"/>
-    <pm nm="sh-b" val="0"/>
+    <pm nm="sh-a" val="-1"/>
+    <pm nm="sh-b" val="-1"/>
     <pm nm="cv" val="baseline"/>
     <mv di="cv">
       <pt n="pt-a"/>
-      <sh compile-if="not( nan(sh-a) )"><pt n="sh-a"/></sh>
+      <sh compile-if="not( nan(sh-a) ) and sh-a &gt;= 0"><pt n="sh-a"/></sh>
       <sh compile-if="nan(sh-a)"><set ref="sh-a"/></sh>
       <mv di="cap-serif">
 	<pt n="pt-b"/>
-	<sh compile-if="not( nan(sh-b) )"><pt n="sh-b"/></sh>
+	<sh compile-if="not( nan(sh-b) )  and sh-b &gt;= 0"><pt n="sh-b"/></sh>
 	<sh compile-if="nan(sh-b)"><set ref="sh-b"/></sh>
       </mv>
     </mv>
@@ -1883,8 +1883,7 @@
     <cn nm="bar-top" val="33"/>
     <cn nm="bottom" val="12"/>
     <cn nm="top" val="30"/>
-    <setvs axis="y"/>
-    <callg pnm="h"/>
+    <callg pnm="H"/>
     <ip round="yes">
       <ref><pt n="top"/><pt n="bottom"/></ref>
       <pt n="bar-bottom"/>
@@ -2119,6 +2118,111 @@
       <mv di="cap-curved-stroke">
 	<pt n="bottom-ins"/>
       </mv>
+    </mv>
+    <iup axis="y"/>
+  </gl>
+
+  <gl pnm="P">
+    <cn nm="top-serif-left" val="31"/>
+    <cn nm="stem-top-left" val="1"/>
+    <cn nm="stem-top-right" val="24"/>
+    <cn nm="bottom-serif-left" val="33"/>
+    <cn nm="stem-bottom" val="0"/>
+    <cn nm="bowl-bottom" val="10"/>
+    <cn nm="bowl-bottom-ins" val="16"/>
+    <setvs axis="y"/>
+    <callm nm="cap-serif-sh">
+      <wpm nm="pt-a" val="top-serif-left"/>
+      <wpm nm="pt-b" val="top-serif-left - 1"/>
+      <wpm nm="sh-a" val="stem-top-left"/>
+      <wpm nm="sh-b" val="stem-top-right"/>
+      <wpm nm="cv" val="cap-height"/>
+    </callm>
+    <callm nm="cap-serif-sh">
+      <wpm nm="pt-a" val="bottom-serif-left"/>
+      <wpm nm="pt-b" val="bottom-serif-left + 1"/>
+      <wpm nm="sh-a" val="stem-bottom"/>
+      <wpm nm="cv" val="baseline"/>
+    </callm>
+    <ip round="yes">
+      <ref>
+	<pt n="top-serif-left"/>
+	<pt n="bottom-serif-left"/>
+      </ref>
+      <pt n="bowl-bottom"/>
+    </ip>
+    <mv di="cap-curved-stroke" color="black">
+      <ref><pt n="bowl-bottom"/></ref>
+      <pt n="bowl-bottom-ins"/>
+    </mv>
+    <iup axis="y"/>
+  </gl>
+
+  <gl pnm="Q">
+    <cn nm="top" val="11"/>
+    <cn nm="top-ins" val="37"/>
+    <cn nm="bottom" val="21"/>
+    <cn nm="bottom-ins" val="27"/>
+    <cn nm="tail-bottom" val="0"/>
+    <cn nm="tail-ins" val="46"/>
+    <setvs axis="y"/>
+    <mv di="cap-height-overshoot">
+      <pt n="top"/>
+      <mv di="cap-curved-stroke">
+	<pt n="top-ins"/>
+      </mv>
+    </mv>
+    <mv di="baseline-undershoot">
+      <pt n="bottom"/>
+      <sh round="yes"><pt n="tail-bottom"/></sh>
+      <mv di="cap-curved-stroke">
+	<pt n="bottom-ins"/>
+	<sh><pt n="tail-ins"/></sh>
+      </mv>
+    </mv>
+    <iup axis="y"/>
+  </gl>
+
+  <gl pnm="R">
+    <cn nm="top-serif-left" val="47"/>
+    <cn nm="stem-top-left" val="23"/>
+    <cn nm="stem-top-right" val="20"/>
+    <cn nm="bottom-serif-left" val="40"/>
+    <cn nm="stem-bottom" val="22"/>
+    <cn nm="bowl-bottom" val="6"/>
+    <cn nm="bowl-bottom-ins" val="11"/>
+    <cn nm="foot-bottom" val="39"/>
+    <cn nm="bowl-crotch" val="31"/>
+    <set nm="sh-a-pts">
+      <pt n="stem-bottom"/>
+      <pt n="foot-bottom"/>
+    </set>
+    <setvs axis="y"/>
+    <callm nm="cap-serif-sh">
+      <wpm nm="pt-a" val="top-serif-left"/>
+      <wpm nm="pt-b" val="top-serif-left - 1"/>
+      <wpm nm="sh-a" val="stem-top-left"/>
+      <wpm nm="sh-b" val="stem-top-right"/>
+      <wpm nm="cv" val="cap-height"/>
+    </callm>
+    <callm nm="cap-serif-sh">
+      <wpm nm="pt-a" val="bottom-serif-left"/>
+      <wpm nm="pt-b" val="bottom-serif-left + 1"/>
+      <wpm nm="sh-a" val="sh-a-pts"/>
+      <wpm nm="sh-b" val="foot-bottom - 1"/>
+      <wpm nm="cv" val="baseline"/>
+    </callm>
+    <ip round="yes">
+      <ref>
+	<pt n="top-serif-left"/>
+	<pt n="bottom-serif-left"/>
+      </ref>
+      <pt n="bowl-bottom"/>
+    </ip>
+    <mv di="cap-curved-stroke" color="black">
+      <ref><pt n="bowl-bottom"/></ref>
+      <pt n="bowl-bottom-ins"/>
+      <ip><pt n="bowl-crotch"/></ip>
     </mv>
     <iup axis="y"/>
   </gl>
