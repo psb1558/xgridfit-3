@@ -7,12 +7,12 @@ What I can say for Xgridfit, though, is that it was the tool I wanted back when 
 
 Version 3 throws away the elaborate command-line interface of version 2, and with it most of the program's dependencies: it now requires only Python 3, fontTools, and lxml. It introduces new shorter tags for the most commonly used commands, making Xgridfit code quicker to write. And it is licensed under the Apache license, version 2.0.
 
-The program may later include an executable; but for now, simply run the tiny Python script xgridfit.py, e.g.
+There is a tiny executable file in the examples folder; but it isn't much more difficult to run the Python script xgridfit.py, e.g.
 
 `> python3 xgridfit/Python/xgridfit.py Elstob-roman.xgf > out.py`
 
 which produces from the program file Elstob-roman.xgf a Python program, here named "out.py." Run this to add hints to the target TrueType font.
 
-The original documentation is [here](http://xgridfit.sourceforge.net/). Most of it is still valid, but the many command-line options are gone: use default elements in your Xgridfit program file instead. A document showing how to use the shorter tags is on the way, and so is an example.
+The original documentation is [here](http://xgridfit.sourceforge.net/). Most of it is still valid, but the many command-line options are gone: use default elements in your Xgridfit program file instead. An updated element reference is in the doc folder.
 
 For **variable fonts**, Xgridfit works reasonably well, but cannot yet add a cvar table (which may be added manually, using TTX -m). That is high up on the list of things to do.
