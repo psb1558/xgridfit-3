@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  xgridfit, an XML-based language for instructing TrueType fonts
-  
-  Copyright (c) 2005-2008 by Peter S. Baker
-  
-  You can do what you like with this schema, as
-  long as you keep intact the copyright notice above and add a
-  notice if you change anything.
--->
+
+  <!--
+      This file is part of xgridfit, version 3.
+      Licensed under the Apache License, Version 2.0.
+      Copyright (c) 2006-20 by Peter S. Baker
+      -->
+
 <grammar ns="http://xgridfit.sourceforge.net/Xgridfit2" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <define name="YESNO">
     <choice>
