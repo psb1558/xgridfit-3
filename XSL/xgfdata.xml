@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xgfdata xmlns="http://www.engl.virginia.edu/OE/xgridfit-data">
+
+  <!--
+      This file is part of xgridfit, version 3.
+      Licensed under the Apache License, Version 2.0.
+      Copyright (c) 2006-20 by Peter S. Baker
+  -->
+
+  <instruction-set>
+        <inst name="aa" val="AA" mod="no"/>
+        <inst name="abs" val="ABS" el="absolute" mod="no"/>
+        <inst name="add" val="ADD" el="add" mod="no"/>
+        <inst name="alignpts" val="ALIGNPTS" mod="no"/>
+        <inst name="alignrp" val="ALIGNRP" mod="no"/>
+        <inst name="and" val="AND" mod="no"/>
+        <inst name="call" val="CALL" mod="no"/>
+        <inst name="ceiling" val="CEILING" el="ceiling" mod="no"/>
+        <inst name="cindex" val="CINDEX" mod="no"/>
+        <inst name="clear" val="CLEAR" mod="no"/>
+        <inst name="debug" val="DEBUG" mod="no"/>
+        <inst name="deltac1" val="DELTAC1" mod="no"/>
+        <inst name="deltac2" val="DELTAC2" mod="no"/>
+        <inst name="deltac3" val="DELTAC3" mod="no"/>
+        <inst name="deltap1" val="DELTAP1" mod="no"/>
+        <inst name="deltap2" val="DELTAP2" mod="no"/>
+        <inst name="deltap3" val="DELTAP3" mod="no"/>
+        <inst name="depth" val="DEPTH" mod="no"/>
+        <inst name="div" val="DIV" mod="no"/>
+        <inst name="dup" val="DUP" mod="no"/>
+        <inst name="eif" val="EIF" mod="no"/>
+        <inst name="else" val="ELSE" mod="no"/>
+        <inst name="endf" val="ENDF" mod="no"/>
+        <inst name="eq" val="EQ" mod="no"/>
+        <inst name="even" val="EVEN" mod="no"/>
+        <inst name="fdef" val="FDEF" mod="no"/>
+        <inst name="flipoff" val="FLIPOFF" mod="no"/>
+        <inst name="flipon" val="FLIPON" mod="no"/>
+        <inst name="flippt" val="FLIPPT" mod="no"/>
+        <inst name="fliprgoff" val="FLIPRGOFF" mod="no"/>
+        <inst name="fliprgon" val="FLIPRGON" mod="no"/>
+        <inst name="floor" val="FLOOR" el="floor" mod="no"/>
+        <inst name="gc" val="GC" mod="yes"/>
+        <inst name="getinfo" val="GETINFO" mod="no"/>
+        <inst name="gfv" val="GFV" mod="no"/>
+        <inst name="gpv" val="GPV" mod="no"/>
+        <inst name="gt" val="GT" mod="no"/>
+        <inst name="gteq" val="GTEQ" mod="no"/>
+        <inst name="idef" val="IDEF" mod="no"/>
+        <inst name="if" val="IF" mod="no"/>
+        <inst name="instctrl" val="INSTCTRL" mod="no"/>
+        <inst name="ip" val="IP" mod="no"/>
+        <inst name="isect" val="ISECT" mod="no"/>
+        <inst name="iup" val="IUP" mod="yes"/>
+        <inst name="jmpr" val="JMPR" mod="no"/>
+        <inst name="jrof" val="JROF" mod="no"/>
+        <inst name="jrot" val="JROT" mod="no"/>
+        <inst name="loopcall" val="LOOPCALL" mod="no"/>
+        <inst name="lt" val="LT" mod="no"/>
+        <inst name="lteq" val="LTEQ" mod="no"/>
+        <inst name="max" val="MAX" el="maximum" mod="no"/>
+        <inst name="md" val="MD" mod="yes"/>
+        <inst name="mdap" val="MDAP" mod="yes"/>
+        <inst name="mdrp" val="MDRP" mod="yes"/>
+        <inst name="miap" val="MIAP" mod="yes"/>
+        <inst name="min" val="MIN" el="minimum" mod="no"/>
+        <inst name="mindex" val="MINDEX" mod="no"/>
+        <inst name="mirp" val="MIRP" mod="yes"/>
+        <inst name="mppem" val="MPPEM" mod="no"/>
+        <inst name="mps" val="MPS" mod="no"/>
+        <inst name="msirp" val="MSIRP" mod="yes"/>
+        <inst name="mul" val="MUL" el="multiply" mod="no"/>
+        <inst name="neg" val="NEG" el="negate" mod="no"/>
+        <inst name="neq" val="NEQ" mod="no"/>
+        <inst name="not" val="NOT" mod="no"/>
+        <inst name="nround" val="NROUND" mod="yes"/>
+        <inst name="odd" val="ODD" mod="no"/>
+        <inst name="or" val="OR" mod="no"/>
+        <inst name="pop" val="POP" mod="no"/>
+        <inst name="rcvt" val="RCVT" mod="no"/>
+        <inst name="rdtg" val="RDTG" mod="no"/>
+        <inst name="roff" val="ROFF" mod="no"/>
+        <inst name="roll" val="ROLL" mod="no"/>
+        <inst name="round" val="ROUND" mod="yes"/>
+        <inst name="rs" val="RS" mod="no"/>
+        <inst name="rtdg" val="RTDG" mod="no"/>
+        <inst name="rtg" val="RTG" mod="no"/>
+        <inst name="rthg" val="RTHG" mod="no"/>
+        <inst name="rutg" val="RUTG" mod="no"/>
+        <inst name="s45round" val="S45ROUND" mod="no"/>
+        <inst name="sangw" val="SANGW" mod="no"/>
+        <inst name="scanctrl" val="SCANCTRL" mod="no"/>
+        <inst name="scantype" val="SCANTYPE" mod="no"/>
+        <inst name="scfs" val="SCFS" mod="no"/>
+        <inst name="scvtci" val="SCVTCI" mod="no" el="control-value-cut-in"/>
+        <inst name="sdb" val="SDB" mod="no" el="delta-base"/>
+        <inst name="sdpvtl" val="SDPVTL" mod="yes"/>
+        <inst name="sds" val="SDS" mod="no" el="delta-shift"/>
+        <inst name="sfvfs" val="SFVFS" mod="no"/>
+        <inst name="sfvtca" val="SFVTCA" mod="yes"/>
+        <inst name="sfvtl" val="SFVTL" mod="yes"/>
+        <inst name="sfvtpv" val="SFVTPV" mod="no"/>
+        <inst name="shc" val="SHC" mod="yes"/>
+        <inst name="shp" val="SHP" mod="yes"/>
+        <inst name="shpix" val="SHPIX" mod="no"/>
+        <inst name="shz" val="SHZ" mod="yes"/>
+        <inst name="sfpvtca" val="SPVTCA" mod="yes"/>
+        <inst name="sloop" val="SLOOP" mod="no"/>
+        <inst name="smd" val="SMD" mod="no" el="minimum-distance"/>
+        <inst name="spvfs" val="SPVFS" mod="no"/>
+        <inst name="spvtl" val="SPVTL" mod="yes"/>
+        <inst name="sround" val="SROUND" mod="no"/>
+        <inst name="srp0" val="SRP0" mod="no"/>
+        <inst name="srp1" val="SRP1" mod="no"/>
+        <inst name="srp2" val="SRP2" mod="no"/>
+        <inst name="ssw" val="SSW" mod="no" el="single-width"/>
+        <inst name="sswci" val="SSWCI" mod="no" el="single-width-cut-in"/>
+        <inst name="sub" val="SUB" mod="no"/>
+        <inst name="svtca" val="SVTCA" mod="yes"/>
+        <inst name="swap" val="SWAP" mod="no"/>
+        <inst name="szp0" val="SZP0" mod="no"/>
+        <inst name="szp1" val="SZP1" mod="no"/>
+        <inst name="szp2" val="SZP2" mod="no"/>
+        <inst name="szps" val="SZPS" mod="no"/>
+        <inst name="utp" val="UTP" mod="no"/>
+        <inst name="wcvtf" val="WCVTF" mod="no"/>
+        <inst name="wcvtp" val="WCVTP" mod="no"/>
+        <inst name="ws" val="WS" mod="no"/>
+    </instruction-set>
+    <!-- Defines variables relating to the graphics state. -->
+    <var-locations>
+        <loc name="round-state" val="0"/>
+        <loc name="custom-round-state" val="1"/>
+        <loc name="minimum-distance" val="5" vice="6">SMD</loc>
+        <loc name="minimum-distance-default" val="6" vice="5">SMD</loc>
+        <loc name="control-value-cut-in" val="7" vice="8">SCVTCI</loc>
+        <loc name="control-value-cut-in-default" val="8" vice="7">SCVTCI</loc>
+        <loc name="single-width" val="9" vice="11">SSW</loc>
+        <loc name="single-width-cut-in" val="10" vice="12">SSWCI</loc>
+        <loc name="single-width-default" val="11" vice="9">SSW</loc>
+        <loc name="single-width-cut-in-default" val="12" vice="10">SSWCI</loc>
+        <loc name="delta-base" val="13" vice="14">SDB</loc>
+        <loc name="delta-base-default" val="14" vice="13">SDB</loc>
+        <loc name="delta-shift" val="15" vice="16">SDS</loc>
+        <loc name="delta-shift-default" val="16" vice="15">SDS</loc>
+    </var-locations>
+    <!-- Name/numerical identifiers for the round states. -->
+    <round-states>
+        <round name="to-grid" num="0">RTG</round>
+        <round name="to-half-grid" num="1">RTHG</round>
+        <round name="to-double-grid" num="2">RTDG</round>
+        <round name="down-to-grid" num="3">RDTG</round>
+        <round name="up-to-grid" num="4">RUTG</round>
+        <round name="no" num="5">ROFF</round>
+        <round name="custom" num="6"/>
+    </round-states>
+    <!-- period, phase, threshold: parameters for SROUND. -->
+    <periods>
+        <period name="half-pixel">0</period>
+        <period name="one-pixel">64</period>
+        <period name="two-pixel">128</period>
+    </periods>
+    <phases>
+        <phase name="zero">0</phase>
+        <phase name="one-quarter">16</phase>
+        <phase name="one-half">32</phase>
+        <phase name="three-quarters">48</phase>
+    </phases>
+    <thresholds>
+        <threshold name="period-minus-one">0</threshold>
+        <threshold name="minus-three-eighths">1</threshold>
+        <threshold name="minus-one-quarter">2</threshold>
+        <threshold name="minus-one-eighth">3</threshold>
+        <threshold name="zero">4</threshold>
+        <threshold name="one-eighth">5</threshold>
+        <threshold name="one-quarter">6</threshold>
+        <threshold name="three-eighths">7</threshold>
+        <threshold name="one-half">8</threshold>
+        <threshold name="five-eighths">9</threshold>
+        <threshold name="three-quarters">10</threshold>
+        <threshold name="seven-eighths">11</threshold>
+        <threshold name="one">12</threshold>
+        <threshold name="nine-eighths">13</threshold>
+        <threshold name="five-quarters">14</threshold>
+        <threshold name="eleven-eighths">15</threshold>
+    </thresholds>
+    <!-- Next two: translation tables for deltas. First is
+         distance in the delta instruction itself; second
+         is the delta-shift: how big the unit of movement
+         is in the delta instruction. -->
+    <deltavals>
+        <deltaval step="-8" code="0"/>
+        <deltaval step="-7" code="1"/>
+        <deltaval step="-6" code="2"/>
+        <deltaval step="-5" code="3"/>
+        <deltaval step="-4" code="4"/>
+        <deltaval step="-3" code="5"/>
+        <deltaval step="-2" code="6"/>
+        <deltaval step="-1" code="7"/>
+        <deltaval step="1" code="8"/>
+        <deltaval step="2" code="9"/>
+        <deltaval step="3" code="10"/>
+        <deltaval step="4" code="11"/>
+        <deltaval step="5" code="12"/>
+        <deltaval step="6" code="13"/>
+        <deltaval step="7" code="14"/>
+        <deltaval step="8" code="15"/>
+    </deltavals>
+    <deltashifts>
+        <deltashift name="2" value="1"/>
+        <deltashift name="4" value="2"/>
+        <deltashift name="8" value="3"/>
+        <deltashift name="16" value="4"/>
+        <deltashift name="32" value="5"/>
+        <deltashift name="64" value="6"/>
+    </deltashifts>
+    <operators>
+        <operator symbol="and" priority="1" dir="b" at-compile="y">AND</operator>
+        <operator symbol="or" priority="1" dir="b" at-compile="y">OR</operator>
+        <operator symbol="=" priority="2" dir="b" at-compile="y">EQ</operator>
+        <operator symbol="&gt;=" priority="2" dir="b" at-compile="y">GTEQ</operator>
+        <operator symbol="&lt;=" priority="2" dir="b" at-compile="y">LTEQ</operator>
+        <operator symbol="&gt;" priority="2" dir="b" at-compile="y">GT</operator>
+        <operator symbol="&lt;" priority="2" dir="b" at-compile="y">LT</operator>
+        <operator symbol="!=" priority="2" dir="b" at-compile="y">NEQ</operator>
+        <operator symbol="+" priority="3" dir="b" at-compile="y">ADD</operator>
+        <operator symbol="-" priority="3" dir="b" at-compile="y">SUB</operator>
+        <operator symbol="*" priority="3" dir="b" at-compile="n">MUL</operator>
+        <operator symbol="/" priority="3" dir="b" at-compile="n">DIV</operator>
+	<operator symbol="--" priority="4" dir="b" at-compile="n">MD</operator>
+	<operator symbol="---" priority="4" dir="b" at-compile="n">MD</operator>
+        <operator symbol="odd" priority="5" dir="r" at-compile="n">ODD</operator>
+        <operator symbol="even" priority="5" dir="r" at-compile="n">EVEN</operator>
+        <operator symbol="floor" priority="5" dir="r" at-compile="n">FLOOR</operator>
+        <operator symbol="ceiling" priority="5" dir="r" at-compile="n">CEILING</operator>
+        <operator symbol="absolute" priority="5" dir="r" at-compile="n">ABS</operator>
+        <operator symbol="negative" priority="5" dir="r" at-compile="n">NEG</operator>
+        <operator symbol="not" priority="5" dir="r" at-compile="y">NOT</operator>
+        <operator symbol="round" priority="5" dir="r" at-compile="n">ROUND</operator>
+        <operator symbol="round-white" priority="5" dir="r" at-compile="n">ROUND</operator>
+        <operator symbol="round-black" priority="5" dir="r" at-compile="n">ROUND</operator>
+        <operator symbol="round-gray" priority="5" dir="r" at-compile="n">ROUND</operator>
+        <operator symbol="control-value" priority="5" dir="r" at-compile="n">RCVT</operator>
+	<operator symbol="variable" priority="5" dir="r" at-compile="n">RS</operator>
+	<operator symbol="coord" priority="5" dir="r" at-compile="n">GC</operator>
+	<operator symbol="initial-coord" priority="5" dir="r" at-compile="n">GC</operator>
+	<operator symbol="x-coord" priority="5" dir="r" at-compile="n">GC</operator>
+	<operator symbol="y-coord" priority="5" dir="r" at-compile="n">GC</operator>
+	<operator symbol="initial-x-coord" priority="5" dir="r" at-compile="n">GC</operator>
+	<operator symbol="initial-y-coord" priority="5" dir="r" at-compile="n">GC</operator>
+	<operator symbol="index" priority="5" dir="r" at-compile="y">no-op</operator>
+	<operator symbol="nan" priority="5" dir="r" at-compile="y">no-op</operator>
+	<operator symbol="point" priority="5" dir="r" at-compile="y">no-op</operator>
+    </operators>
+    <defaults>
+      <entry name="minimum-distance" loc="5" def="6" inst="SMD"/>
+      <entry name="control-value-cut-in" loc="7" def="8" inst="SCVTCI"/>
+      <entry name="single-width" loc="9" def="11" inst="SSW"/>
+      <entry name="single-width-cut-in" loc="10" def="12" inst="SSWCI"/>
+      <entry name="delta-base" loc="13" def="14" inst="SDB"/>
+      <entry name="delta-shift" loc="15" def="16" inst="SDS"/>
+      <entry name="round-state"/>
+    </defaults>
+    <getinfo>
+      <entry name="engine-version" selector="1"/>
+      <entry name="is-glyph-rotated" selector="2"/>
+      <entry name="is-glyph-stretched" selector="4"/>
+      <entry name="is-glyph-grayscale" selector="32"/>
+      <entry name="is-glyph-transformed" selector="38"/>
+      <entry name="is-cleartype-enabled" selector="64"/>
+      <entry name="is-compatible-width-enabled" selector="128"/>
+      <entry name="is-symmetrical-smoothing-enabled" selector="256"/>
+      <entry name="is-BGR-order" selector="512"/>
+    </getinfo>
+    <engine-versions>
+      <entry name="engine-mac-6-init" num="1"/>
+      <entry name="engine-mac-7" num="2"/>
+      <entry name="engine-windows-3-1" num="3"/>
+      <entry name="engine-freetype-1" num="3"/>
+      <entry name="engine-kanjitalk-6-1" num="4"/>
+      <entry name="engine-ms-1-5" num="33"/>
+      <entry name="engine-ms-1-6" num="34"/>
+      <entry name="engine-ms-1-7" num="35"/>
+      <entry name="engine-freetype-2" num="35"/>
+      <entry name="engine-ms-1-6-plus" num="36"/>
+      <entry name="engine-ms-1-8" num="37"/>
+      <entry name="engine-ms-1-9" num="38"/>
+    </engine-versions>
+</xgfdata>

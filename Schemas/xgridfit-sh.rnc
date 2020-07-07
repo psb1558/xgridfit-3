@@ -1,0 +1,791 @@
+# xgridfit, an XML-based language for instructing TrueType fonts
+# 
+# Copyright (c) 2005-2008 by Peter S. Baker
+#
+# You can do what you like with this schema, as
+# long as you keep intact the copyright notice above and add a
+# notice if you change anything.
+
+default namespace = "http://xgridfit.sourceforge.net/Xgridfit2"
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace xi = "http://www.w3.org/2001/XInclude"
+
+YESNO = "yes" | "no"
+various = message | no-warning | getinfo
+movements =
+    mirp
+  | mdrp
+  | miap
+  | mdap
+  | sh
+  | al
+  | move-point-to-intersection
+  | ip
+  | iup
+  | shift-absolute
+  | set-coordinate
+  | top.level.mv
+  | diagonal-stem
+  | top.level.delta
+  | control-value-delta
+  | untouch
+  | toggle-points
+  | flip-on
+  | flip-off
+  | align-midway
+graphics =
+    setvs
+  | set-projection-vector
+  | set-freedom-vector
+  | store-projection-vector
+  | store-freedom-vector
+  | set-minimum-distance
+  | srp
+  | szp
+  | set-round-state
+  | disable-instructions
+  | enable-instructions
+  | set-dropout-control
+  | set-dropout-type
+  | setcv
+  | set-control-value-cut-in
+  | set-single-width-cut-in
+  | set-single-width
+  | set-auto-flip
+  | set-delta-base
+  | set-delta-shift
+  | set-dual-projection-vector
+  | wvs
+  | with-projection-vector
+  | with-freedom-vector
+  | with-minimum-distance
+  | with-round-state
+  | wcv
+  | with-control-value-cut-in
+  | with-single-width-cut-in
+  | with-single-width
+  | with-delta-base
+  | with-delta-shift
+  | restore-default
+vars =
+    set-equal
+  | add
+  | subtract
+  | divide
+  | multiply
+  | absolute
+  | negate
+  | floor
+  | ceiling
+  | minimum
+  | maximum
+  | round
+  | no-round
+  | control-value-index
+  | formula
+form.vars =
+    set-equal
+  | form.add
+  | form.subtract
+  | form.divide
+  | form.multiply
+  | form.absolute
+  | form.negate
+  | form.floor
+  | form.ceiling
+  | form.minimum
+  | form.maximum
+  | form.round
+  | form.no-round
+  | form.control-value-index
+flow = callf | callm | callg | callp | if | compile-if
+measure = measure-distance | get-coordinate
+primitive = command | push | to-stack
+programming =
+  various | movements | graphics | vars | flow | measure | primitive
+token.pnm = xsd:token {pattern = "\.notdef|[A-Za-z_][A-Za-z0-9_\.]{0,30}" }
+att.pyflags = attribute pyflags { list { ("afm" | "pfm" | "tfm" | "ofm" |
+  "composites-in-afm" | "glyph-map-file" | "short-post" | "apple" |
+  "opentype" | "old-kern" | "dummy-dsig" | "TeX-table" | "round" |
+  "no-hints" | "omit-instructions" | "PfEd-comments" | "PfEd-colors" |
+  "PfEd-lookups" | "PfEd-guidelines" | "PfEd-background" | "symbol")* } }
+att.val = attribute val { text }
+att.num = attribute num { text }
+att.n = attribute n { text }
+att.nm = attribute nm { xsd:NCName }
+att.ref = attribute ref { xsd:NCName }
+att.target = attribute target { xsd:NCName }
+att.zone = attribute zone { "twilight" | "glyph" }
+att.color = attribute color { "gray" | "black" | "white" }
+att.axis = attribute axis { "x" | "y" }
+att.unit = attribute unit { "pixel" | "font" }
+att.units.per.pixel = attribute units-per-pixel { "2" | "4" | "8" | "16" | "32" | "64" }
+att.to-line = attribute to-line { "orthogonal" | "parallel" }
+att.result-to = attribute result-to { xsd:NCName }
+att.test = attribute test { text }
+att.grid-fitted = attribute grid-fitted { YESNO }
+att.whichpointer = attribute whichpointer { text }
+att.id = attribute xml:id { xsd:ID }
+att.round = attribute round { text }
+att.set-rp0 = attribute set-rp0 { YESNO }
+att.cut-in = attribute cut-in { YESNO }
+att.compile-if = attribute compile-if { text }
+att.di = attribute di { text }
+att.pixel-distance = attribute pixel-distance { text }
+att.boolean.min-distance = attribute min-distance { YESNO }
+att.val.min-distance = attribute min-distance { text }
+att.pnm = attribute pnm { token.pnm }
+attlist.single.op =
+  att.val,
+  att.result-to?
+attlist.form.single.op =
+  att.val?
+attlist.dual.op =
+  attribute val1 { text },
+  attribute val2 { text },
+  att.result-to?
+attlist.form.dual.op =
+  attribute val1 { text }?,
+  attribute val2 { text }?
+attlist.val.with.name =
+  att.val,
+  att.nm
+attlist.delta-set-basic =
+  attribute size { xsd:nonNegativeInteger {maxInclusive = "47"} },
+  attribute di { xsd:int {pattern = "[\-]?[1-8]"} }
+attlist.vector.components =
+  (attribute x-component { text },
+   attribute y-component { text })
+attlist.vector.store =
+  (attribute x-component { xsd:NCName },
+   attribute y-component { xsd:NCName })?
+attlist.measurement =
+  att.grid-fitted?,
+  att.result-to?
+model.set-vector =
+  att.axis | attlist.vector.components |
+  ( att.to-line?, line )
+model.with-vector =
+  (att.axis, programming*) |
+  (attlist.vector.components, programming*) |
+  (att.to-line?, line, programming*) |
+  programming*
+#
+# Top level
+#
+xgridfit =
+  element xgridfit{
+        att.id?&
+        glyph-select?&
+        infile?&
+        outfile?&
+        outfile-base?&
+        outfile-script-name?&
+        no-compile?&
+        legacy-functions?&
+        prep?&
+        ps-private?&
+        cn*&
+	alias*&
+        var*&
+        round-state*&
+        \default*&
+        cv*&
+        fn*&
+        mo*&
+        gl*&
+        xg.xi.include*
+  }
+#
+# Value declarations
+#
+cn =
+  element cn { attlist.val.with.name, empty }
+var =
+  element var { attlist.var, empty }
+attlist.var &=
+  att.nm,
+  att.val?
+alias =
+  element alias { attlist.alias, empty }
+attlist.alias &=
+  att.nm,
+  att.target
+#
+# Controlling compilation of glyph programs
+#
+glyph-select =
+  element glyph-select { list { token.pnm* } }
+no-compile =
+  element no-compile { (gl | xg.xi.include)* }
+#
+# Script I/O
+#
+infile =
+  element infile { xsd:anyURI }
+outfile =
+  element outfile {
+    attribute fmflags { xsd:int }?,
+    att.pyflags?,
+    xsd:anyURI }
+outfile-base =
+  element outfile-base { xsd:anyURI }
+outfile-script-name =
+  element outfile-script-name { xsd:anyURI }
+#
+# Top-level declarations
+#
+round-state =
+  element round-state { attlist.round-state, empty }
+attlist.round-state &=
+  att.nm,
+  attribute period {
+      "half-pixel"
+    | "one-pixel"
+    | "two-pixel"
+  },
+  attribute phase {
+      "zero"
+    | "one-quarter"
+    | "one-half"
+    | "three-quarters"
+  },
+  attribute threshold {
+      "period-minus-one"
+    | "minus-three-eighths"
+    | "minus-one-quarter"
+    | "minus-one-eighth"
+    | "zero"
+    | "one-eighth"
+    | "one-quarter"
+    | "three-eighths"
+    | "one-half"
+    | "five-eighths"
+    | "three-quarters"
+    | "seven-eighths"
+    | "one"
+    | "nine-eighths"
+    | "five-quarters"
+    | "eleven-eighths"
+  }
+\default = element default { attlist.default, empty }
+attlist.default &=
+  attribute type {
+      "minimum-distance"
+    | "control-value-cut-in"
+    | "single-width"
+    | "single-width-cut-in"
+    | "delta-base"
+    | "delta-shift"
+    | "delta-break"
+    | "push-break"
+    | "max-twilight-points"
+    | "max-storage"
+    | "legacy-storage"
+    | "max-stack"
+    | "use-truetype-defaults"
+    | "round-state"
+    | "function-base"
+    | "compile-globals"
+    | "init-graphics"
+    | "color"
+    | "delete-all"
+    | "combine-prep"
+    | "auto-instr"
+    | "auto-hint"
+    | "cv-num-in-compile-if"
+  },
+  att.val
+ps-private =
+  element ps-private { entry+ }
+entry =
+  element entry { attlist.entry, empty }
+attlist.entry &=
+  att.nm,
+  att.val
+cv =
+  element cv { attlist.cv, empty }
+attlist.cv &=
+  attribute index { text }?,
+  att.nm,
+  attribute val { xsd:int }
+fn =
+  element fn {
+    attlist.fn,
+    fn.pm*,
+    (var|alias)*,
+    programming*,
+    variant*
+  }
+attlist.fn &=
+  att.nm,
+  att.id?,
+  attribute num { xsd:nonNegativeInteger }?,
+  attribute return { YESNO }?
+variant =
+  element variant { att.test, programming* }
+mo =
+  element mo {
+    attlist.mo, pm*, alias*, programming*
+  }
+attlist.mo &=
+  att.nm,
+  att.id?
+fn.pm =
+  element pm { attlist.pm }
+pm =
+  element pm { attlist.pm, ((set | range | line) | programming+)? }
+attlist.pm &=
+  att.nm,
+  att.val?
+legacy-functions =
+  element legacy-functions {
+    attlist.legacy-functions, programming*
+  }
+attlist.legacy-functions &=
+  attribute max-function-defs { xsd:nonNegativeInteger }
+prep =
+  element prep { att.id?, (var|alias)*, programming* }
+gl =
+  element gl {
+    attlist.gl,
+    pm*,
+    (cn|alias|var|range|line|set)*,
+    programming*
+  }
+attlist.gl &=
+  att.pnm,
+  attribute init-graphics { YESNO }?,
+  att.id?
+#
+# Miscellaneous / Oddball
+#
+message = element message { text }
+#
+# Points and point structures
+#
+pt =
+  element pt { attlist.pt, empty }
+attlist.pt &=
+  att.n,
+  att.zone?
+ref =
+  element ref { pt }
+dual.ref =
+  element ref { pt, pt }
+line = element line {
+    attlist.line, (att.ref | (pt, pt))
+  }
+attlist.line &=
+  att.nm?,
+  att.zone?
+range = element range {
+    attlist.range, (att.ref | (pt, pt))
+  }
+attlist.range &=
+  att.nm?,
+  att.zone?
+set = element set {
+    attlist.set, (att.ref | pt+)
+  }
+attlist.set &=
+  att.nm?,
+  att.zone?
+contour =
+  element contour { attlist.contour, empty }
+attlist.contour &=
+  att.num,
+  att.zone?
+zone = element zone { att.zone, empty }
+#
+# Point-moving instructions
+#
+mirp =
+  element mirp { attlist.mirp, ref?, pt }
+attlist.mirp &=
+  att.di,
+  att.round?,
+  att.cut-in?,
+  att.boolean.min-distance?,
+  att.set-rp0?,
+  att.color?
+mdrp =
+  element mdrp { attlist.mdrp, ref?, pt }
+attlist.mdrp &=
+  att.round?,
+  att.boolean.min-distance?,
+  att.set-rp0?,
+  att.color?
+miap =
+  element miap { attlist.miap, pt }
+attlist.miap &=
+  att.di,
+  att.round?,
+  att.cut-in?
+mdap =
+  element mdap { att.round?, pt }
+sh =
+  element sh {
+    attlist.sh,
+    ref?,
+    (pt | range | set | contour | zone)+
+  }
+attlist.sh &=
+  attribute reference-ptr { "1" | "2" }?,
+  att.compile-if?,
+  att.round?
+al =
+  element al {
+    att.compile-if?, ref?, (pt | range | set)+
+  }
+move-point-to-intersection =
+  element move-point-to-intersection {
+    (pt, line, line) | (line, line, pt) | (line, pt, line)
+  }
+ip =
+  element ip {
+    attlist.ip, dual.ref?, (pt | range | set)+
+  }
+attlist.ip &=
+  att.compile-if?,
+  att.round?
+iup =
+  element iup { att.axis?, empty }
+set-coordinate =
+  element set-coordinate { attribute coordinate { text }, pt }
+shift-absolute =
+  element shift-absolute { att.pixel-distance, (pt | range | set)+ }
+toggle-points =
+  element toggle-points { (pt | range | set)+ }
+align-midway =
+  element align-midway { pt, pt }
+flip-on =
+  element flip-on { range }
+flip-off =
+  element flip-off { range }
+untouch = element untouch { pt }
+top.level.mv =
+  element mv {
+    attlist.mv,
+      ((ref, pt, nested.delta*,
+      (al*& ip*& sh*),
+      nested.mv*, nested.delta*)
+    | (pt, nested.delta*,
+      (al*& sh*),
+      nested.mv*, nested.delta*))
+  }
+nested.mv =
+  element mv {
+    attlist.mv,
+    pt, nested.delta*,
+    (al*& ip*& sh*),
+    nested.mv*, nested.delta*
+  }
+attlist.mv &=
+  (att.di? | att.pixel-distance?),
+  att.round?,
+  attribute cut-in { text }?,
+  att.val.min-distance?,
+  att.color?,
+  att.compile-if?
+diagonal-stem =
+  element diagonal-stem { attlist.diagonal-stem,
+  line, line, al?, al? }
+attlist.diagonal-stem &=
+  att.di,
+  att.round?,
+  att.cut-in?,
+  att.val.min-distance?,
+  att.color?,
+  attribute freedom-vector { YESNO }?,
+  attribute save-vectors { YESNO }?
+top.level.delta =
+  element delta {
+    att.compile-if?,
+    ((pt, (pt.delta-set | empty.delta-set)+) |
+     pt.delta-set+)
+  }
+nested.delta =
+  element delta { att.compile-if?,
+    pt?, (pt.delta-set | empty.delta-set)+ }
+control-value-delta =
+  element control-value-delta { cv.delta-set+ }
+cv.delta-set =
+  element delta-set { attlist.cv.delta-set, empty }
+attlist.cv.delta-set &=
+  attribute cv { xsd:NCName },
+  attlist.delta-set-basic
+pt.delta-set =
+  element delta-set { attlist.delta-set-basic, pt }
+empty.delta-set =
+  element delta-set { attlist.delta-set-basic, empty }
+#
+# Enable/disable instructions
+#
+disable-instructions =
+  element disable-instructions { empty }
+enable-instructions =
+  element enable-instructions { empty }
+#
+# Graphics state
+#
+setvs =
+  element setvs { model.set-vector }
+wvs =
+  element wvs { model.with-vector }
+set-projection-vector =
+  element set-projection-vector { model.set-vector }
+with-projection-vector =
+  element with-projection-vector { model.with-vector }
+set-freedom-vector =
+  element set-freedom-vector { model.set-vector }
+with-freedom-vector =
+  element with-freedom-vector { model.with-vector }
+set-dual-projection-vector =
+  element set-dual-projection-vector {
+    att.to-line?, line
+  }
+store-projection-vector =
+  element store-projection-vector { attlist.vector.store, empty }
+store-freedom-vector =
+  element store-freedom-vector { attlist.vector.store, empty }
+srp =
+  element srp { att.whichpointer, pt }
+szp =
+  element szp { attlist.szp, empty }
+attlist.szp &=
+  att.whichpointer,
+  att.zone
+set-dropout-control =
+  element set-dropout-control { attlist.set-dropout-control, empty }
+attlist.set-dropout-control &=
+  attribute threshold { xsd:nonNegativeInteger {maxInclusive = "255"} },
+  attribute flags { xsd:nonNegativeInteger {maxInclusive = "63"} }
+set-dropout-type =
+  element set-dropout-type { att.dropout.val, empty }
+att.dropout.val =
+  attribute val { xsd:nonNegativeInteger {maxInclusive = "7"} }
+setcv =
+  element setcv { attlist.setcv, empty }
+wcv =
+  element wcv { attlist.setcv, programming* }
+attlist.setcv &=
+  attlist.val.with.name,
+  att.unit?
+set-control-value-cut-in =
+  element set-control-value-cut-in { att.val, empty }
+with-control-value-cut-in =
+  element with-control-value-cut-in { att.val, programming* }
+set-minimum-distance =
+  element set-minimum-distance { att.val, empty }
+with-minimum-distance =
+  element with-minimum-distance { att.val, programming* }
+set-round-state =
+  element set-round-state { att.round, empty }
+with-round-state =
+  element with-round-state { att.round, programming* }
+set-single-width-cut-in =
+  element set-single-width-cut-in { att.val, empty }
+with-single-width-cut-in =
+  element with-single-width-cut-in { att.val, programming* }
+set-single-width =
+  element set-single-width { att.val, empty }
+with-single-width =
+  element with-single-width { att.val, programming* }
+set-auto-flip =
+  element set-auto-flip { attribute val { "on" | "off" }, empty }
+set-delta-base =
+  element set-delta-base { att.val, empty }
+with-delta-base =
+  element with-delta-base { att.val, programming* }
+set-delta-shift =
+  element set-delta-shift { att.units.per.pixel, empty }
+with-delta-shift =
+  element with-delta-shift { att.units.per.pixel, programming* }
+restore-default =
+  element restore-default { attlist.restore-default, empty }
+attlist.restore-default &=
+  attribute nm {
+      "minimum-distance"
+    | "control-value-cut-in"
+    | "single-width"
+    | "single-width-cut-in"
+    | "delta-base"
+    | "delta-shift"
+    | "round-state"
+    | "all"
+  }
+#
+# Arithmetic elements
+#
+set-equal =
+  element set-equal { attlist.set-equal, empty }
+attlist.set-equal &=
+  att.target,
+  attribute source { text }
+control-value-index =
+  element control-value-index { attlist.control-value-index, empty }
+form.control-value-index =
+  element control-value-index { att.val, empty }
+attlist.control-value-index &=
+  att.val,
+  att.result-to
+add =
+  element add { attlist.dual.op, empty }
+form.add =
+  element add { attlist.form.dual.op, empty }
+subtract =
+  element subtract { attlist.subtract, empty }
+attlist.subtract &=
+  attribute minuend { text },
+  attribute subtrahend { text },
+  att.result-to?
+form.subtract =
+  element subtract { attlist.form.subtract, empty }
+attlist.form.subtract &=
+  attribute minuend { text }?,
+  attribute subtrahend { text }?
+divide =
+  element divide { attlist.divide, empty }
+attlist.divide &=
+  attribute dividend { text },
+  attribute divisor { text },
+  att.result-to?
+form.divide =
+  element divide { attlist.form.divide, empty }
+attlist.form.divide &=
+  attribute dividend { text }?,
+  attribute divisor { text }?
+multiply =
+  element multiply { attlist.dual.op, empty }
+form.multiply =
+  element multiply { attlist.form.dual.op, empty }
+absolute =
+  element absolute { attlist.single.op, empty }
+form.absolute =
+  element absolute { attlist.form.single.op, empty }
+negate =
+  element negate { attlist.single.op, empty }
+form.negate =
+  element negate { attlist.form.single.op, empty }
+floor =
+  element floor { attlist.single.op, empty }
+form.floor =
+  element floor { attlist.form.single.op, empty }
+ceiling =
+  element ceiling { attlist.single.op, empty }
+form.ceiling =
+  element ceiling { attlist.form.single.op, empty }
+minimum =
+  element minimum { attlist.dual.op, empty }
+form.minimum =
+  element minimum { attlist.form.dual.op, empty }
+maximum =
+  element maximum { attlist.dual.op, empty }
+form.maximum =
+  element maximum { attlist.form.dual.op, empty }
+round =
+  element round { attlist.round, empty }
+no-round =
+  element no-round { attlist.round, empty }
+attlist.round &=
+  att.val,
+  att.color?,
+  att.result-to?
+form.round =
+  element round { attlist.form.round, empty }
+form.no-round =
+  element no-round { attlist.form.round, empty }
+attlist.form.round &=
+  att.val?,
+  att.color?
+formula =
+  element formula { att.result-to?, (form.vars)+ }
+#
+# Function and macro calls
+#
+callf =
+  element callf {
+    attlist.callf,
+    (fn.pmset* | fn.wpm*)
+  }
+attlist.callf &=
+  att.nm,
+  att.result-to?
+callm =
+  element callm { att.nm, (pmset* | wpm*) }
+callp =
+  element callp { att.nm, empty }
+callg =
+  element callg { att.pnm, wpm* }
+fn.pmset =
+  element pmset { attribute opt { YESNO }?, fn.wpm+ }
+pmset =
+  element pmset { wpm+ }
+fn.wpm =
+  element wpm { att.nm, att.val, empty }
+wpm =
+  element wpm {
+    att.nm,
+    (att.val |
+     (att.val?, ((set | range | line) | programming+)))
+  }
+#
+# Conditionals
+#
+if = element if { att.test, programming*, else? }
+else = element else { programming* }
+compile-if = element compile-if { att.test, programming*, else? }
+no-warning = element no-warning { programming* }
+#
+# Getting info
+#
+measure-distance =
+  element measure-distance { attlist.measurement, pt, pt }
+get-coordinate =
+  element get-coordinate { attlist.measurement, pt }
+getinfo =
+  element getinfo { attlist.getinfo, empty }
+attlist.getinfo &=
+  attribute selector { text },
+  att.result-to?
+#
+# Primitives
+#
+command = element command {
+    attribute nm { xsd:token { pattern = "[A-Z0-5]{2,9}" } },
+    ( attribute modifier { text }? | modifier* )
+  }
+modifier = element modifier { attlist.modifier, empty }
+attlist.modifier &=
+  att.val,
+  attribute type {
+      "set-rp0"
+    | "round"
+    | "minimum-distance"
+    | "color"
+    | "grid-fitted"
+    | "to-line"
+    | "axis"
+    | "ref-ptr"
+  }
+push =
+  element push { text }
+to-stack =
+  element to-stack { text }
+#
+# XInclude
+#
+xg.xi.include.attlist =
+    attribute href { xsd:anyURI }?,
+    [ a:defaultValue = "xml" ] attribute parse { "xml" | "text" }?,
+    attribute xpointer { text }?,
+    attribute encoding { text }?,
+    attribute accept { text }?,
+    attribute accept-language { text }?
+xg.xi.include =
+    element xi:include {
+      xg.xi.include.attlist
+    }
+
+start = xgridfit

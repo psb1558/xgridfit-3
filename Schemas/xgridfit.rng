@@ -1,0 +1,2173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  xgridfit, an XML-based language for instructing TrueType fonts
+  
+  Copyright (c) 2005-2008 by Peter S. Baker
+  
+  You can do what you like with this schema, as
+  long as you keep intact the copyright notice above and add a
+  notice if you change anything.
+-->
+<grammar ns="http://xgridfit.sourceforge.net/Xgridfit2" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <define name="YESNO">
+    <choice>
+      <value>yes</value>
+      <value>no</value>
+    </choice>
+  </define>
+  <define name="various">
+    <choice>
+      <ref name="message"/>
+      <ref name="no-warning"/>
+      <ref name="getinfo"/>
+    </choice>
+  </define>
+  <define name="movements">
+    <choice>
+      <ref name="mirp"/>
+      <ref name="mdrp"/>
+      <ref name="miap"/>
+      <ref name="mdap"/>
+      <ref name="shift"/>
+      <ref name="align"/>
+      <ref name="move-point-to-intersection"/>
+      <ref name="interpolate"/>
+      <ref name="interpolate-untouched-points"/>
+      <ref name="shift-absolute"/>
+      <ref name="set-coordinate"/>
+      <ref name="top.level.move"/>
+      <ref name="diagonal-stem"/>
+      <ref name="top.level.delta"/>
+      <ref name="control-value-delta"/>
+      <ref name="untouch"/>
+      <ref name="toggle-points"/>
+      <ref name="flip-on"/>
+      <ref name="flip-off"/>
+      <ref name="align-midway"/>
+    </choice>
+  </define>
+  <define name="graphics">
+    <choice>
+      <ref name="set-vectors"/>
+      <ref name="set-projection-vector"/>
+      <ref name="set-freedom-vector"/>
+      <ref name="store-projection-vector"/>
+      <ref name="store-freedom-vector"/>
+      <ref name="set-minimum-distance"/>
+      <ref name="srp"/>
+      <ref name="szp"/>
+      <ref name="set-round-state"/>
+      <ref name="disable-instructions"/>
+      <ref name="enable-instructions"/>
+      <ref name="set-dropout-control"/>
+      <ref name="set-dropout-type"/>
+      <ref name="set-control-value"/>
+      <ref name="set-control-value-cut-in"/>
+      <ref name="set-single-width-cut-in"/>
+      <ref name="set-single-width"/>
+      <ref name="set-auto-flip"/>
+      <ref name="set-delta-base"/>
+      <ref name="set-delta-shift"/>
+      <ref name="set-dual-projection-vector"/>
+      <ref name="with-vectors"/>
+      <ref name="with-projection-vector"/>
+      <ref name="with-freedom-vector"/>
+      <ref name="with-minimum-distance"/>
+      <ref name="with-round-state"/>
+      <ref name="with-control-value"/>
+      <ref name="with-control-value-cut-in"/>
+      <ref name="with-single-width-cut-in"/>
+      <ref name="with-single-width"/>
+      <ref name="with-delta-base"/>
+      <ref name="with-delta-shift"/>
+      <ref name="restore-default"/>
+    </choice>
+  </define>
+  <define name="vars">
+    <choice>
+      <ref name="set-equal"/>
+      <ref name="add"/>
+      <ref name="subtract"/>
+      <ref name="divide"/>
+      <ref name="multiply"/>
+      <ref name="absolute"/>
+      <ref name="negate"/>
+      <ref name="floor"/>
+      <ref name="ceiling"/>
+      <ref name="minimum"/>
+      <ref name="maximum"/>
+      <ref name="round"/>
+      <ref name="no-round"/>
+      <ref name="control-value-index"/>
+      <ref name="formula"/>
+    </choice>
+  </define>
+  <define name="form.vars">
+    <choice>
+      <ref name="set-equal"/>
+      <ref name="form.add"/>
+      <ref name="form.subtract"/>
+      <ref name="form.divide"/>
+      <ref name="form.multiply"/>
+      <ref name="form.absolute"/>
+      <ref name="form.negate"/>
+      <ref name="form.floor"/>
+      <ref name="form.ceiling"/>
+      <ref name="form.minimum"/>
+      <ref name="form.maximum"/>
+      <ref name="form.round"/>
+      <ref name="form.no-round"/>
+      <ref name="form.control-value-index"/>
+    </choice>
+  </define>
+  <define name="flow">
+    <choice>
+      <ref name="call-function"/>
+      <ref name="call-macro"/>
+      <ref name="call-glyph"/>
+      <ref name="call-param"/>
+      <ref name="if"/>
+      <ref name="compile-if"/>
+    </choice>
+  </define>
+  <define name="measure">
+    <choice>
+      <ref name="measure-distance"/>
+      <ref name="get-coordinate"/>
+    </choice>
+  </define>
+  <define name="primitive">
+    <choice>
+      <ref name="command"/>
+      <ref name="push"/>
+      <ref name="to-stack"/>
+    </choice>
+  </define>
+  <define name="programming">
+    <choice>
+      <ref name="various"/>
+      <ref name="movements"/>
+      <ref name="graphics"/>
+      <ref name="vars"/>
+      <ref name="flow"/>
+      <ref name="measure"/>
+      <ref name="primitive"/>
+    </choice>
+  </define>
+  <define name="token.ps-name">
+    <data type="token">
+      <param name="pattern">\.notdef|[A-Za-z_][A-Za-z0-9_\.]{0,30}</param>
+    </data>
+  </define>
+  <define name="att.pyflags">
+    <attribute name="pyflags">
+      <list>
+        <zeroOrMore>
+          <choice>
+            <value>afm</value>
+            <value>pfm</value>
+            <value>tfm</value>
+            <value>ofm</value>
+            <value>composites-in-afm</value>
+            <value>glyph-map-file</value>
+            <value>short-post</value>
+            <value>apple</value>
+            <value>opentype</value>
+            <value>old-kern</value>
+            <value>dummy-dsig</value>
+            <value>TeX-table</value>
+            <value>round</value>
+            <value>no-hints</value>
+            <value>omit-instructions</value>
+            <value>PfEd-comments</value>
+            <value>PfEd-colors</value>
+            <value>PfEd-lookups</value>
+            <value>PfEd-guidelines</value>
+            <value>PfEd-background</value>
+            <value>symbol</value>
+          </choice>
+        </zeroOrMore>
+      </list>
+    </attribute>
+  </define>
+  <define name="att.value">
+    <attribute name="value"/>
+  </define>
+  <define name="att.num">
+    <attribute name="num"/>
+  </define>
+  <define name="att.name">
+    <attribute name="name">
+      <data type="NCName"/>
+    </attribute>
+  </define>
+  <define name="att.ref">
+    <attribute name="ref">
+      <data type="NCName"/>
+    </attribute>
+  </define>
+  <define name="att.target">
+    <attribute name="target">
+      <data type="NCName"/>
+    </attribute>
+  </define>
+  <define name="att.zone">
+    <attribute name="zone">
+      <choice>
+        <value>twilight</value>
+        <value>glyph</value>
+      </choice>
+    </attribute>
+  </define>
+  <define name="att.color">
+    <attribute name="color">
+      <choice>
+        <value>gray</value>
+        <value>black</value>
+        <value>white</value>
+      </choice>
+    </attribute>
+  </define>
+  <define name="att.axis">
+    <attribute name="axis">
+      <choice>
+        <value>x</value>
+        <value>y</value>
+      </choice>
+    </attribute>
+  </define>
+  <define name="att.unit">
+    <attribute name="unit">
+      <choice>
+        <value>pixel</value>
+        <value>font</value>
+      </choice>
+    </attribute>
+  </define>
+  <define name="att.units.per.pixel">
+    <attribute name="units-per-pixel">
+      <choice>
+        <value>2</value>
+        <value>4</value>
+        <value>8</value>
+        <value>16</value>
+        <value>32</value>
+        <value>64</value>
+      </choice>
+    </attribute>
+  </define>
+  <define name="att.to-line">
+    <attribute name="to-line">
+      <choice>
+        <value>orthogonal</value>
+        <value>parallel</value>
+      </choice>
+    </attribute>
+  </define>
+  <define name="att.result-to">
+    <attribute name="result-to">
+      <data type="NCName"/>
+    </attribute>
+  </define>
+  <define name="att.test">
+    <attribute name="test"/>
+  </define>
+  <define name="att.grid-fitted">
+    <attribute name="grid-fitted">
+      <ref name="YESNO"/>
+    </attribute>
+  </define>
+  <define name="att.whichpointer">
+    <attribute name="whichpointer"/>
+  </define>
+  <define name="att.id">
+    <attribute name="xml:id">
+      <data type="ID"/>
+    </attribute>
+  </define>
+  <define name="att.round">
+    <attribute name="round"/>
+  </define>
+  <define name="att.set-rp0">
+    <attribute name="set-rp0">
+      <ref name="YESNO"/>
+    </attribute>
+  </define>
+  <define name="att.cut-in">
+    <attribute name="cut-in">
+      <ref name="YESNO"/>
+    </attribute>
+  </define>
+  <define name="att.compile-if">
+    <attribute name="compile-if"/>
+  </define>
+  <define name="att.distance">
+    <attribute name="distance"/>
+  </define>
+  <define name="att.pixel-distance">
+    <attribute name="pixel-distance"/>
+  </define>
+  <define name="att.boolean.min-distance">
+    <attribute name="min-distance">
+      <ref name="YESNO"/>
+    </attribute>
+  </define>
+  <define name="att.value.min-distance">
+    <attribute name="min-distance"/>
+  </define>
+  <define name="att.ps-name">
+    <attribute name="ps-name">
+      <ref name="token.ps-name"/>
+    </attribute>
+  </define>
+  <define name="attlist.single.op">
+    <ref name="att.value"/>
+    <optional>
+      <ref name="att.result-to"/>
+    </optional>
+  </define>
+  <define name="attlist.form.single.op">
+    <optional>
+      <ref name="att.value"/>
+    </optional>
+  </define>
+  <define name="attlist.dual.op">
+    <attribute name="value1"/>
+    <attribute name="value2"/>
+    <optional>
+      <ref name="att.result-to"/>
+    </optional>
+  </define>
+  <define name="attlist.form.dual.op">
+    <optional>
+      <attribute name="value1"/>
+    </optional>
+    <optional>
+      <attribute name="value2"/>
+    </optional>
+  </define>
+  <define name="attlist.value.with.name">
+    <ref name="att.value"/>
+    <ref name="att.name"/>
+  </define>
+  <define name="attlist.delta-set-basic">
+    <attribute name="size">
+      <data type="nonNegativeInteger">
+        <param name="maxInclusive">47</param>
+      </data>
+    </attribute>
+    <attribute name="distance">
+      <data type="int">
+        <param name="pattern">[\-]?[1-8]</param>
+      </data>
+    </attribute>
+  </define>
+  <define name="attlist.vector.components">
+    <attribute name="x-component"/>
+    <attribute name="y-component"/>
+  </define>
+  <define name="attlist.vector.store">
+    <optional>
+      <attribute name="x-component">
+        <data type="NCName"/>
+      </attribute>
+      <attribute name="y-component">
+        <data type="NCName"/>
+      </attribute>
+    </optional>
+  </define>
+  <define name="attlist.measurement">
+    <optional>
+      <ref name="att.grid-fitted"/>
+    </optional>
+    <optional>
+      <ref name="att.result-to"/>
+    </optional>
+  </define>
+  <define name="model.set-vector">
+    <choice>
+      <ref name="att.axis"/>
+      <ref name="attlist.vector.components"/>
+      <group>
+        <optional>
+          <ref name="att.to-line"/>
+        </optional>
+        <ref name="line"/>
+      </group>
+    </choice>
+  </define>
+  <define name="model.with-vector">
+    <choice>
+      <group>
+        <ref name="att.axis"/>
+        <zeroOrMore>
+          <ref name="programming"/>
+        </zeroOrMore>
+      </group>
+      <group>
+        <ref name="attlist.vector.components"/>
+        <zeroOrMore>
+          <ref name="programming"/>
+        </zeroOrMore>
+      </group>
+      <group>
+        <optional>
+          <ref name="att.to-line"/>
+        </optional>
+        <ref name="line"/>
+        <zeroOrMore>
+          <ref name="programming"/>
+        </zeroOrMore>
+      </group>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </choice>
+  </define>
+  <!--
+    
+    Top level
+    
+  -->
+  <define name="xgridfit">
+    <element name="xgridfit">
+      <interleave>
+        <optional>
+          <ref name="att.id"/>
+        </optional>
+        <optional>
+          <ref name="glyph-select"/>
+        </optional>
+        <optional>
+          <ref name="infile"/>
+        </optional>
+        <optional>
+          <ref name="outfile"/>
+        </optional>
+        <optional>
+          <ref name="outfile-base"/>
+        </optional>
+        <optional>
+          <ref name="outfile-script-name"/>
+        </optional>
+        <optional>
+          <ref name="no-compile"/>
+        </optional>
+        <optional>
+          <ref name="legacy-functions"/>
+        </optional>
+        <optional>
+          <ref name="pre-program"/>
+        </optional>
+        <optional>
+          <ref name="ps-private"/>
+        </optional>
+        <zeroOrMore>
+          <ref name="constant"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="alias"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="variable"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="round-state"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="default"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="control-value"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="function"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="macro"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="glyph"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="xg.xi.include"/>
+        </zeroOrMore>
+      </interleave>
+    </element>
+  </define>
+  <!--
+    
+    Value declarations
+    
+  -->
+  <define name="constant">
+    <element name="constant">
+      <ref name="attlist.value.with.name"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="variable">
+    <element name="variable">
+      <ref name="attlist.variable"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.variable" combine="interleave">
+    <ref name="att.name"/>
+    <optional>
+      <ref name="att.value"/>
+    </optional>
+  </define>
+  <define name="alias">
+    <element name="alias">
+      <ref name="attlist.alias"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.alias" combine="interleave">
+    <ref name="att.name"/>
+    <ref name="att.target"/>
+  </define>
+  <!--
+    
+    Controlling compilation of glyph programs
+    
+  -->
+  <define name="glyph-select">
+    <element name="glyph-select">
+      <list>
+        <zeroOrMore>
+          <ref name="token.ps-name"/>
+        </zeroOrMore>
+      </list>
+    </element>
+  </define>
+  <define name="no-compile">
+    <element name="no-compile">
+      <zeroOrMore>
+        <choice>
+          <ref name="glyph"/>
+          <ref name="xg.xi.include"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!--
+    
+    Script I/O
+    
+  -->
+  <define name="infile">
+    <element name="infile">
+      <data type="anyURI"/>
+    </element>
+  </define>
+  <define name="outfile">
+    <element name="outfile">
+      <optional>
+        <attribute name="fmflags">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <ref name="att.pyflags"/>
+      </optional>
+      <data type="anyURI"/>
+    </element>
+  </define>
+  <define name="outfile-base">
+    <element name="outfile-base">
+      <data type="anyURI"/>
+    </element>
+  </define>
+  <define name="outfile-script-name">
+    <element name="outfile-script-name">
+      <data type="anyURI"/>
+    </element>
+  </define>
+  <!--
+    
+    Top-level declarations
+    
+  -->
+  <define name="round-state">
+    <element name="round-state">
+      <ref name="attlist.round-state"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.round-state" combine="interleave">
+    <ref name="att.name"/>
+    <attribute name="period">
+      <choice>
+        <value>half-pixel</value>
+        <value>one-pixel</value>
+        <value>two-pixel</value>
+      </choice>
+    </attribute>
+    <attribute name="phase">
+      <choice>
+        <value>zero</value>
+        <value>one-quarter</value>
+        <value>one-half</value>
+        <value>three-quarters</value>
+      </choice>
+    </attribute>
+    <attribute name="threshold">
+      <choice>
+        <value>period-minus-one</value>
+        <value>minus-three-eighths</value>
+        <value>minus-one-quarter</value>
+        <value>minus-one-eighth</value>
+        <value>zero</value>
+        <value>one-eighth</value>
+        <value>one-quarter</value>
+        <value>three-eighths</value>
+        <value>one-half</value>
+        <value>five-eighths</value>
+        <value>three-quarters</value>
+        <value>seven-eighths</value>
+        <value>one</value>
+        <value>nine-eighths</value>
+        <value>five-quarters</value>
+        <value>eleven-eighths</value>
+      </choice>
+    </attribute>
+  </define>
+  <define name="default">
+    <element name="default">
+      <ref name="attlist.default"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.default" combine="interleave">
+    <attribute name="type">
+      <choice>
+        <value>minimum-distance</value>
+        <value>control-value-cut-in</value>
+        <value>single-width</value>
+        <value>single-width-cut-in</value>
+        <value>delta-base</value>
+        <value>delta-shift</value>
+        <value>delta-break</value>
+        <value>push-break</value>
+        <value>max-twilight-points</value>
+        <value>max-storage</value>
+        <value>legacy-storage</value>
+        <value>max-stack</value>
+        <value>use-truetype-defaults</value>
+        <value>round-state</value>
+        <value>function-base</value>
+        <value>compile-globals</value>
+        <value>init-graphics</value>
+        <value>color</value>
+        <value>delete-all</value>
+        <value>combine-prep</value>
+        <value>auto-instr</value>
+        <value>auto-hint</value>
+        <value>cv-num-in-compile-if</value>
+      </choice>
+    </attribute>
+    <ref name="att.value"/>
+  </define>
+  <define name="ps-private">
+    <element name="ps-private">
+      <oneOrMore>
+        <ref name="entry"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="entry">
+    <element name="entry">
+      <ref name="attlist.entry"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.entry" combine="interleave">
+    <ref name="att.name"/>
+    <ref name="att.value"/>
+  </define>
+  <define name="control-value">
+    <element name="control-value">
+      <ref name="attlist.control-value"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.control-value" combine="interleave">
+    <optional>
+      <attribute name="index"/>
+    </optional>
+    <ref name="att.name"/>
+    <attribute name="value">
+      <data type="int"/>
+    </attribute>
+  </define>
+  <define name="function">
+    <element name="function">
+      <ref name="attlist.function"/>
+      <zeroOrMore>
+        <ref name="function.param"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <choice>
+          <ref name="variable"/>
+          <ref name="alias"/>
+        </choice>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="variant"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.function" combine="interleave">
+    <ref name="att.name"/>
+    <optional>
+      <ref name="att.id"/>
+    </optional>
+    <optional>
+      <attribute name="num">
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="return">
+        <ref name="YESNO"/>
+      </attribute>
+    </optional>
+  </define>
+  <define name="variant">
+    <element name="variant">
+      <ref name="att.test"/>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="macro">
+    <element name="macro">
+      <ref name="attlist.macro"/>
+      <zeroOrMore>
+        <ref name="param"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="alias"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.macro" combine="interleave">
+    <ref name="att.name"/>
+    <optional>
+      <ref name="att.id"/>
+    </optional>
+  </define>
+  <define name="function.param">
+    <element name="param">
+      <ref name="attlist.param"/>
+    </element>
+  </define>
+  <define name="param">
+    <element name="param">
+      <ref name="attlist.param"/>
+      <optional>
+        <choice>
+          <choice>
+            <ref name="set"/>
+            <ref name="range"/>
+            <ref name="line"/>
+          </choice>
+          <oneOrMore>
+            <ref name="programming"/>
+          </oneOrMore>
+        </choice>
+      </optional>
+    </element>
+  </define>
+  <define name="attlist.param" combine="interleave">
+    <ref name="att.name"/>
+    <optional>
+      <ref name="att.value"/>
+    </optional>
+  </define>
+  <define name="legacy-functions">
+    <element name="legacy-functions">
+      <ref name="attlist.legacy-functions"/>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.legacy-functions" combine="interleave">
+    <attribute name="max-function-defs">
+      <data type="nonNegativeInteger"/>
+    </attribute>
+  </define>
+  <define name="pre-program">
+    <element name="pre-program">
+      <optional>
+        <ref name="att.id"/>
+      </optional>
+      <zeroOrMore>
+        <choice>
+          <ref name="variable"/>
+          <ref name="alias"/>
+        </choice>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="glyph">
+    <element name="glyph">
+      <ref name="attlist.glyph"/>
+      <zeroOrMore>
+        <ref name="param"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <choice>
+          <ref name="constant"/>
+          <ref name="alias"/>
+          <ref name="variable"/>
+          <ref name="range"/>
+          <ref name="line"/>
+          <ref name="set"/>
+        </choice>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.glyph" combine="interleave">
+    <ref name="att.ps-name"/>
+    <optional>
+      <attribute name="init-graphics">
+        <ref name="YESNO"/>
+      </attribute>
+    </optional>
+    <optional>
+      <ref name="att.id"/>
+    </optional>
+  </define>
+  <!--
+    
+    Miscellaneous / Oddball
+    
+  -->
+  <define name="message">
+    <element name="message">
+      <text/>
+    </element>
+  </define>
+  <!--
+    
+    Points and point structures
+    
+  -->
+  <define name="point">
+    <element name="point">
+      <ref name="attlist.point"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.point" combine="interleave">
+    <ref name="att.num"/>
+    <optional>
+      <ref name="att.zone"/>
+    </optional>
+  </define>
+  <define name="reference">
+    <element name="reference">
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="dual.reference">
+    <element name="reference">
+      <ref name="point"/>
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="line">
+    <element name="line">
+      <ref name="attlist.line"/>
+      <choice>
+        <ref name="att.ref"/>
+        <group>
+          <ref name="point"/>
+          <ref name="point"/>
+        </group>
+      </choice>
+    </element>
+  </define>
+  <define name="attlist.line" combine="interleave">
+    <optional>
+      <ref name="att.name"/>
+    </optional>
+    <optional>
+      <ref name="att.zone"/>
+    </optional>
+  </define>
+  <define name="range">
+    <element name="range">
+      <ref name="attlist.range"/>
+      <choice>
+        <ref name="att.ref"/>
+        <group>
+          <ref name="point"/>
+          <ref name="point"/>
+        </group>
+      </choice>
+    </element>
+  </define>
+  <define name="attlist.range" combine="interleave">
+    <optional>
+      <ref name="att.name"/>
+    </optional>
+    <optional>
+      <ref name="att.zone"/>
+    </optional>
+  </define>
+  <define name="set">
+    <element name="set">
+      <ref name="attlist.set"/>
+      <choice>
+        <ref name="att.ref"/>
+        <oneOrMore>
+          <ref name="point"/>
+        </oneOrMore>
+      </choice>
+    </element>
+  </define>
+  <define name="attlist.set" combine="interleave">
+    <optional>
+      <ref name="att.name"/>
+    </optional>
+    <optional>
+      <ref name="att.zone"/>
+    </optional>
+  </define>
+  <define name="contour">
+    <element name="contour">
+      <ref name="attlist.contour"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.contour" combine="interleave">
+    <ref name="att.num"/>
+    <optional>
+      <ref name="att.zone"/>
+    </optional>
+  </define>
+  <define name="zone">
+    <element name="zone">
+      <ref name="att.zone"/>
+      <empty/>
+    </element>
+  </define>
+  <!--
+    
+    Point-moving instructions
+    
+  -->
+  <define name="mirp">
+    <element name="mirp">
+      <ref name="attlist.mirp"/>
+      <optional>
+        <ref name="reference"/>
+      </optional>
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="attlist.mirp" combine="interleave">
+    <ref name="att.distance"/>
+    <optional>
+      <ref name="att.round"/>
+    </optional>
+    <optional>
+      <ref name="att.cut-in"/>
+    </optional>
+    <optional>
+      <ref name="att.boolean.min-distance"/>
+    </optional>
+    <optional>
+      <ref name="att.set-rp0"/>
+    </optional>
+    <optional>
+      <ref name="att.color"/>
+    </optional>
+  </define>
+  <define name="mdrp">
+    <element name="mdrp">
+      <ref name="attlist.mdrp"/>
+      <optional>
+        <ref name="reference"/>
+      </optional>
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="attlist.mdrp" combine="interleave">
+    <optional>
+      <ref name="att.round"/>
+    </optional>
+    <optional>
+      <ref name="att.boolean.min-distance"/>
+    </optional>
+    <optional>
+      <ref name="att.set-rp0"/>
+    </optional>
+    <optional>
+      <ref name="att.color"/>
+    </optional>
+  </define>
+  <define name="miap">
+    <element name="miap">
+      <ref name="attlist.miap"/>
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="attlist.miap" combine="interleave">
+    <ref name="att.distance"/>
+    <optional>
+      <ref name="att.round"/>
+    </optional>
+    <optional>
+      <ref name="att.cut-in"/>
+    </optional>
+  </define>
+  <define name="mdap">
+    <element name="mdap">
+      <optional>
+        <ref name="att.round"/>
+      </optional>
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="shift">
+    <element name="shift">
+      <ref name="attlist.shift"/>
+      <optional>
+        <ref name="reference"/>
+      </optional>
+      <oneOrMore>
+        <choice>
+          <ref name="point"/>
+          <ref name="range"/>
+          <ref name="set"/>
+          <ref name="contour"/>
+          <ref name="zone"/>
+        </choice>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.shift" combine="interleave">
+    <optional>
+      <attribute name="reference-ptr">
+        <choice>
+          <value>1</value>
+          <value>2</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <ref name="att.compile-if"/>
+    </optional>
+    <optional>
+      <ref name="att.round"/>
+    </optional>
+  </define>
+  <define name="align">
+    <element name="align">
+      <optional>
+        <ref name="att.compile-if"/>
+      </optional>
+      <optional>
+        <ref name="reference"/>
+      </optional>
+      <oneOrMore>
+        <choice>
+          <ref name="point"/>
+          <ref name="range"/>
+          <ref name="set"/>
+        </choice>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="move-point-to-intersection">
+    <element name="move-point-to-intersection">
+      <choice>
+        <group>
+          <ref name="point"/>
+          <ref name="line"/>
+          <ref name="line"/>
+        </group>
+        <group>
+          <ref name="line"/>
+          <ref name="line"/>
+          <ref name="point"/>
+        </group>
+        <group>
+          <ref name="line"/>
+          <ref name="point"/>
+          <ref name="line"/>
+        </group>
+      </choice>
+    </element>
+  </define>
+  <define name="interpolate">
+    <element name="interpolate">
+      <ref name="attlist.interpolate"/>
+      <optional>
+        <ref name="dual.reference"/>
+      </optional>
+      <oneOrMore>
+        <choice>
+          <ref name="point"/>
+          <ref name="range"/>
+          <ref name="set"/>
+        </choice>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.interpolate" combine="interleave">
+    <optional>
+      <ref name="att.compile-if"/>
+    </optional>
+    <optional>
+      <ref name="att.round"/>
+    </optional>
+  </define>
+  <define name="interpolate-untouched-points">
+    <element name="interpolate-untouched-points">
+      <optional>
+        <ref name="att.axis"/>
+      </optional>
+      <empty/>
+    </element>
+  </define>
+  <define name="set-coordinate">
+    <element name="set-coordinate">
+      <attribute name="coordinate"/>
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="shift-absolute">
+    <element name="shift-absolute">
+      <ref name="att.pixel-distance"/>
+      <oneOrMore>
+        <choice>
+          <ref name="point"/>
+          <ref name="range"/>
+          <ref name="set"/>
+        </choice>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="toggle-points">
+    <element name="toggle-points">
+      <oneOrMore>
+        <choice>
+          <ref name="point"/>
+          <ref name="range"/>
+          <ref name="set"/>
+        </choice>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="align-midway">
+    <element name="align-midway">
+      <ref name="point"/>
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="flip-on">
+    <element name="flip-on">
+      <ref name="range"/>
+    </element>
+  </define>
+  <define name="flip-off">
+    <element name="flip-off">
+      <ref name="range"/>
+    </element>
+  </define>
+  <define name="untouch">
+    <element name="untouch">
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="top.level.move">
+    <element name="move">
+      <ref name="attlist.move"/>
+      <choice>
+        <group>
+          <ref name="reference"/>
+          <ref name="point"/>
+          <zeroOrMore>
+            <ref name="nested.delta"/>
+          </zeroOrMore>
+          <interleave>
+            <zeroOrMore>
+              <ref name="align"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="interpolate"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="shift"/>
+            </zeroOrMore>
+          </interleave>
+          <zeroOrMore>
+            <ref name="nested.move"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="nested.delta"/>
+          </zeroOrMore>
+        </group>
+        <group>
+          <ref name="point"/>
+          <zeroOrMore>
+            <ref name="nested.delta"/>
+          </zeroOrMore>
+          <interleave>
+            <zeroOrMore>
+              <ref name="align"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="shift"/>
+            </zeroOrMore>
+          </interleave>
+          <zeroOrMore>
+            <ref name="nested.move"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="nested.delta"/>
+          </zeroOrMore>
+        </group>
+      </choice>
+    </element>
+  </define>
+  <define name="nested.move">
+    <element name="move">
+      <ref name="attlist.move"/>
+      <ref name="point"/>
+      <zeroOrMore>
+        <ref name="nested.delta"/>
+      </zeroOrMore>
+      <interleave>
+        <zeroOrMore>
+          <ref name="align"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="interpolate"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="shift"/>
+        </zeroOrMore>
+      </interleave>
+      <zeroOrMore>
+        <ref name="nested.move"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="nested.delta"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.move" combine="interleave">
+    <choice>
+      <optional>
+        <ref name="att.distance"/>
+      </optional>
+      <optional>
+        <ref name="att.pixel-distance"/>
+      </optional>
+    </choice>
+    <optional>
+      <ref name="att.round"/>
+    </optional>
+    <optional>
+      <attribute name="cut-in"/>
+    </optional>
+    <optional>
+      <ref name="att.value.min-distance"/>
+    </optional>
+    <optional>
+      <ref name="att.color"/>
+    </optional>
+    <optional>
+      <ref name="att.compile-if"/>
+    </optional>
+  </define>
+  <define name="diagonal-stem">
+    <element name="diagonal-stem">
+      <ref name="attlist.diagonal-stem"/>
+      <ref name="line"/>
+      <ref name="line"/>
+      <optional>
+        <ref name="align"/>
+      </optional>
+      <optional>
+        <ref name="align"/>
+      </optional>
+    </element>
+  </define>
+  <define name="attlist.diagonal-stem" combine="interleave">
+    <ref name="att.distance"/>
+    <optional>
+      <ref name="att.round"/>
+    </optional>
+    <optional>
+      <ref name="att.cut-in"/>
+    </optional>
+    <optional>
+      <ref name="att.value.min-distance"/>
+    </optional>
+    <optional>
+      <ref name="att.color"/>
+    </optional>
+    <optional>
+      <attribute name="freedom-vector">
+        <ref name="YESNO"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="save-vectors">
+        <ref name="YESNO"/>
+      </attribute>
+    </optional>
+  </define>
+  <define name="top.level.delta">
+    <element name="delta">
+      <optional>
+        <ref name="att.compile-if"/>
+      </optional>
+      <choice>
+        <group>
+          <ref name="point"/>
+          <oneOrMore>
+            <choice>
+              <ref name="point.delta-set"/>
+              <ref name="empty.delta-set"/>
+            </choice>
+          </oneOrMore>
+        </group>
+        <oneOrMore>
+          <ref name="point.delta-set"/>
+        </oneOrMore>
+      </choice>
+    </element>
+  </define>
+  <define name="nested.delta">
+    <element name="delta">
+      <optional>
+        <ref name="att.compile-if"/>
+      </optional>
+      <optional>
+        <ref name="point"/>
+      </optional>
+      <oneOrMore>
+        <choice>
+          <ref name="point.delta-set"/>
+          <ref name="empty.delta-set"/>
+        </choice>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="control-value-delta">
+    <element name="control-value-delta">
+      <oneOrMore>
+        <ref name="cv.delta-set"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="cv.delta-set">
+    <element name="delta-set">
+      <ref name="attlist.cv.delta-set"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.cv.delta-set" combine="interleave">
+    <attribute name="cv">
+      <data type="NCName"/>
+    </attribute>
+    <ref name="attlist.delta-set-basic"/>
+  </define>
+  <define name="point.delta-set">
+    <element name="delta-set">
+      <ref name="attlist.delta-set-basic"/>
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="empty.delta-set">
+    <element name="delta-set">
+      <ref name="attlist.delta-set-basic"/>
+      <empty/>
+    </element>
+  </define>
+  <!--
+    
+    Enable/disable instructions
+    
+  -->
+  <define name="disable-instructions">
+    <element name="disable-instructions">
+      <empty/>
+    </element>
+  </define>
+  <define name="enable-instructions">
+    <element name="enable-instructions">
+      <empty/>
+    </element>
+  </define>
+  <!--
+    
+    Graphics state
+    
+  -->
+  <define name="set-vectors">
+    <element name="set-vectors">
+      <ref name="model.set-vector"/>
+    </element>
+  </define>
+  <define name="with-vectors">
+    <element name="with-vectors">
+      <ref name="model.with-vector"/>
+    </element>
+  </define>
+  <define name="set-projection-vector">
+    <element name="set-projection-vector">
+      <ref name="model.set-vector"/>
+    </element>
+  </define>
+  <define name="with-projection-vector">
+    <element name="with-projection-vector">
+      <ref name="model.with-vector"/>
+    </element>
+  </define>
+  <define name="set-freedom-vector">
+    <element name="set-freedom-vector">
+      <ref name="model.set-vector"/>
+    </element>
+  </define>
+  <define name="with-freedom-vector">
+    <element name="with-freedom-vector">
+      <ref name="model.with-vector"/>
+    </element>
+  </define>
+  <define name="set-dual-projection-vector">
+    <element name="set-dual-projection-vector">
+      <optional>
+        <ref name="att.to-line"/>
+      </optional>
+      <ref name="line"/>
+    </element>
+  </define>
+  <define name="store-projection-vector">
+    <element name="store-projection-vector">
+      <ref name="attlist.vector.store"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="store-freedom-vector">
+    <element name="store-freedom-vector">
+      <ref name="attlist.vector.store"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="srp">
+    <element name="srp">
+      <ref name="att.whichpointer"/>
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="szp">
+    <element name="szp">
+      <ref name="attlist.szp"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.szp" combine="interleave">
+    <ref name="att.whichpointer"/>
+    <ref name="att.zone"/>
+  </define>
+  <define name="set-dropout-control">
+    <element name="set-dropout-control">
+      <ref name="attlist.set-dropout-control"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.set-dropout-control" combine="interleave">
+    <attribute name="threshold">
+      <data type="nonNegativeInteger">
+        <param name="maxInclusive">255</param>
+      </data>
+    </attribute>
+    <attribute name="flags">
+      <data type="nonNegativeInteger">
+        <param name="maxInclusive">63</param>
+      </data>
+    </attribute>
+  </define>
+  <define name="set-dropout-type">
+    <element name="set-dropout-type">
+      <ref name="att.dropout.value"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="att.dropout.value">
+    <attribute name="value">
+      <data type="nonNegativeInteger">
+        <param name="maxInclusive">7</param>
+      </data>
+    </attribute>
+  </define>
+  <define name="set-control-value">
+    <element name="set-control-value">
+      <ref name="attlist.set-control-value"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="with-control-value">
+    <element name="with-control-value">
+      <ref name="attlist.set-control-value"/>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.set-control-value" combine="interleave">
+    <ref name="attlist.value.with.name"/>
+    <optional>
+      <ref name="att.unit"/>
+    </optional>
+  </define>
+  <define name="set-control-value-cut-in">
+    <element name="set-control-value-cut-in">
+      <ref name="att.value"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="with-control-value-cut-in">
+    <element name="with-control-value-cut-in">
+      <ref name="att.value"/>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="set-minimum-distance">
+    <element name="set-minimum-distance">
+      <ref name="att.value"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="with-minimum-distance">
+    <element name="with-minimum-distance">
+      <ref name="att.value"/>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="set-round-state">
+    <element name="set-round-state">
+      <ref name="att.round"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="with-round-state">
+    <element name="with-round-state">
+      <ref name="att.round"/>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="set-single-width-cut-in">
+    <element name="set-single-width-cut-in">
+      <ref name="att.value"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="with-single-width-cut-in">
+    <element name="with-single-width-cut-in">
+      <ref name="att.value"/>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="set-single-width">
+    <element name="set-single-width">
+      <ref name="att.value"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="with-single-width">
+    <element name="with-single-width">
+      <ref name="att.value"/>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="set-auto-flip">
+    <element name="set-auto-flip">
+      <attribute name="value">
+        <choice>
+          <value>on</value>
+          <value>off</value>
+        </choice>
+      </attribute>
+      <empty/>
+    </element>
+  </define>
+  <define name="set-delta-base">
+    <element name="set-delta-base">
+      <ref name="att.value"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="with-delta-base">
+    <element name="with-delta-base">
+      <ref name="att.value"/>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="set-delta-shift">
+    <element name="set-delta-shift">
+      <ref name="att.units.per.pixel"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="with-delta-shift">
+    <element name="with-delta-shift">
+      <ref name="att.units.per.pixel"/>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="restore-default">
+    <element name="restore-default">
+      <ref name="attlist.restore-default"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.restore-default" combine="interleave">
+    <attribute name="name">
+      <choice>
+        <value>minimum-distance</value>
+        <value>control-value-cut-in</value>
+        <value>single-width</value>
+        <value>single-width-cut-in</value>
+        <value>delta-base</value>
+        <value>delta-shift</value>
+        <value>round-state</value>
+        <value>all</value>
+      </choice>
+    </attribute>
+  </define>
+  <!--
+    
+    Arithmetic elements
+    
+  -->
+  <define name="set-equal">
+    <element name="set-equal">
+      <ref name="attlist.set-equal"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.set-equal" combine="interleave">
+    <ref name="att.target"/>
+    <attribute name="source"/>
+  </define>
+  <define name="control-value-index">
+    <element name="control-value-index">
+      <ref name="attlist.control-value-index"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="form.control-value-index">
+    <element name="control-value-index">
+      <ref name="att.value"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.control-value-index" combine="interleave">
+    <ref name="att.value"/>
+    <ref name="att.result-to"/>
+  </define>
+  <define name="add">
+    <element name="add">
+      <ref name="attlist.dual.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="form.add">
+    <element name="add">
+      <ref name="attlist.form.dual.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="subtract">
+    <element name="subtract">
+      <ref name="attlist.subtract"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.subtract" combine="interleave">
+    <attribute name="minuend"/>
+    <attribute name="subtrahend"/>
+    <optional>
+      <ref name="att.result-to"/>
+    </optional>
+  </define>
+  <define name="form.subtract">
+    <element name="subtract">
+      <ref name="attlist.form.subtract"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.form.subtract" combine="interleave">
+    <optional>
+      <attribute name="minuend"/>
+    </optional>
+    <optional>
+      <attribute name="subtrahend"/>
+    </optional>
+  </define>
+  <define name="divide">
+    <element name="divide">
+      <ref name="attlist.divide"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.divide" combine="interleave">
+    <attribute name="dividend"/>
+    <attribute name="divisor"/>
+    <optional>
+      <ref name="att.result-to"/>
+    </optional>
+  </define>
+  <define name="form.divide">
+    <element name="divide">
+      <ref name="attlist.form.divide"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.form.divide" combine="interleave">
+    <optional>
+      <attribute name="dividend"/>
+    </optional>
+    <optional>
+      <attribute name="divisor"/>
+    </optional>
+  </define>
+  <define name="multiply">
+    <element name="multiply">
+      <ref name="attlist.dual.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="form.multiply">
+    <element name="multiply">
+      <ref name="attlist.form.dual.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="absolute">
+    <element name="absolute">
+      <ref name="attlist.single.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="form.absolute">
+    <element name="absolute">
+      <ref name="attlist.form.single.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="negate">
+    <element name="negate">
+      <ref name="attlist.single.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="form.negate">
+    <element name="negate">
+      <ref name="attlist.form.single.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="floor">
+    <element name="floor">
+      <ref name="attlist.single.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="form.floor">
+    <element name="floor">
+      <ref name="attlist.form.single.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="ceiling">
+    <element name="ceiling">
+      <ref name="attlist.single.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="form.ceiling">
+    <element name="ceiling">
+      <ref name="attlist.form.single.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="minimum">
+    <element name="minimum">
+      <ref name="attlist.dual.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="form.minimum">
+    <element name="minimum">
+      <ref name="attlist.form.dual.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="maximum">
+    <element name="maximum">
+      <ref name="attlist.dual.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="form.maximum">
+    <element name="maximum">
+      <ref name="attlist.form.dual.op"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="round">
+    <element name="round">
+      <ref name="attlist.round"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="no-round">
+    <element name="no-round">
+      <ref name="attlist.round"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.round" combine="interleave">
+    <ref name="att.value"/>
+    <optional>
+      <ref name="att.color"/>
+    </optional>
+    <optional>
+      <ref name="att.result-to"/>
+    </optional>
+  </define>
+  <define name="form.round">
+    <element name="round">
+      <ref name="attlist.form.round"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="form.no-round">
+    <element name="no-round">
+      <ref name="attlist.form.round"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.form.round" combine="interleave">
+    <optional>
+      <ref name="att.value"/>
+    </optional>
+    <optional>
+      <ref name="att.color"/>
+    </optional>
+  </define>
+  <define name="formula">
+    <element name="formula">
+      <optional>
+        <ref name="att.result-to"/>
+      </optional>
+      <oneOrMore>
+        <ref name="form.vars"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!--
+    
+    Function and macro calls
+    
+  -->
+  <define name="call-function">
+    <element name="call-function">
+      <ref name="attlist.call-function"/>
+      <choice>
+        <zeroOrMore>
+          <ref name="function.param-set"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="function.with-param"/>
+        </zeroOrMore>
+      </choice>
+    </element>
+  </define>
+  <define name="attlist.call-function" combine="interleave">
+    <ref name="att.name"/>
+    <optional>
+      <ref name="att.result-to"/>
+    </optional>
+  </define>
+  <define name="call-macro">
+    <element name="call-macro">
+      <ref name="att.name"/>
+      <choice>
+        <zeroOrMore>
+          <ref name="param-set"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="with-param"/>
+        </zeroOrMore>
+      </choice>
+    </element>
+  </define>
+  <define name="call-param">
+    <element name="call-param">
+      <ref name="att.name"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="call-glyph">
+    <element name="call-glyph">
+      <ref name="att.ps-name"/>
+      <zeroOrMore>
+        <ref name="with-param"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="function.param-set">
+    <element name="param-set">
+      <optional>
+        <attribute name="opt">
+          <ref name="YESNO"/>
+        </attribute>
+      </optional>
+      <oneOrMore>
+        <ref name="function.with-param"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="param-set">
+    <element name="param-set">
+      <oneOrMore>
+        <ref name="with-param"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="function.with-param">
+    <element name="with-param">
+      <ref name="att.name"/>
+      <ref name="att.value"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="with-param">
+    <element name="with-param">
+      <ref name="att.name"/>
+      <choice>
+        <ref name="att.value"/>
+        <group>
+          <optional>
+            <ref name="att.value"/>
+          </optional>
+          <choice>
+            <choice>
+              <ref name="set"/>
+              <ref name="range"/>
+              <ref name="line"/>
+            </choice>
+            <oneOrMore>
+              <ref name="programming"/>
+            </oneOrMore>
+          </choice>
+        </group>
+      </choice>
+    </element>
+  </define>
+  <!--
+    
+    Conditionals
+    
+  -->
+  <define name="if">
+    <element name="if">
+      <ref name="att.test"/>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="else"/>
+      </optional>
+    </element>
+  </define>
+  <define name="else">
+    <element name="else">
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="compile-if">
+    <element name="compile-if">
+      <ref name="att.test"/>
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="else"/>
+      </optional>
+    </element>
+  </define>
+  <define name="no-warning">
+    <element name="no-warning">
+      <zeroOrMore>
+        <ref name="programming"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!--
+    
+    Getting info
+    
+  -->
+  <define name="measure-distance">
+    <element name="measure-distance">
+      <ref name="attlist.measurement"/>
+      <ref name="point"/>
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="get-coordinate">
+    <element name="get-coordinate">
+      <ref name="attlist.measurement"/>
+      <ref name="point"/>
+    </element>
+  </define>
+  <define name="getinfo">
+    <element name="getinfo">
+      <ref name="attlist.getinfo"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.getinfo" combine="interleave">
+    <attribute name="selector"/>
+    <optional>
+      <ref name="att.result-to"/>
+    </optional>
+  </define>
+  <!--
+    
+    Primitives
+    
+  -->
+  <define name="command">
+    <element name="command">
+      <attribute name="name">
+        <data type="token">
+          <param name="pattern">[A-Z0-5]{2,9}</param>
+        </data>
+      </attribute>
+      <choice>
+        <optional>
+          <attribute name="modifier"/>
+        </optional>
+        <zeroOrMore>
+          <ref name="modifier"/>
+        </zeroOrMore>
+      </choice>
+    </element>
+  </define>
+  <define name="modifier">
+    <element name="modifier">
+      <ref name="attlist.modifier"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.modifier" combine="interleave">
+    <ref name="att.value"/>
+    <attribute name="type">
+      <choice>
+        <value>set-rp0</value>
+        <value>round</value>
+        <value>minimum-distance</value>
+        <value>color</value>
+        <value>grid-fitted</value>
+        <value>to-line</value>
+        <value>axis</value>
+        <value>ref-ptr</value>
+      </choice>
+    </attribute>
+  </define>
+  <define name="push">
+    <element name="push">
+      <text/>
+    </element>
+  </define>
+  <define name="to-stack">
+    <element name="to-stack">
+      <text/>
+    </element>
+  </define>
+  <!--
+    
+    XInclude
+    
+  -->
+  <define name="xg.xi.include.attlist">
+    <optional>
+      <attribute name="href">
+        <data type="anyURI"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="parse" a:defaultValue="xml">
+        <choice>
+          <value>xml</value>
+          <value>text</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="xpointer"/>
+    </optional>
+    <optional>
+      <attribute name="encoding"/>
+    </optional>
+    <optional>
+      <attribute name="accept"/>
+    </optional>
+    <optional>
+      <attribute name="accept-language"/>
+    </optional>
+  </define>
+  <define name="xg.xi.include">
+    <element name="xi:include">
+      <ref name="xg.xi.include.attlist"/>
+    </element>
+  </define>
+  <start>
+    <ref name="xgridfit"/>
+  </start>
+</grammar>

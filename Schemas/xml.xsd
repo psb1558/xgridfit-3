@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.w3.org/XML/1998/namespace" xmlns:xgridfit2="http://xgridfit.sourceforge.net/Xgridfit2" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xs:import namespace="http://www.w3.org/2001/XInclude" schemaLocation="xi.xsd"/>
+  <xs:import namespace="http://xgridfit.sourceforge.net/Xgridfit2" schemaLocation="xgridfit.xsd"/>
+  <xs:attribute name="id" type="xs:ID"/>
+</xs:schema>
