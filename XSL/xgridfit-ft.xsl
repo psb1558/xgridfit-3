@@ -539,41 +539,16 @@
         glyph.program.fromAssembly("")
 </xsl:text>
 </xsl:if>
-<!--
-    <xsl:if test="$compile_globals='yes'">
-      <xsl:text>for g_name in currentFont['glyf'].glyphs:
-    glyph = currentFont['glyf'][g_name]
-    if hasattr(glyph, 'program'):
-        # print(glyph.program)
-        glyph.program.fromAssembly("")
-if 'prep' in currentFont.keys():
-    del currentFont['prep']
-if 'fpgm' in currentFont.keys():
-    del currentFont['fpgm']
-if 'cvt' in currentFont.keys():
-    del currentFont['cvt']
-currentFont['maxp'].maxFunctionDefs = 0
-currentFont['maxp'].maxStorage = 0
-currentFont['maxp'].maxTwilightPoints = 0
-currentFont['maxp'].maxStackElements = 0
-</xsl:text>
-</xsl:if>
--->
-    <xsl:text>def install_glyph_program(nm, fo, asm):
+<xsl:text>
+def install_glyph_program(nm, fo, asm):
     global maxInstructions
-    try:
-        g = fo['glyf'][nm]
-        g.program = tables.ttProgram.Program()
-        g.program.fromAssembly(asm)
-        b = len(g.program.getBytecode())
-        if b &gt; maxInstructions:
-            maxInstructions = b
-    except TypeError as detail:
-        print("Warning: can't install instructions for glyph ", nm)
-        print(detail)
-    except ValueError as detail:
-        print("Warning: can't install instructions for glyph ", nm)
-        print(detail)
+    g = fo['glyf'][nm]
+    g.program = tables.ttProgram.Program()
+    g.program.fromAssembly(asm)
+    b = len(g.program.getBytecode())
+    if b &gt; maxInstructions:
+        maxInstructions = b
+
 </xsl:text>
     <xsl:if test="$compile_globals='yes'">
       <xsl:text>currentFont['cvt '] = ttFont.newTable('cvt ')</xsl:text>
