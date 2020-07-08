@@ -1,17 +1,26 @@
 from lxml import etree
 from fontTools import ttLib
 import sys
+import os
 import re
 import tempfile
-import os
-
+import argparse
 
 #      This file is part of xgridfit, version 3.
 #      Licensed under the Apache License, Version 2.0.
 #      Copyright (c) 2006-20 by Peter S. Baker
 
+argparser = argparse.ArgumentParser(description='Compile XML into TrueType instructions.')
+argparser.add_argument("inputfile", help='Xgridfit (XML) file to process.')
+argparser.add_argument("outputfile", nargs='?', help="Name of Python script to output")
+argparser.add_argument('--novalidation', action="store_true", help="Skip validation of the input file")
+argparser.add_argument('--nocompilation', action="store_true", help="Skip compilation of the input file")
+args = argparser.parse_args()
 
-inputfile = sys.argv[1]
+inputfile  = args.inputfile
+outputfile = args.outputfile
+skipval    = args.novalidation
+skipcomp   = args.nocompilation
 
 def fixupShort(s):
     s = re.sub(r'<callm\b', '<call-macro', s)
@@ -77,7 +86,8 @@ def fixupShort(s):
 # Read and parse the temporary file to get an etree
 # Transform the etree.
 
-xslfile = os.path.split(os.path.dirname(__file__))[0] + "/XSL/xgridfit-ft.xsl"
+progpath = os.path.split(os.path.dirname(__file__))[0]
+xslfile = progpath + "/XSL/xgridfit-ft.xsl"
 f = open(inputfile)
 fstr = f.read().replace("\n", " ")
 f.close()
@@ -87,6 +97,28 @@ xgfprog = etree.parse(xslfile)
 tf.seek(0)
 xgffile = etree.parse(tf)
 tf.close()
-transform = etree.XSLT(xgfprog)
-result = transform(xgffile)
-print(result)
+if skipval:
+    print("Skipping validation")
+else:
+    # try validation
+    # XML Schema (it seems to give more intelligible error messages
+    # than the relaxNG validator):
+    xmlschemadoc = etree.parse(progpath + "/Schemas/xgridfit.xsd")
+    xmlschema = etree.XMLSchema(xmlschemadoc)
+    xmlschema.assertValid(xgffile)
+    # RelaxNG:
+    # relaxngdoc = etree.parse(progpath + "/Schemas/xgridfit.rng")
+    # relaxng = etree.RelaxNG(relaxngdoc)
+    # relaxng.assertValid(xgffile)
+    # end of validation
+if skipcomp:
+    print("Skipping compilation")
+else:
+    transform = etree.XSLT(xgfprog)
+    result = transform(xgffile)
+    if outputfile:
+        of = open(outputfile, "w")
+        of.write(str(result))
+        of.close()
+    else:
+        print(result)
