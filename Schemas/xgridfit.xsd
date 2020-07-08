@@ -24,13 +24,13 @@
       <xs:element ref="xgridfit2:mdap"/>
       <xs:element ref="xgridfit2:shift"/>
       <xs:element ref="xgridfit2:align"/>
-      <xs:element ref="xgridfit2:move-point-to-intersection"/>
+      <!-- <xs:element ref="xgridfit2:move-point-to-intersection"/> -->
       <xs:element ref="xgridfit2:interpolate"/>
       <xs:element ref="xgridfit2:interpolate-untouched-points"/>
       <xs:element ref="xgridfit2:shift-absolute"/>
       <xs:element ref="xgridfit2:set-coordinate"/>
       <xs:group ref="xgridfit2:top.level.move"/>
-      <xs:element ref="xgridfit2:diagonal-stem"/>
+      <!-- <xs:element ref="xgridfit2:diagonal-stem"/> -->
       <xs:group ref="xgridfit2:top.level.delta"/>
       <xs:element ref="xgridfit2:control-value-delta"/>
       <xs:element ref="xgridfit2:untouch"/>
@@ -434,49 +434,15 @@
     Script I/O
     
   -->
-  <xs:element name="infile" type="xs:anyURI"/>
-  <xs:element name="outfile">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:anyURI">
-          <xs:attribute name="fmflags" type="xs:int"/>
-          <xs:attribute name="pyflags">
-            <xs:simpleType>
-              <xs:list>
-                <xs:simpleType>
-                  <xs:restriction base="xs:token">
-                    <xs:enumeration value="afm"/>
-                    <xs:enumeration value="pfm"/>
-                    <xs:enumeration value="tfm"/>
-                    <xs:enumeration value="ofm"/>
-                    <xs:enumeration value="composites-in-afm"/>
-                    <xs:enumeration value="glyph-map-file"/>
-                    <xs:enumeration value="short-post"/>
-                    <xs:enumeration value="apple"/>
-                    <xs:enumeration value="opentype"/>
-                    <xs:enumeration value="old-kern"/>
-                    <xs:enumeration value="dummy-dsig"/>
-                    <xs:enumeration value="TeX-table"/>
-                    <xs:enumeration value="round"/>
-                    <xs:enumeration value="no-hints"/>
-                    <xs:enumeration value="omit-instructions"/>
-                    <xs:enumeration value="PfEd-comments"/>
-                    <xs:enumeration value="PfEd-colors"/>
-                    <xs:enumeration value="PfEd-lookups"/>
-                    <xs:enumeration value="PfEd-guidelines"/>
-                    <xs:enumeration value="PfEd-background"/>
-                    <xs:enumeration value="symbol"/>
-                  </xs:restriction>
-                </xs:simpleType>
-              </xs:list>
-            </xs:simpleType>
-          </xs:attribute>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="outfile-base" type="xs:anyURI"/>
-  <xs:element name="outfile-script-name" type="xs:anyURI"/>
+  <!--
+       We were using xs:anyURI, but it didn't accept filenames
+       on the pattern expected by Goofle for variable fonts. So
+       we are no longer checking the validity of filenames.
+  -->
+  <xs:element name="infile" type="xs:string"/>
+  <xs:element name="outfile" type="xs:string"/>
+  <xs:element name="outfile-base" type="xs:string"/>
+  <xs:element name="outfile-script-name" type="xs:string"/>
   <!--
     
     Top-level declarations
@@ -954,6 +920,7 @@
       <xs:attribute name="compile-if"/>
     </xs:complexType>
   </xs:element>
+<!--
   <xs:element name="move-point-to-intersection">
     <xs:complexType>
       <xs:choice>
@@ -974,7 +941,8 @@
         </xs:sequence>
       </xs:choice>
     </xs:complexType>
-  </xs:element>
+    </xs:element>
+    -->
   <xs:element name="interpolate">
     <xs:complexType>
       <xs:sequence>
@@ -1130,6 +1098,7 @@
     </xs:attribute>
     <xs:attribute name="compile-if"/>
   </xs:attributeGroup>
+<!--
   <xs:element name="diagonal-stem">
     <xs:complexType>
       <xs:sequence>
@@ -1140,7 +1109,8 @@
       </xs:sequence>
       <xs:attributeGroup ref="xgridfit2:attlist.diagonal-stem"/>
     </xs:complexType>
-  </xs:element>
+    </xs:element>
+    -->
   <xs:attributeGroup name="attlist.diagonal-stem">
     <xs:attributeGroup ref="xgridfit2:att.distance"/>
     <xs:attribute name="round"/>

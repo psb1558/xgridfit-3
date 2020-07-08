@@ -100,11 +100,6 @@ primitive = command | push | to-stack
 programming =
   various | movements | graphics | vars | flow | measure | primitive
 token.ps-name = xsd:token {pattern = "\.notdef|[A-Za-z_][A-Za-z0-9_\.]{0,30}" }
-att.pyflags = attribute pyflags { list { ("afm" | "pfm" | "tfm" | "ofm" |
-  "composites-in-afm" | "glyph-map-file" | "short-post" | "apple" |
-  "opentype" | "old-kern" | "dummy-dsig" | "TeX-table" | "round" |
-  "no-hints" | "omit-instructions" | "PfEd-comments" | "PfEd-colors" |
-  "PfEd-lookups" | "PfEd-guidelines" | "PfEd-background" | "symbol")* } }
 att.value = attribute value { text }
 att.num = attribute num { text }
 att.name = attribute name { xsd:NCName }
@@ -217,16 +212,13 @@ no-compile =
 # Script I/O
 #
 infile =
-  element infile { xsd:anyURI }
+  element infile { xsd:string }
 outfile =
-  element outfile {
-    attribute fmflags { xsd:int }?,
-    att.pyflags?,
-    xsd:anyURI }
+  element outfile { xsd:string }
 outfile-base =
-  element outfile-base { xsd:anyURI }
+  element outfile-base { xsd:string }
 outfile-script-name =
-  element outfile-script-name { xsd:anyURI }
+  element outfile-script-name { xsd:string }
 #
 # Top-level declarations
 #
