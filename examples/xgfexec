@@ -8,4 +8,4 @@ if [ "$#" -ne 2 ]; then
   return 1
 fi
 
-python ../Python/xgridfit.py $1 > $2
+python ../Python/xgridfit.py $1 $2
