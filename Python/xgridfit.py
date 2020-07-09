@@ -100,7 +100,6 @@ tf.close()
 if skipval:
     print("Skipping validation")
 else:
-    # try validation
     # XML Schema (it seems to give more intelligible error messages
     # than the relaxNG validator):
     xmlschemadoc = etree.parse(progpath + "/Schemas/xgridfit.xsd")
