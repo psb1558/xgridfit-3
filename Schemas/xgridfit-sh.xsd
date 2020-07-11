@@ -1,0 +1,1950 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+  <!--
+      This file is part of xgridfit, version 3.
+      Licensed under the Apache License, Version 2.0.
+      Copyright (c) 2006-20 by Peter S. Baker
+      -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://xgridfit.sourceforge.net/Xgridfit2" xmlns:xgridfit2="http://xgridfit.sourceforge.net/Xgridfit2" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xs:import namespace="http://www.w3.org/2001/XInclude" schemaLocation="xi.xsd"/>
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+  <xs:simpleType name="YESNO">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="yes"/>
+      <xs:enumeration value="no"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="various" abstract="true"/>
+  <xs:group name="movements">
+    <xs:choice>
+      <xs:element ref="xgridfit2:mirp"/>
+      <xs:element ref="xgridfit2:mdrp"/>
+      <xs:element ref="xgridfit2:miap"/>
+      <xs:element ref="xgridfit2:mdap"/>
+      <xs:element ref="xgridfit2:sh"/>
+      <xs:element ref="xgridfit2:al"/>
+      <!-- <xs:element ref="xgridfit2:move-point-to-intersection"/> -->
+      <xs:element ref="xgridfit2:ip"/>
+      <xs:element ref="xgridfit2:iup"/>
+      <xs:element ref="xgridfit2:shift-absolute"/>
+      <xs:element ref="xgridfit2:set-coordinate"/>
+      <xs:group ref="xgridfit2:top.level.mv"/>
+      <!-- <xs:element ref="xgridfit2:diagonal-stem"/> -->
+      <xs:group ref="xgridfit2:top.level.delta"/>
+      <xs:element ref="xgridfit2:control-value-delta"/>
+      <xs:element ref="xgridfit2:untouch"/>
+      <xs:element ref="xgridfit2:toggle-points"/>
+      <xs:element ref="xgridfit2:flip-on"/>
+      <xs:element ref="xgridfit2:flip-off"/>
+      <xs:element ref="xgridfit2:align-midway"/>
+    </xs:choice>
+  </xs:group>
+  <xs:element name="graphics" abstract="true"/>
+  <xs:group name="vars">
+    <xs:choice>
+      <xs:element ref="xgridfit2:set-equal"/>
+      <xs:group ref="xgridfit2:add"/>
+      <xs:group ref="xgridfit2:subtract"/>
+      <xs:group ref="xgridfit2:divide"/>
+      <xs:group ref="xgridfit2:multiply"/>
+      <xs:group ref="xgridfit2:absolute"/>
+      <xs:group ref="xgridfit2:negate"/>
+      <xs:group ref="xgridfit2:floor"/>
+      <xs:group ref="xgridfit2:ceiling"/>
+      <xs:group ref="xgridfit2:minimum"/>
+      <xs:group ref="xgridfit2:maximum"/>
+      <xs:group ref="xgridfit2:round"/>
+      <xs:group ref="xgridfit2:no-round"/>
+      <xs:group ref="xgridfit2:control-value-index"/>
+      <xs:element ref="xgridfit2:formula"/>
+    </xs:choice>
+  </xs:group>
+  <xs:group name="form.vars">
+    <xs:choice>
+      <xs:element ref="xgridfit2:set-equal"/>
+      <xs:group ref="xgridfit2:form.add"/>
+      <xs:group ref="xgridfit2:form.subtract"/>
+      <xs:group ref="xgridfit2:form.divide"/>
+      <xs:group ref="xgridfit2:form.multiply"/>
+      <xs:group ref="xgridfit2:form.absolute"/>
+      <xs:group ref="xgridfit2:form.negate"/>
+      <xs:group ref="xgridfit2:form.floor"/>
+      <xs:group ref="xgridfit2:form.ceiling"/>
+      <xs:group ref="xgridfit2:form.minimum"/>
+      <xs:group ref="xgridfit2:form.maximum"/>
+      <xs:group ref="xgridfit2:form.round"/>
+      <xs:group ref="xgridfit2:form.no-round"/>
+      <xs:group ref="xgridfit2:form.control-value-index"/>
+    </xs:choice>
+  </xs:group>
+  <xs:element name="flow" abstract="true"/>
+  <xs:element name="measure" abstract="true"/>
+  <xs:element name="primitive" abstract="true"/>
+  <xs:group name="programming">
+    <xs:choice>
+      <xs:element ref="xgridfit2:various"/>
+      <xs:group ref="xgridfit2:movements"/>
+      <xs:element ref="xgridfit2:graphics"/>
+      <xs:group ref="xgridfit2:vars"/>
+      <xs:element ref="xgridfit2:flow"/>
+      <xs:element ref="xgridfit2:measure"/>
+      <xs:element ref="xgridfit2:primitive"/>
+    </xs:choice>
+  </xs:group>
+  <xs:simpleType name="token.pnm">
+    <xs:restriction base="xs:token">
+      <xs:pattern value="\.notdef|[A-Za-z_][A-Za-z0-9_\.]{0,30}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:attributeGroup name="att.pyflags">
+    <xs:attribute name="pyflags" use="required">
+      <xs:simpleType>
+        <xs:list>
+          <xs:simpleType>
+            <xs:restriction base="xs:token">
+              <xs:enumeration value="afm"/>
+              <xs:enumeration value="pfm"/>
+              <xs:enumeration value="tfm"/>
+              <xs:enumeration value="ofm"/>
+              <xs:enumeration value="composites-in-afm"/>
+              <xs:enumeration value="glyph-map-file"/>
+              <xs:enumeration value="short-post"/>
+              <xs:enumeration value="apple"/>
+              <xs:enumeration value="opentype"/>
+              <xs:enumeration value="old-kern"/>
+              <xs:enumeration value="dummy-dsig"/>
+              <xs:enumeration value="TeX-table"/>
+              <xs:enumeration value="round"/>
+              <xs:enumeration value="no-hints"/>
+              <xs:enumeration value="omit-instructions"/>
+              <xs:enumeration value="PfEd-comments"/>
+              <xs:enumeration value="PfEd-colors"/>
+              <xs:enumeration value="PfEd-lookups"/>
+              <xs:enumeration value="PfEd-guidelines"/>
+              <xs:enumeration value="PfEd-background"/>
+              <xs:enumeration value="symbol"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:list>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.val">
+    <xs:attribute name="val" use="required"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.n">
+    <xs:attribute name="n" use="required"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.name">
+    <xs:attribute name="nm" use="required" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.ref">
+    <xs:attribute name="ref" use="required" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.target">
+    <xs:attribute name="target" use="required" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.zone">
+    <xs:attribute name="zone" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="twilight"/>
+          <xs:enumeration value="glyph"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.color">
+    <xs:attribute name="color" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="gray"/>
+          <xs:enumeration value="black"/>
+          <xs:enumeration value="white"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.axis">
+    <xs:attribute name="axis" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="x"/>
+          <xs:enumeration value="y"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.unit">
+    <xs:attribute name="unit" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="pixel"/>
+          <xs:enumeration value="font"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.units.per.pixel">
+    <xs:attribute name="units-per-pixel" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="2"/>
+          <xs:enumeration value="4"/>
+          <xs:enumeration value="8"/>
+          <xs:enumeration value="16"/>
+          <xs:enumeration value="32"/>
+          <xs:enumeration value="64"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.to-line">
+    <xs:attribute name="to-line" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="orthogonal"/>
+          <xs:enumeration value="parallel"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.result-to">
+    <xs:attribute name="result-to" use="required" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.test">
+    <xs:attribute name="test" use="required"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.grid-fitted">
+    <xs:attribute name="grid-fitted" use="required" type="xgridfit2:YESNO"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.whichpointer">
+    <xs:attribute name="whichpointer" use="required"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.id">
+    <xs:attribute ref="xml:id" use="required"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.round">
+    <xs:attribute name="round" use="required"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.set-rp0">
+    <xs:attribute name="set-rp0" use="required" type="xgridfit2:YESNO"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.cut-in">
+    <xs:attribute name="cut-in" use="required" type="xgridfit2:YESNO"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.compile-if">
+    <xs:attribute name="compile-if" use="required"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.di">
+    <xs:attribute name="di" use="required"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.pixel-distance">
+    <xs:attribute name="pixel-di" use="required"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.boolean.min-distance">
+    <xs:attribute name="min-distance" use="required" type="xgridfit2:YESNO"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.val.min-distance">
+    <xs:attribute name="min-distance" use="required"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.pnm">
+    <xs:attribute name="pnm" use="required" type="xgridfit2:token.pnm"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="attlist.single.op">
+    <xs:attributeGroup ref="xgridfit2:att.val"/>
+    <xs:attribute name="result-to" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="attlist.form.single.op">
+    <xs:attribute name="val"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="attlist.dual.op">
+    <xs:attribute name="val1" use="required"/>
+    <xs:attribute name="val2" use="required"/>
+    <xs:attribute name="result-to" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="attlist.form.dual.op">
+    <xs:attribute name="val1"/>
+    <xs:attribute name="val2"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="attlist.val.with.name">
+    <xs:attributeGroup ref="xgridfit2:att.val"/>
+    <xs:attributeGroup ref="xgridfit2:att.name"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="attlist.delta-set-basic">
+    <xs:attribute name="size" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:nonNegativeInteger">
+          <xs:maxInclusive value="47"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="di" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:pattern value="[\-]?[1-8]"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="attlist.vector.components">
+    <xs:attribute name="x-component" use="required"/>
+    <xs:attribute name="y-component" use="required"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="attlist.vector.store">
+    <xs:attribute name="x-component" type="xs:NCName"/>
+    <xs:attribute name="y-component" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="attlist.measurement">
+    <xs:attribute name="grid-fitted" type="xgridfit2:YESNO"/>
+    <xs:attribute name="result-to" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:complexType name="model.setv">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="xgridfit2:line"/>
+    </xs:sequence>
+    <xs:attribute name="axis">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="x"/>
+          <xs:enumeration value="y"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="x-component"/>
+    <xs:attribute name="y-component"/>
+    <xs:attribute name="to-line">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="orthogonal"/>
+          <xs:enumeration value="parallel"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="model.with-vector">
+    <xs:choice>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:line"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      </xs:sequence>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+    </xs:choice>
+    <xs:attribute name="axis">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="x"/>
+          <xs:enumeration value="y"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="x-component"/>
+    <xs:attribute name="y-component"/>
+    <xs:attribute name="to-line">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="orthogonal"/>
+          <xs:enumeration value="parallel"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+  <!--
+    
+    Top level
+    
+  -->
+  <xs:element name="xgridfit">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="xgridfit2:glyph-select"/>
+        <xs:element ref="xgridfit2:infile"/>
+        <xs:element ref="xgridfit2:outfile"/>
+        <xs:element ref="xgridfit2:outfile-base"/>
+        <xs:element ref="xgridfit2:outfile-script-name"/>
+        <xs:element ref="xgridfit2:no-compile"/>
+        <xs:element ref="xgridfit2:legacy-functions"/>
+        <xs:element ref="xgridfit2:prep"/>
+        <xs:element ref="xgridfit2:ps-private"/>
+        <xs:element ref="xgridfit2:cn"/>
+        <xs:element ref="xgridfit2:alias"/>
+        <xs:element ref="xgridfit2:var"/>
+        <xs:element ref="xgridfit2:round-state"/>
+        <xs:element ref="xgridfit2:default"/>
+        <xs:element ref="xgridfit2:cv"/>
+        <xs:element ref="xgridfit2:fn"/>
+        <xs:element ref="xgridfit2:mo"/>
+        <xs:element ref="xgridfit2:gl"/>
+        <xs:element ref="xi:include"/>
+      </xs:choice>
+      <xs:attribute ref="xml:id"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    
+    Value declarations
+    
+  -->
+  <xs:element name="cn">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.val.with.name"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="var">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.var"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.var">
+    <xs:attributeGroup ref="xgridfit2:att.name"/>
+    <xs:attribute name="val"/>
+  </xs:attributeGroup>
+  <xs:element name="alias">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.alias"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.alias">
+    <xs:attributeGroup ref="xgridfit2:att.name"/>
+    <xs:attributeGroup ref="xgridfit2:att.target"/>
+  </xs:attributeGroup>
+  <!--
+    
+    Controlling compilation of glyph programs
+    
+  -->
+  <xs:element name="glyph-select">
+    <xs:simpleType>
+      <xs:list itemType="xgridfit2:token.pnm"/>
+    </xs:simpleType>
+  </xs:element>
+  <xs:element name="no-compile">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="xgridfit2:gl"/>
+        <xs:element ref="xi:include"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    
+    Script I/O
+    
+  -->
+  <!--
+       We were using xs:anyURI, but it didn't accept filenames
+       on the pattern expected by Goofle for variable fonts. So
+       we are no longer checking the validity of filenames.
+  -->
+  <xs:element name="infile" type="xs:string"/>
+  <xs:element name="outfile" type="xs:string"/>
+  <xs:element name="outfile-base" type="xs:string"/>
+  <xs:element name="outfile-script-name" type="xs:string"/>
+  <!--
+    
+    Top-level declarations
+    
+  -->
+  <xs:element name="round-state">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.round-state"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.round-state">
+    <xs:attributeGroup ref="xgridfit2:att.name"/>
+    <xs:attribute name="period" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="half-pixel"/>
+          <xs:enumeration value="one-pixel"/>
+          <xs:enumeration value="two-pixel"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="phase" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="zero"/>
+          <xs:enumeration value="one-quarter"/>
+          <xs:enumeration value="one-half"/>
+          <xs:enumeration value="three-quarters"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="threshold" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="period-minus-one"/>
+          <xs:enumeration value="minus-three-eighths"/>
+          <xs:enumeration value="minus-one-quarter"/>
+          <xs:enumeration value="minus-one-eighth"/>
+          <xs:enumeration value="zero"/>
+          <xs:enumeration value="one-eighth"/>
+          <xs:enumeration value="one-quarter"/>
+          <xs:enumeration value="three-eighths"/>
+          <xs:enumeration value="one-half"/>
+          <xs:enumeration value="five-eighths"/>
+          <xs:enumeration value="three-quarters"/>
+          <xs:enumeration value="seven-eighths"/>
+          <xs:enumeration value="one"/>
+          <xs:enumeration value="nine-eighths"/>
+          <xs:enumeration value="five-quarters"/>
+          <xs:enumeration value="eleven-eighths"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="default">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.default"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.default">
+    <xs:attribute name="type" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="minimum-distance"/>
+          <xs:enumeration value="control-value-cut-in"/>
+          <xs:enumeration value="single-width"/>
+          <xs:enumeration value="single-width-cut-in"/>
+          <xs:enumeration value="delta-base"/>
+          <xs:enumeration value="delta-shift"/>
+          <xs:enumeration value="delta-break"/>
+          <xs:enumeration value="push-break"/>
+          <xs:enumeration value="max-twilight-points"/>
+          <xs:enumeration value="max-storage"/>
+          <xs:enumeration value="legacy-storage"/>
+          <xs:enumeration value="max-stack"/>
+          <xs:enumeration value="use-truetype-defaults"/>
+          <xs:enumeration value="round-state"/>
+          <xs:enumeration value="function-base"/>
+          <xs:enumeration value="compile-globals"/>
+          <xs:enumeration value="init-graphics"/>
+          <xs:enumeration value="color"/>
+          <xs:enumeration value="delete-all"/>
+          <xs:enumeration value="combine-prep"/>
+          <xs:enumeration value="auto-instr"/>
+          <xs:enumeration value="auto-hint"/>
+          <xs:enumeration value="cv-num-in-compile-if"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attributeGroup ref="xgridfit2:att.val"/>
+  </xs:attributeGroup>
+  <xs:element name="ps-private">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="xgridfit2:entry"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="entry">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.entry"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.entry">
+    <xs:attributeGroup ref="xgridfit2:att.name"/>
+    <xs:attributeGroup ref="xgridfit2:att.val"/>
+  </xs:attributeGroup>
+  <xs:element name="cv">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.cv"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.cv">
+    <xs:attribute name="index"/>
+    <xs:attributeGroup ref="xgridfit2:att.name"/>
+    <xs:attribute name="val" use="required" type="xs:int"/>
+  </xs:attributeGroup>
+  <xs:element name="fn">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:fn.pm"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="xgridfit2:var"/>
+          <xs:element ref="xgridfit2:alias"/>
+        </xs:choice>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:variant"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.fn"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.fn">
+    <xs:attributeGroup ref="xgridfit2:att.name"/>
+    <xs:attribute ref="xml:id"/>
+    <xs:attribute name="n" type="xs:nonNegativeInteger"/>
+    <xs:attribute name="return" type="xgridfit2:YESNO"/>
+  </xs:attributeGroup>
+  <xs:element name="variant">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      <xs:attributeGroup ref="xgridfit2:att.test"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="mo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:pm"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:alias"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.mo"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.mo">
+    <xs:attributeGroup ref="xgridfit2:att.name"/>
+    <xs:attribute ref="xml:id"/>
+  </xs:attributeGroup>
+  <xs:group name="fn.pm">
+    <xs:sequence>
+      <xs:element name="pm">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.pm"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="pm">
+    <xs:sequence>
+      <xs:element name="pm">
+        <xs:complexType>
+          <xs:choice minOccurs="0">
+            <xs:choice>
+              <xs:element ref="xgridfit2:set"/>
+              <xs:element ref="xgridfit2:range"/>
+              <xs:element ref="xgridfit2:line"/>
+            </xs:choice>
+            <xs:group maxOccurs="unbounded" ref="xgridfit2:programming"/>
+          </xs:choice>
+          <xs:attributeGroup ref="xgridfit2:attlist.pm"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="attlist.pm">
+    <xs:attributeGroup ref="xgridfit2:att.name"/>
+    <xs:attribute name="val"/>
+  </xs:attributeGroup>
+  <xs:element name="legacy-functions">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      <xs:attributeGroup ref="xgridfit2:attlist.legacy-functions"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.legacy-functions">
+    <xs:attribute name="max-function-defs" use="required" type="xs:nonNegativeInteger"/>
+  </xs:attributeGroup>
+  <xs:element name="prep">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="xgridfit2:var"/>
+          <xs:element ref="xgridfit2:alias"/>
+        </xs:choice>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      </xs:sequence>
+      <xs:attribute ref="xml:id"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="gl">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:pm"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="xgridfit2:cn"/>
+          <xs:element ref="xgridfit2:alias"/>
+          <xs:element ref="xgridfit2:var"/>
+          <xs:element ref="xgridfit2:range"/>
+          <xs:element ref="xgridfit2:line"/>
+          <xs:element ref="xgridfit2:set"/>
+        </xs:choice>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.gl"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.gl">
+    <xs:attributeGroup ref="xgridfit2:att.pnm"/>
+    <xs:attribute name="init-graphics" type="xgridfit2:YESNO"/>
+    <xs:attribute ref="xml:id"/>
+  </xs:attributeGroup>
+  <!--
+    
+    Miscellaneous / Oddball
+    
+  -->
+  <xs:element name="message" substitutionGroup="xgridfit2:various" type="xs:string"/>
+  <!--
+    
+    Points and point structures
+    
+  -->
+  <xs:element name="pt">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.pt"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.pt">
+    <xs:attributeGroup ref="xgridfit2:att.n"/>
+    <xs:attribute name="zone">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="twilight"/>
+          <xs:enumeration value="glyph"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:group name="ref">
+    <xs:sequence>
+      <xs:element name="ref">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="xgridfit2:pt"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="dual.ref">
+    <xs:sequence>
+      <xs:element name="ref">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="xgridfit2:pt"/>
+            <xs:element ref="xgridfit2:pt"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:element name="line">
+    <xs:complexType>
+      <xs:sequence minOccurs="0">
+        <xs:element ref="xgridfit2:pt"/>
+        <xs:element ref="xgridfit2:pt"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.line"/>
+      <xs:attribute name="ref" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.line">
+    <xs:attribute name="nm" type="xs:NCName"/>
+    <xs:attribute name="zone">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="twilight"/>
+          <xs:enumeration value="glyph"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="range">
+    <xs:complexType>
+      <xs:sequence minOccurs="0">
+        <xs:element ref="xgridfit2:pt"/>
+        <xs:element ref="xgridfit2:pt"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.range"/>
+      <xs:attribute name="ref" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.range">
+    <xs:attribute name="nm" type="xs:NCName"/>
+    <xs:attribute name="zone">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="twilight"/>
+          <xs:enumeration value="glyph"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="set">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:pt"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.set"/>
+      <xs:attribute name="ref" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.set">
+    <xs:attribute name="nm" type="xs:NCName"/>
+    <xs:attribute name="zone">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="twilight"/>
+          <xs:enumeration value="glyph"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="contour">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.contour"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.contour">
+    <xs:attributeGroup ref="xgridfit2:att.n"/>
+    <xs:attribute name="zone">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="twilight"/>
+          <xs:enumeration value="glyph"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="zone">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:att.zone"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    
+    Point-moving instructions
+    
+  -->
+  <xs:element name="mirp">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="xgridfit2:ref"/>
+        <xs:element ref="xgridfit2:pt"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.mirp"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.mirp">
+    <xs:attributeGroup ref="xgridfit2:att.di"/>
+    <xs:attribute name="round"/>
+    <xs:attribute name="cut-in" type="xgridfit2:YESNO"/>
+    <xs:attribute name="min-distance" type="xgridfit2:YESNO"/>
+    <xs:attribute name="set-rp0" type="xgridfit2:YESNO"/>
+    <xs:attribute name="color">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="gray"/>
+          <xs:enumeration value="black"/>
+          <xs:enumeration value="white"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="mdrp">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="xgridfit2:ref"/>
+        <xs:element ref="xgridfit2:pt"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.mdrp"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.mdrp">
+    <xs:attribute name="round"/>
+    <xs:attribute name="min-distance" type="xgridfit2:YESNO"/>
+    <xs:attribute name="set-rp0" type="xgridfit2:YESNO"/>
+    <xs:attribute name="color">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="gray"/>
+          <xs:enumeration value="black"/>
+          <xs:enumeration value="white"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="miap">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:pt"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.miap"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.miap">
+    <xs:attributeGroup ref="xgridfit2:att.di"/>
+    <xs:attribute name="round"/>
+    <xs:attribute name="cut-in" type="xgridfit2:YESNO"/>
+  </xs:attributeGroup>
+  <xs:element name="mdap">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:pt"/>
+      </xs:sequence>
+      <xs:attribute name="round"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="sh">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="xgridfit2:ref"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="xgridfit2:pt"/>
+          <xs:element ref="xgridfit2:range"/>
+          <xs:element ref="xgridfit2:set"/>
+          <xs:element ref="xgridfit2:contour"/>
+          <xs:element ref="xgridfit2:zone"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.sh"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.sh">
+    <xs:attribute name="reference-ptr">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="1"/>
+          <xs:enumeration value="2"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="compile-if"/>
+    <xs:attribute name="round"/>
+  </xs:attributeGroup>
+  <xs:element name="al">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="xgridfit2:ref"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="xgridfit2:pt"/>
+          <xs:element ref="xgridfit2:range"/>
+          <xs:element ref="xgridfit2:set"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="compile-if"/>
+    </xs:complexType>
+  </xs:element>
+<!--
+  <xs:element name="move-point-to-intersection">
+    <xs:complexType>
+      <xs:choice>
+        <xs:sequence>
+          <xs:element ref="xgridfit2:pt"/>
+          <xs:element ref="xgridfit2:line"/>
+          <xs:element ref="xgridfit2:line"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="xgridfit2:line"/>
+          <xs:element ref="xgridfit2:line"/>
+          <xs:element ref="xgridfit2:pt"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="xgridfit2:line"/>
+          <xs:element ref="xgridfit2:pt"/>
+          <xs:element ref="xgridfit2:line"/>
+        </xs:sequence>
+      </xs:choice>
+    </xs:complexType>
+    </xs:element>
+    -->
+  <xs:element name="ip">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="xgridfit2:dual.ref"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="xgridfit2:pt"/>
+          <xs:element ref="xgridfit2:range"/>
+          <xs:element ref="xgridfit2:set"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.ip"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.ip">
+    <xs:attribute name="compile-if"/>
+    <xs:attribute name="round"/>
+  </xs:attributeGroup>
+  <xs:element name="iup">
+    <xs:complexType>
+      <xs:attribute name="axis">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="x"/>
+            <xs:enumeration value="y"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="set-coordinate">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:pt"/>
+      </xs:sequence>
+      <xs:attribute name="coordinate" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="shift-absolute">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="xgridfit2:pt"/>
+        <xs:element ref="xgridfit2:range"/>
+        <xs:element ref="xgridfit2:set"/>
+      </xs:choice>
+      <xs:attributeGroup ref="xgridfit2:att.pixel-distance"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="toggle-points">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="xgridfit2:pt"/>
+        <xs:element ref="xgridfit2:range"/>
+        <xs:element ref="xgridfit2:set"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="align-midway">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:pt"/>
+        <xs:element ref="xgridfit2:pt"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="flip-on">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:range"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="flip-off">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:range"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="untouch">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:pt"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:group name="top.level.mv">
+    <xs:sequence>
+      <xs:element name="mv">
+        <xs:complexType>
+          <xs:choice>
+            <xs:sequence>
+              <xs:group ref="xgridfit2:ref"/>
+              <xs:element ref="xgridfit2:pt"/>
+              <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:nested.delta"/>
+              <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="xgridfit2:al"/>
+                <xs:element ref="xgridfit2:ip"/>
+                <xs:element ref="xgridfit2:sh"/>
+              </xs:choice>
+              <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:nested.mv"/>
+              <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:nested.delta"/>
+            </xs:sequence>
+            <xs:sequence>
+              <xs:element ref="xgridfit2:pt"/>
+              <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:nested.delta"/>
+              <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="xgridfit2:al"/>
+                <xs:element ref="xgridfit2:sh"/>
+              </xs:choice>
+              <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:nested.mv"/>
+              <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:nested.delta"/>
+            </xs:sequence>
+          </xs:choice>
+          <xs:attributeGroup ref="xgridfit2:attlist.mv"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="nested.mv">
+    <xs:sequence>
+      <xs:element name="mv">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="xgridfit2:pt"/>
+            <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:nested.delta"/>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+              <xs:element ref="xgridfit2:al"/>
+              <xs:element ref="xgridfit2:ip"/>
+              <xs:element ref="xgridfit2:sh"/>
+            </xs:choice>
+            <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:nested.mv"/>
+            <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:nested.delta"/>
+          </xs:sequence>
+          <xs:attributeGroup ref="xgridfit2:attlist.mv"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="attlist.mv">
+    <xs:attribute name="di"/>
+    <xs:attribute name="pixel-distance"/>
+    <xs:attribute name="round"/>
+    <xs:attribute name="cut-in"/>
+    <xs:attribute name="min-distance"/>
+    <xs:attribute name="color">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="gray"/>
+          <xs:enumeration value="black"/>
+          <xs:enumeration value="white"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="compile-if"/>
+  </xs:attributeGroup>
+<!--
+  <xs:element name="diagonal-stem">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:line"/>
+        <xs:element ref="xgridfit2:line"/>
+        <xs:element minOccurs="0" ref="xgridfit2:al"/>
+        <xs:element minOccurs="0" ref="xgridfit2:al"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.diagonal-stem"/>
+    </xs:complexType>
+    </xs:element>
+    -->
+  <xs:attributeGroup name="attlist.diagonal-stem">
+    <xs:attributeGroup ref="xgridfit2:att.di"/>
+    <xs:attribute name="round"/>
+    <xs:attribute name="cut-in" type="xgridfit2:YESNO"/>
+    <xs:attribute name="min-distance"/>
+    <xs:attribute name="color">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="gray"/>
+          <xs:enumeration value="black"/>
+          <xs:enumeration value="white"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="freedom-vector" type="xgridfit2:YESNO"/>
+    <xs:attribute name="save-vectors" type="xgridfit2:YESNO"/>
+  </xs:attributeGroup>
+  <xs:group name="top.level.delta">
+    <xs:sequence>
+      <xs:element name="delta">
+        <xs:complexType>
+          <xs:choice>
+            <xs:sequence>
+              <xs:element ref="xgridfit2:pt"/>
+              <xs:choice maxOccurs="unbounded">
+                <xs:group ref="xgridfit2:pt.delta-set"/>
+                <xs:group ref="xgridfit2:empty.delta-set"/>
+              </xs:choice>
+            </xs:sequence>
+            <xs:group maxOccurs="unbounded" ref="xgridfit2:pt.delta-set"/>
+          </xs:choice>
+          <xs:attribute name="compile-if"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="nested.delta">
+    <xs:sequence>
+      <xs:element name="delta">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" ref="xgridfit2:pt"/>
+            <xs:choice maxOccurs="unbounded">
+              <xs:group ref="xgridfit2:pt.delta-set"/>
+              <xs:group ref="xgridfit2:empty.delta-set"/>
+            </xs:choice>
+          </xs:sequence>
+          <xs:attribute name="compile-if"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:element name="control-value-delta">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="xgridfit2:cv.delta-set"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:group name="cv.delta-set">
+    <xs:sequence>
+      <xs:element name="delta-set">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.cv.delta-set"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="attlist.cv.delta-set">
+    <xs:attribute name="cv" use="required" type="xs:NCName"/>
+    <xs:attributeGroup ref="xgridfit2:attlist.delta-set-basic"/>
+  </xs:attributeGroup>
+  <xs:group name="pt.delta-set">
+    <xs:sequence>
+      <xs:element name="delta-set">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="xgridfit2:pt"/>
+          </xs:sequence>
+          <xs:attributeGroup ref="xgridfit2:attlist.delta-set-basic"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="empty.delta-set">
+    <xs:sequence>
+      <xs:element name="delta-set">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.delta-set-basic"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <!--
+    
+    Enable/disable instructions
+    
+  -->
+  <xs:element name="disable-instructions" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType/>
+  </xs:element>
+  <xs:element name="enable-instructions" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType/>
+  </xs:element>
+  <!--
+    
+    Graphics state
+    
+  -->
+  <xs:element name="setvs" substitutionGroup="xgridfit2:graphics" type="xgridfit2:model.setv"/>
+  <xs:element name="wvs" substitutionGroup="xgridfit2:graphics" type="xgridfit2:model.with-vector"/>
+  <xs:element name="set-projection-vector" substitutionGroup="xgridfit2:graphics" type="xgridfit2:model.setv"/>
+  <xs:element name="with-projection-vector" substitutionGroup="xgridfit2:graphics" type="xgridfit2:model.with-vector"/>
+  <xs:element name="set-freedom-vector" substitutionGroup="xgridfit2:graphics" type="xgridfit2:model.setv"/>
+  <xs:element name="with-freedom-vector" substitutionGroup="xgridfit2:graphics" type="xgridfit2:model.with-vector"/>
+  <xs:element name="set-dual-projection-vector" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:line"/>
+      </xs:sequence>
+      <xs:attribute name="to-line">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="orthogonal"/>
+            <xs:enumeration value="parallel"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="store-projection-vector" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.vector.store"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="store-freedom-vector" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.vector.store"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="srp" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:pt"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:att.whichpointer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="szp" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.szp"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.szp">
+    <xs:attributeGroup ref="xgridfit2:att.whichpointer"/>
+    <xs:attributeGroup ref="xgridfit2:att.zone"/>
+  </xs:attributeGroup>
+  <xs:element name="set-dropout-control" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.set-dropout-control"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.set-dropout-control">
+    <xs:attribute name="threshold" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:nonNegativeInteger">
+          <xs:maxInclusive value="255"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="flags" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:nonNegativeInteger">
+          <xs:maxInclusive value="63"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="set-dropout-type" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:att.dropout.val"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="att.dropout.val">
+    <xs:attribute name="value" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:nonNegativeInteger">
+          <xs:maxInclusive value="7"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="setcv" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.setcv"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="wcv" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      <xs:attributeGroup ref="xgridfit2:attlist.setcv"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.setcv">
+    <xs:attributeGroup ref="xgridfit2:attlist.val.with.name"/>
+    <xs:attribute name="unit">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="pixel"/>
+          <xs:enumeration value="font"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="set-control-value-cut-in" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:att.val"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="with-control-value-cut-in" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      <xs:attributeGroup ref="xgridfit2:att.val"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="set-minimum-distance" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:att.val"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="with-minimum-distance" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      <xs:attributeGroup ref="xgridfit2:att.val"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="set-round-state" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:att.round"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="with-round-state" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      <xs:attributeGroup ref="xgridfit2:att.round"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="set-single-width-cut-in" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:att.val"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="with-single-width-cut-in" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      <xs:attributeGroup ref="xgridfit2:att.val"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="set-single-width" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:att.val"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="with-single-width" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      <xs:attributeGroup ref="xgridfit2:att.val"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="set-auto-flip" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attribute name="val" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="on"/>
+            <xs:enumeration value="off"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="set-delta-base" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:att.val"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="with-delta-base" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      <xs:attributeGroup ref="xgridfit2:att.val"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="set-delta-shift" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:att.units.per.pixel"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="with-delta-shift" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+      <xs:attributeGroup ref="xgridfit2:att.units.per.pixel"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="restore-default" substitutionGroup="xgridfit2:graphics">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.restore-default"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.restore-default">
+    <xs:attribute name="nm" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="minimum-distance"/>
+          <xs:enumeration value="control-value-cut-in"/>
+          <xs:enumeration value="single-width"/>
+          <xs:enumeration value="single-width-cut-in"/>
+          <xs:enumeration value="delta-base"/>
+          <xs:enumeration value="delta-shift"/>
+          <xs:enumeration value="round-state"/>
+          <xs:enumeration value="all"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <!--
+    
+    Arithmetic elements
+    
+  -->
+  <xs:element name="set-equal">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.set-equal"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.set-equal">
+    <xs:attributeGroup ref="xgridfit2:att.target"/>
+    <xs:attribute name="source" use="required"/>
+  </xs:attributeGroup>
+  <xs:group name="control-value-index">
+    <xs:sequence>
+      <xs:element name="control-value-index">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.control-value-index"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="form.control-value-index">
+    <xs:sequence>
+      <xs:element name="control-value-index">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:att.val"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="attlist.control-value-index">
+    <xs:attributeGroup ref="xgridfit2:att.val"/>
+    <xs:attributeGroup ref="xgridfit2:att.result-to"/>
+  </xs:attributeGroup>
+  <xs:group name="add">
+    <xs:sequence>
+      <xs:element name="add">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.dual.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="form.add">
+    <xs:sequence>
+      <xs:element name="add">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.form.dual.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="subtract">
+    <xs:sequence>
+      <xs:element name="subtract">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.subtract"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="attlist.subtract">
+    <xs:attribute name="minuend" use="required"/>
+    <xs:attribute name="subtrahend" use="required"/>
+    <xs:attribute name="result-to" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:group name="form.subtract">
+    <xs:sequence>
+      <xs:element name="subtract">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.form.subtract"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="attlist.form.subtract">
+    <xs:attribute name="minuend"/>
+    <xs:attribute name="subtrahend"/>
+  </xs:attributeGroup>
+  <xs:group name="divide">
+    <xs:sequence>
+      <xs:element name="divide">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.divide"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="attlist.divide">
+    <xs:attribute name="dividend" use="required"/>
+    <xs:attribute name="divisor" use="required"/>
+    <xs:attribute name="result-to" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:group name="form.divide">
+    <xs:sequence>
+      <xs:element name="divide">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.form.divide"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="attlist.form.divide">
+    <xs:attribute name="dividend"/>
+    <xs:attribute name="divisor"/>
+  </xs:attributeGroup>
+  <xs:group name="multiply">
+    <xs:sequence>
+      <xs:element name="multiply">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.dual.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="form.multiply">
+    <xs:sequence>
+      <xs:element name="multiply">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.form.dual.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="absolute">
+    <xs:sequence>
+      <xs:element name="absolute">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.single.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="form.absolute">
+    <xs:sequence>
+      <xs:element name="absolute">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.form.single.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="negate">
+    <xs:sequence>
+      <xs:element name="negate">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.single.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="form.negate">
+    <xs:sequence>
+      <xs:element name="negate">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.form.single.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="floor">
+    <xs:sequence>
+      <xs:element name="floor">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.single.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="form.floor">
+    <xs:sequence>
+      <xs:element name="floor">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.form.single.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="ceiling">
+    <xs:sequence>
+      <xs:element name="ceiling">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.single.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="form.ceiling">
+    <xs:sequence>
+      <xs:element name="ceiling">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.form.single.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="minimum">
+    <xs:sequence>
+      <xs:element name="minimum">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.dual.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="form.minimum">
+    <xs:sequence>
+      <xs:element name="minimum">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.form.dual.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="maximum">
+    <xs:sequence>
+      <xs:element name="maximum">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.dual.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="form.maximum">
+    <xs:sequence>
+      <xs:element name="maximum">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.form.dual.op"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="round">
+    <xs:sequence>
+      <xs:element name="round">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.round"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="no-round">
+    <xs:sequence>
+      <xs:element name="no-round">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.round"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="attlist.round">
+    <xs:attributeGroup ref="xgridfit2:att.val"/>
+    <xs:attribute name="color">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="gray"/>
+          <xs:enumeration value="black"/>
+          <xs:enumeration value="white"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="result-to" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:group name="form.round">
+    <xs:sequence>
+      <xs:element name="round">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.form.round"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="form.no-round">
+    <xs:sequence>
+      <xs:element name="no-round">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:attlist.form.round"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="attlist.form.round">
+    <xs:attribute name="val"/>
+    <xs:attribute name="color">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="gray"/>
+          <xs:enumeration value="black"/>
+          <xs:enumeration value="white"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="formula">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="xgridfit2:form.vars"/>
+      <xs:attribute name="result-to" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    
+    Fn and macro calls
+    
+  -->
+  <xs:element name="callf" substitutionGroup="xgridfit2:flow">
+    <xs:complexType>
+      <xs:choice>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:fn.pmset"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:fn.wpm"/>
+      </xs:choice>
+      <xs:attributeGroup ref="xgridfit2:attlist.callf"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.callf">
+    <xs:attributeGroup ref="xgridfit2:att.name"/>
+    <xs:attribute name="result-to" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:element name="callm" substitutionGroup="xgridfit2:flow">
+    <xs:complexType>
+      <xs:choice>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:pmset"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:wpm"/>
+      </xs:choice>
+      <xs:attributeGroup ref="xgridfit2:att.name"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="callp" substitutionGroup="xgridfit2:flow">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:att.name"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="callg" substitutionGroup="xgridfit2:flow">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:wpm"/>
+      <xs:attributeGroup ref="xgridfit2:att.pnm"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:group name="fn.pmset">
+    <xs:sequence>
+      <xs:element name="pmset">
+        <xs:complexType>
+          <xs:group maxOccurs="unbounded" ref="xgridfit2:fn.wpm"/>
+          <xs:attribute name="opt" type="xgridfit2:YESNO"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="pmset">
+    <xs:sequence>
+      <xs:element name="pmset">
+        <xs:complexType>
+          <xs:group maxOccurs="unbounded" ref="xgridfit2:wpm"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="fn.wpm">
+    <xs:sequence>
+      <xs:element name="wpm">
+        <xs:complexType>
+          <xs:attributeGroup ref="xgridfit2:att.name"/>
+          <xs:attributeGroup ref="xgridfit2:att.val"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="wpm">
+    <xs:sequence>
+      <xs:element name="wpm">
+        <xs:complexType>
+          <xs:choice minOccurs="0">
+            <xs:choice>
+              <xs:element ref="xgridfit2:set"/>
+              <xs:element ref="xgridfit2:range"/>
+              <xs:element ref="xgridfit2:line"/>
+            </xs:choice>
+            <xs:group maxOccurs="unbounded" ref="xgridfit2:programming"/>
+          </xs:choice>
+          <xs:attributeGroup ref="xgridfit2:att.name"/>
+          <xs:attribute name="val"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <!--
+    
+    Conditionals
+    
+  -->
+  <xs:element name="if" substitutionGroup="xgridfit2:flow">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+        <xs:element minOccurs="0" ref="xgridfit2:else"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:att.test"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="else">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="compile-if" substitutionGroup="xgridfit2:flow">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+        <xs:element minOccurs="0" ref="xgridfit2:else"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:att.test"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="no-warning" substitutionGroup="xgridfit2:various">
+    <xs:complexType>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    
+    Getting info
+    
+  -->
+  <xs:element name="measure-distance" substitutionGroup="xgridfit2:measure">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:pt"/>
+        <xs:element ref="xgridfit2:pt"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.measurement"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="get-coordinate" substitutionGroup="xgridfit2:measure">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xgridfit2:pt"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.measurement"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="getinfo" substitutionGroup="xgridfit2:various">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.getinfo"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.getinfo">
+    <xs:attribute name="selector" use="required"/>
+    <xs:attribute name="result-to" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <!--
+    
+    Primitives
+    
+  -->
+  <xs:element name="command" substitutionGroup="xgridfit2:primitive">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:modifier"/>
+      </xs:sequence>
+      <xs:attribute name="nm" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:pattern value="[A-Z0-5]{2,9}"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="modifier"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="modifier">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.modifier"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.modifier">
+    <xs:attributeGroup ref="xgridfit2:att.val"/>
+    <xs:attribute name="type" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="set-rp0"/>
+          <xs:enumeration value="round"/>
+          <xs:enumeration value="minimum-distance"/>
+          <xs:enumeration value="color"/>
+          <xs:enumeration value="grid-fitted"/>
+          <xs:enumeration value="to-line"/>
+          <xs:enumeration value="axis"/>
+          <xs:enumeration value="ref-ptr"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="push" substitutionGroup="xgridfit2:primitive" type="xs:string"/>
+  <xs:element name="to-stack" substitutionGroup="xgridfit2:primitive" type="xs:string"/>
+  <!--
+    
+    XInclude
+    
+  -->
+  <xs:attributeGroup name="xg.xi.include.attlist">
+    <xs:attribute name="href" type="xs:anyURI"/>
+    <xs:attribute name="parse" default="xml">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="xml"/>
+          <xs:enumeration value="text"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="xpointer"/>
+    <xs:attribute name="encoding"/>
+    <xs:attribute name="accept"/>
+    <xs:attribute name="accept-language"/>
+  </xs:attributeGroup>
+</xs:schema>
