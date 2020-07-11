@@ -87,34 +87,46 @@ def fixupShort(s):
 # Transform the etree.
 
 progpath = os.path.split(os.path.dirname(__file__))[0]
-xslfile = progpath + "/XSL/xgridfit-ft.xsl"
+xslpath = progpath + "/XSL/xgridfit-ft-sh.xsl"
 f = open(inputfile)
 fstr = f.read().replace("\n", " ")
 f.close()
 tf = tempfile.TemporaryFile()
-tf.write(bytearray(fixupShort(fstr), 'utf-8'))
-xgfprog = etree.parse(xslfile)
+tf.write(bytearray(fstr, 'utf-8'))
+# tf.write(bytearray(fixupShort(fstr), 'utf-8'))
+xslprog = etree.parse(xslpath)
 tf.seek(0)
 xgffile = etree.parse(tf)
+xgffile.xinclude()
 tf.close()
 if skipval:
     print("Skipping validation")
 else:
     # XML Schema (it seems to give more intelligible error messages
     # than the relaxNG validator):
-    xmlschemadoc = etree.parse(progpath + "/Schemas/xgridfit.xsd")
+    xmlschemadoc = etree.parse(progpath + "/Schemas/xgridfit-sh.xsd")
     xmlschema = etree.XMLSchema(xmlschemadoc)
     xmlschema.assertValid(xgffile)
     # RelaxNG:
-    # relaxngdoc = etree.parse(progpath + "/Schemas/xgridfit.rng")
+    # relaxngdoc = etree.parse(progpath + "/Schemas/xgridfit-sh.rng")
     # relaxng = etree.RelaxNG(relaxngdoc)
     # relaxng.assertValid(xgffile)
     # end of validation
 if skipcomp:
     print("Skipping compilation")
 else:
-    transform = etree.XSLT(xgfprog)
-    result = transform(xgffile)
+    try:
+        transform = etree.XSLT(xslprog)
+        result = transform(xgffile)
+    except:
+        for entry in transform.error_log:
+            print('message from line %s, col %s: %s' % (
+                entry.line, entry.column, entry.message))
+            print('domain: %s (%d)' % (entry.domain_name, entry.domain))
+            print('type: %s (%d)' % (entry.type_name, entry.type))
+            print('level: %s (%d)' % (entry.level_name, entry.level))
+            print('filename: %s' % entry.filename)
+        exit()
     if outputfile:
         of = open(outputfile, "w")
         of.write(str(result))
