@@ -147,7 +147,7 @@
     <xsl:call-template name="debug-start"/>
     <xsl:call-template name="do-delta">
       <xsl:with-param name="sets" select="xgf:delta-set"/>
-      <xsl:with-param name="caller-is" select="'cv-delta'"/>
+      <xsl:with-param name="caller-is" select="'control-value-delta'"/>
       <xsl:with-param name="mp-container"
 		      select="$mp-container"/>
     </xsl:call-template>
