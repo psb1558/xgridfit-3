@@ -152,41 +152,10 @@
       <ref name="primitive"/>
     </choice>
   </define>
-  <define name="token.ps-name">
+  <define name="token.pnm">
     <data type="token">
       <param name="pattern">\.notdef|[A-Za-z_][A-Za-z0-9_\.]{0,30}</param>
     </data>
-  </define>
-  <define name="att.pyflags">
-    <attribute name="pyflags">
-      <list>
-        <zeroOrMore>
-          <choice>
-            <value>afm</value>
-            <value>pfm</value>
-            <value>tfm</value>
-            <value>ofm</value>
-            <value>composites-in-afm</value>
-            <value>glyph-map-file</value>
-            <value>short-post</value>
-            <value>apple</value>
-            <value>opentype</value>
-            <value>old-kern</value>
-            <value>dummy-dsig</value>
-            <value>TeX-table</value>
-            <value>round</value>
-            <value>no-hints</value>
-            <value>omit-instructions</value>
-            <value>PfEd-comments</value>
-            <value>PfEd-colors</value>
-            <value>PfEd-lookups</value>
-            <value>PfEd-guidelines</value>
-            <value>PfEd-background</value>
-            <value>symbol</value>
-          </choice>
-        </zeroOrMore>
-      </list>
-    </attribute>
   </define>
   <define name="att.val">
     <attribute name="val"/>
@@ -326,7 +295,7 @@
   </define>
   <define name="attlist.form.single.op">
     <optional>
-      <ref name="att.value"/>
+      <ref name="att.val"/>
     </optional>
   </define>
   <define name="attlist.dual.op">
@@ -455,7 +424,7 @@
           <ref name="legacy-functions"/>
         </optional>
         <optional>
-          <ref name="pre-program"/>
+          <ref name="prep"/>
         </optional>
         <optional>
           <ref name="ps-private"/>
@@ -476,13 +445,13 @@
           <ref name="default"/>
         </zeroOrMore>
         <zeroOrMore>
-          <ref name="control-value"/>
+          <ref name="cv"/>
         </zeroOrMore>
         <zeroOrMore>
           <ref name="fn"/>
         </zeroOrMore>
         <zeroOrMore>
-          <ref name="macro"/>
+          <ref name="mo"/>
         </zeroOrMore>
         <zeroOrMore>
           <ref name="glyph"/>
@@ -511,9 +480,9 @@
     </element>
   </define>
   <define name="attlist.var" combine="interleave">
-    <ref name="att.name"/>
+    <ref name="att.nm"/>
     <optional>
-      <ref name="att.value"/>
+      <ref name="att.val"/>
     </optional>
   </define>
   <define name="alias">
@@ -523,7 +492,7 @@
     </element>
   </define>
   <define name="attlist.alias" combine="interleave">
-    <ref name="att.name"/>
+    <ref name="att.nm"/>
     <ref name="att.target"/>
   </define>
   <!--
@@ -535,7 +504,7 @@
     <element name="glyph-select">
       <list>
         <zeroOrMore>
-          <ref name="token.ps-name"/>
+          <ref name="token.pnm"/>
         </zeroOrMore>
       </list>
     </element>
@@ -557,30 +526,22 @@
   -->
   <define name="infile">
     <element name="infile">
-      <data type="anyURI"/>
+      <data type="string"/>
     </element>
   </define>
   <define name="outfile">
     <element name="outfile">
-      <optional>
-        <attribute name="fmflags">
-          <data type="int"/>
-        </attribute>
-      </optional>
-      <optional>
-        <ref name="att.pyflags"/>
-      </optional>
-      <data type="anyURI"/>
+      <data type="string"/>
     </element>
   </define>
   <define name="outfile-base">
     <element name="outfile-base">
-      <data type="anyURI"/>
+      <data type="string"/>
     </element>
   </define>
   <define name="outfile-script-name">
     <element name="outfile-script-name">
-      <data type="anyURI"/>
+      <data type="string"/>
     </element>
   </define>
   <!--
@@ -595,7 +556,7 @@
     </element>
   </define>
   <define name="attlist.round-state" combine="interleave">
-    <ref name="att.name"/>
+    <ref name="att.nm"/>
     <attribute name="period">
       <choice>
         <value>half-pixel</value>
@@ -666,7 +627,7 @@
         <value>cv-num-in-compile-if</value>
       </choice>
     </attribute>
-    <ref name="att.value"/>
+    <ref name="att.val"/>
   </define>
   <define name="ps-private">
     <element name="ps-private">
@@ -682,21 +643,21 @@
     </element>
   </define>
   <define name="attlist.entry" combine="interleave">
-    <ref name="att.name"/>
-    <ref name="att.value"/>
+    <ref name="att.nm"/>
+    <ref name="att.val"/>
   </define>
-  <define name="control-value">
-    <element name="control-value">
-      <ref name="attlist.control-value"/>
+  <define name="cv">
+    <element name="cv">
+      <ref name="attlist.cv"/>
       <empty/>
     </element>
   </define>
-  <define name="attlist.control-value" combine="interleave">
+  <define name="attlist.cv" combine="interleave">
     <optional>
       <attribute name="index"/>
     </optional>
-    <ref name="att.name"/>
-    <attribute name="value">
+    <ref name="att.nm"/>
+    <attribute name="val">
       <data type="int"/>
     </attribute>
   </define>
@@ -721,7 +682,7 @@
     </element>
   </define>
   <define name="attlist.fn" combine="interleave">
-    <ref name="att.name"/>
+    <ref name="att.nm"/>
     <optional>
       <ref name="att.id"/>
     </optional>
@@ -744,9 +705,9 @@
       </zeroOrMore>
     </element>
   </define>
-  <define name="macro">
-    <element name="macro">
-      <ref name="attlist.macro"/>
+  <define name="mo">
+    <element name="mo">
+      <ref name="attlist.mo"/>
       <zeroOrMore>
         <ref name="pm"/>
       </zeroOrMore>
@@ -758,8 +719,8 @@
       </zeroOrMore>
     </element>
   </define>
-  <define name="attlist.macro" combine="interleave">
-    <ref name="att.name"/>
+  <define name="attlist.mo" combine="interleave">
+    <ref name="att.nm"/>
     <optional>
       <ref name="att.id"/>
     </optional>
@@ -787,9 +748,9 @@
     </element>
   </define>
   <define name="attlist.pm" combine="interleave">
-    <ref name="att.name"/>
+    <ref name="att.nm"/>
     <optional>
-      <ref name="att.value"/>
+      <ref name="att.val"/>
     </optional>
   </define>
   <define name="legacy-functions">
@@ -805,8 +766,8 @@
       <data type="nonNegativeInteger"/>
     </attribute>
   </define>
-  <define name="pre-program">
-    <element name="pre-program">
+  <define name="prep">
+    <element name="prep">
       <optional>
         <ref name="att.id"/>
       </optional>
@@ -843,7 +804,7 @@
     </element>
   </define>
   <define name="attlist.glyph" combine="interleave">
-    <ref name="att.ps-name"/>
+    <ref name="att.pnm"/>
     <optional>
       <attribute name="init-graphics">
         <ref name="YESNO"/>
@@ -905,7 +866,7 @@
   </define>
   <define name="attlist.line" combine="interleave">
     <optional>
-      <ref name="att.name"/>
+      <ref name="att.nm"/>
     </optional>
     <optional>
       <ref name="att.zone"/>
@@ -925,7 +886,7 @@
   </define>
   <define name="attlist.range" combine="interleave">
     <optional>
-      <ref name="att.name"/>
+      <ref name="att.nm"/>
     </optional>
     <optional>
       <ref name="att.zone"/>
@@ -944,7 +905,7 @@
   </define>
   <define name="attlist.set" combine="interleave">
     <optional>
-      <ref name="att.name"/>
+      <ref name="att.nm"/>
     </optional>
     <optional>
       <ref name="att.zone"/>
@@ -1348,13 +1309,13 @@
           <ref name="pt"/>
           <oneOrMore>
             <choice>
-              <ref name="point.delta-set"/>
+              <ref name="pt.delta-set"/>
               <ref name="empty.delta-set"/>
             </choice>
           </oneOrMore>
         </group>
         <oneOrMore>
-          <ref name="point.delta-set"/>
+          <ref name="pt.delta-set"/>
         </oneOrMore>
       </choice>
     </element>
@@ -1428,7 +1389,7 @@
   -->
   <define name="setvs">
     <element name="setvs">
-      <ref name="model.set-vector"/>
+      <ref name="model.setvs"/>
     </element>
   </define>
   <define name="wvs">
@@ -1438,7 +1399,7 @@
   </define>
   <define name="set-projection-vector">
     <element name="set-projection-vector">
-      <ref name="model.set-vector"/>
+      <ref name="model.setvs"/>
     </element>
   </define>
   <define name="with-projection-vector">
@@ -1448,7 +1409,7 @@
   </define>
   <define name="set-freedom-vector">
     <element name="set-freedom-vector">
-      <ref name="model.set-vector"/>
+      <ref name="model.setvs"/>
     </element>
   </define>
   <define name="with-freedom-vector">
@@ -1517,7 +1478,7 @@
     </element>
   </define>
   <define name="att.dropout.value">
-    <attribute name="value">
+    <attribute name="val">
       <data type="nonNegativeInteger">
         <param name="maxInclusive">7</param>
       </data>
@@ -1545,13 +1506,13 @@
   </define>
   <define name="set-control-value-cut-in">
     <element name="set-control-value-cut-in">
-      <ref name="att.value"/>
+      <ref name="att.val"/>
       <empty/>
     </element>
   </define>
   <define name="with-control-value-cut-in">
     <element name="with-control-value-cut-in">
-      <ref name="att.value"/>
+      <ref name="att.val"/>
       <zeroOrMore>
         <ref name="programming"/>
       </zeroOrMore>
@@ -1559,13 +1520,13 @@
   </define>
   <define name="set-minimum-distance">
     <element name="set-minimum-distance">
-      <ref name="att.value"/>
+      <ref name="att.val"/>
       <empty/>
     </element>
   </define>
   <define name="with-minimum-distance">
     <element name="with-minimum-distance">
-      <ref name="att.value"/>
+      <ref name="att.val"/>
       <zeroOrMore>
         <ref name="programming"/>
       </zeroOrMore>
@@ -1587,13 +1548,13 @@
   </define>
   <define name="set-single-width-cut-in">
     <element name="set-single-width-cut-in">
-      <ref name="att.value"/>
+      <ref name="att.val"/>
       <empty/>
     </element>
   </define>
   <define name="with-single-width-cut-in">
     <element name="with-single-width-cut-in">
-      <ref name="att.value"/>
+      <ref name="att.val"/>
       <zeroOrMore>
         <ref name="programming"/>
       </zeroOrMore>
@@ -1601,13 +1562,13 @@
   </define>
   <define name="set-single-width">
     <element name="set-single-width">
-      <ref name="att.value"/>
+      <ref name="att.val"/>
       <empty/>
     </element>
   </define>
   <define name="with-single-width">
     <element name="with-single-width">
-      <ref name="att.value"/>
+      <ref name="att.val"/>
       <zeroOrMore>
         <ref name="programming"/>
       </zeroOrMore>
@@ -1615,7 +1576,7 @@
   </define>
   <define name="set-auto-flip">
     <element name="set-auto-flip">
-      <attribute name="value">
+      <attribute name="val">
         <choice>
           <value>on</value>
           <value>off</value>
@@ -1626,13 +1587,13 @@
   </define>
   <define name="set-delta-base">
     <element name="set-delta-base">
-      <ref name="att.value"/>
+      <ref name="att.val"/>
       <empty/>
     </element>
   </define>
   <define name="with-delta-base">
     <element name="with-delta-base">
-      <ref name="att.value"/>
+      <ref name="att.val"/>
       <zeroOrMore>
         <ref name="programming"/>
       </zeroOrMore>
@@ -1659,7 +1620,7 @@
     </element>
   </define>
   <define name="attlist.restore-default" combine="interleave">
-    <attribute name="name">
+    <attribute name="nm">
       <choice>
         <value>minimum-distance</value>
         <value>control-value-cut-in</value>
@@ -1695,12 +1656,12 @@
   </define>
   <define name="form.control-value-index">
     <element name="control-value-index">
-      <ref name="att.value"/>
+      <ref name="att.val"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.control-value-index" combine="interleave">
-    <ref name="att.value"/>
+    <ref name="att.val"/>
     <ref name="att.result-to"/>
   </define>
   <define name="add">
@@ -1866,7 +1827,7 @@
     </element>
   </define>
   <define name="attlist.round" combine="interleave">
-    <ref name="att.value"/>
+    <ref name="att.val"/>
     <optional>
       <ref name="att.color"/>
     </optional>
@@ -1888,7 +1849,7 @@
   </define>
   <define name="attlist.form.round" combine="interleave">
     <optional>
-      <ref name="att.value"/>
+      <ref name="att.val"/>
     </optional>
     <optional>
       <ref name="att.color"/>
@@ -1923,7 +1884,7 @@
     </element>
   </define>
   <define name="attlist.callf" combine="interleave">
-    <ref name="att.name"/>
+    <ref name="att.nm"/>
     <optional>
       <ref name="att.result-to"/>
     </optional>
@@ -2082,7 +2043,7 @@
   -->
   <define name="command">
     <element name="command">
-      <attribute name="name">
+      <attribute name="nm">
         <data type="token">
           <param name="pattern">[A-Z0-5]{2,9}</param>
         </data>
@@ -2104,7 +2065,7 @@
     </element>
   </define>
   <define name="attlist.modifier" combine="interleave">
-    <ref name="att.value"/>
+    <ref name="att.val"/>
     <attribute name="type">
       <choice>
         <value>set-rp0</value>
