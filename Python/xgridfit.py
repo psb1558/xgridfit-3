@@ -10,6 +10,8 @@ import argparse
 #      Licensed under the Apache License, Version 2.0.
 #      Copyright (c) 2006-20 by Peter S. Baker
 
+# First read the command-line arguments. At minimum we need the inputfile.
+
 argparser = argparse.ArgumentParser(description='Compile XML into TrueType instructions.')
 argparser.add_argument("inputfile", help='Xgridfit (XML) file to process.')
 argparser.add_argument("outputfile", nargs='?', help="Name of Python script to output")
@@ -22,96 +24,55 @@ outputfile = args.outputfile
 skipval    = args.novalidation
 skipcomp   = args.nocompilation
 
-def fixupShort(s):
-    s = re.sub(r'<callm\b', '<call-macro', s)
-    s = re.sub(r'<\/callm\b', '</call-macro', s)
-    s = re.sub(r'<callf\b', '<call-function', s)
-    s = re.sub(r'<\/callf\b', '</call-function', s)
-    s = re.sub(r'<callg\b', '<call-glyph', s)
-    s = re.sub(r'<\/callg\b', '</call-glyph', s)
-    s = re.sub(r'<callp\b', '<call-param', s)
-    s = re.sub(r'<\/callp\b', '</call-param', s)
-    s = re.sub(r'<pmset\b', '<param-set', s)
-    s = re.sub(r'<\/pmset\b', '</param-set', s)
-    s = re.sub(r'<cv\b\b', '<control-value', s)
-    s = re.sub(r'<\/cv\b\b', '</control-value', s)
-    s = re.sub(r'<fn\b', '<function', s)
-    s = re.sub(r'<\/fn\b', '</function', s)
-    s = re.sub(r'<mo\b', '<macro', s)
-    s = re.sub(r'<\/mo\b', '</macro', s)
-    s = re.sub(r'<gl\b', '<glyph', s)
-    s = re.sub(r'<\/gl\b', '</glyph', s)
-    s = re.sub(r'<pt\b', '<point', s)
-    s = re.sub(r'<\/pt\b', '</point', s)
-    s = re.sub(r'<pm\b', '<param', s)
-    s = re.sub(r'<\/pm\b', '</param', s)
-    s = re.sub(r'<var\b', '<variable', s)
-    s = re.sub(r'<\/var\b', '</variable', s)
-    s = re.sub(r'<wpm\b', '<with-param', s)
-    s = re.sub(r'<\/wpm\b', '</with-param', s)
-    s = re.sub(r'<setvs\b', '<set-vectors', s)
-    s = re.sub(r'<\/setvs\b', '</set-vectors', s)
-    s = re.sub(r'<wcv\b', '<with-control-value', s)
-    s = re.sub(r'<\/wcv\b', '</with-control-value', s)
-    s = re.sub(r'<ref\b', '<reference', s)
-    s = re.sub(r'<\/ref\b', '</reference', s)
-    s = re.sub(r'<al\b', '<align', s)
-    s = re.sub(r'<\/al\b', '</align', s)
-    s = re.sub(r'<sh\b', '<shift', s)
-    s = re.sub(r'<\/sh\b', '</shift', s)
-    s = re.sub(r'<ip\b', '<interpolate', s)
-    s = re.sub(r'<\/ip\b', '</interpolate', s)
-    s = re.sub(r'<cn\b', '<constant', s)
-    s = re.sub(r'<\/cn\b', '</constant', s)
-    s = re.sub(r'<wvs\b', '<with-vectors', s)
-    s = re.sub(r'<\/wvs\b', '</with-vectors', s)
-    s = re.sub(r'<setcv\b', '<set-control-value', s)
-    s = re.sub(r'<\/setcv\b', '</set-control-value', s)
-    s = re.sub(r'<iup\b', '<interpolate-untouched-points', s)
-    s = re.sub(r'<\/iup\b', '</interpolate-untouched-points', s)
-    s = re.sub(r'<prep\b', '<pre-program', s)
-    s = re.sub(r'<\/prep\b', '</pre-program', s)
-    s = re.sub(r'<mv\b', '<move', s)
-    s = re.sub(r'<\/mv\b', '</move', s)
-    s = re.sub(r'\bn=', 'num=', s)
-    s = re.sub(r'\bnm=', 'name=', s)
-    s = re.sub(r'\bval=', 'value=', s)
-    s = re.sub(r'\bdi=', 'distance=', s)
-    s = re.sub(r'\bpnm=', 'ps-name=', s)
-    return(s)
+# Get the xgridfit file.
 
-# Steps (but isn't this awkward?):
-# Read a file into a string and convert from short to long forms
-# Write the result to a temporary file
-# Read and parse the temporary file to get an etree
-# Transform the etree.
+xgffile = etree.parse(inputfile)
+
+# We'll need namespaces
+
+ns = {"xg": "http://xgridfit.sourceforge.net/Xgridfit2",
+          "xi": "http://www.w3.org/2001/XInclude"}
+
+# Do xinclude if this is a multipart file
+    
+if len(xgffile.xpath("/xg:xgridfit/xi:include", namespaces=ns)):
+    xgffile.xinclude()
+
+# Next determine whether we are using long tagnames or short. Best way
+# is to find out which tag is used for the required <pre-program> (<prep>)
+# element. If we don't find it, print an error message and exit.
+
+if len(xgffile.xpath("/xg:xgridfit/xg:pre-program", namespaces=ns)):
+    xslfile = "xgridfit-ft.xsl"
+    xgfschema = "xgridfit.xsd"
+elif len(xgffile.xpath("/xg:xgridfit/xg:prep", namespaces=ns)):
+    xslfile = "xgridfit-ft-sh.xsl"
+    xgfschema = "xgridfit-sh.xsd"
+else:
+    print("The xgridfit program must contain a pre-program (prep) element,")
+    print("even if it's empty.")
+    sys.exit(1)
+
+# Grab the xsl program. This is assumed to be in ../XSL/, relative to this
+# Python file.
 
 progpath = os.path.split(os.path.dirname(__file__))[0]
-xslpath = progpath + "/XSL/xgridfit-ft-sh.xsl"
-f = open(inputfile)
-fstr = f.read().replace("\n", " ")
-f.close()
-tf = tempfile.TemporaryFile()
-tf.write(bytearray(fstr, 'utf-8'))
-# tf.write(bytearray(fixupShort(fstr), 'utf-8'))
+xslpath = progpath + "/XSL/" + xslfile
 xslprog = etree.parse(xslpath)
-tf.seek(0)
-xgffile = etree.parse(tf)
-xgffile.xinclude()
-tf.close()
+
+# Validate the xgridfit program. We're using the XML Schema rather
+# than the RelaxNG here, because most of the messages seem more
+# intelligible.
+
 if skipval:
     print("Skipping validation")
 else:
-    # XML Schema (it seems to give more intelligible error messages
-    # than the relaxNG validator):
-    xmlschemadoc = etree.parse(progpath + "/Schemas/xgridfit-sh.xsd")
+    xmlschemadoc = etree.parse(progpath + "/Schemas/" + xgfschema)
     xmlschema = etree.XMLSchema(xmlschemadoc)
     xmlschema.assertValid(xgffile)
-    # RelaxNG:
-    # relaxngdoc = etree.parse(progpath + "/Schemas/xgridfit-sh.rng")
-    # relaxng = etree.RelaxNG(relaxngdoc)
-    # relaxng.assertValid(xgffile)
-    # end of validation
+
+# Transform the xgridfit program to generate Python output.
+    
 if skipcomp:
     print("Skipping compilation")
 else:
@@ -126,7 +87,7 @@ else:
             print('type: %s (%d)' % (entry.type_name, entry.type))
             print('level: %s (%d)' % (entry.level_name, entry.level))
             print('filename: %s' % entry.filename)
-        exit()
+        sys.exit(1)
     if outputfile:
         of = open(outputfile, "w")
         of.write(str(result))
