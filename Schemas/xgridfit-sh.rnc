@@ -187,6 +187,7 @@ xgridfit =
         round-state*&
         \default*&
         cv*&
+	cvar?&
         fn*&
         mo*&
         gl*&
@@ -299,6 +300,19 @@ entry =
 attlist.entry &=
   att.nm,
   att.val
+axis =
+  element axis { attlist.axis, cvv+ }
+attlist.axis &=
+  attribute tag { text },
+  attribute val { text }
+cvar =
+  element cvar { axis+ }
+cvv =
+  element cvv { attlist.cvv, empty }
+attlist.cvv &=
+  attribute index { text }?,
+  att.nm,
+  attribute val { xsd:int }
 cv =
   element cv { attlist.cv, empty }
 attlist.cv &=

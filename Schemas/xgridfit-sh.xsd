@@ -375,6 +375,7 @@
         <xs:element ref="xgridfit2:round-state"/>
         <xs:element ref="xgridfit2:default"/>
         <xs:element ref="xgridfit2:cv"/>
+	<xs:element ref="xgridfit2:cvar"/>
         <xs:element ref="xgridfit2:fn"/>
         <xs:element ref="xgridfit2:mo"/>
         <xs:element ref="xgridfit2:gl"/>
@@ -550,6 +551,16 @@
     <xs:attributeGroup ref="xgridfit2:att.name"/>
     <xs:attributeGroup ref="xgridfit2:att.val"/>
   </xs:attributeGroup>
+  <xs:element name="cvv">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.cvv"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.cvv">
+    <xs:attribute name="index"/>
+    <xs:attributeGroup ref="xgridfit2:att.name"/>
+    <xs:attribute name="val" use="required" type="xs:int"/>
+  </xs:attributeGroup>
   <xs:element name="cv">
     <xs:complexType>
       <xs:attributeGroup ref="xgridfit2:attlist.cv"/>
@@ -560,6 +571,39 @@
     <xs:attributeGroup ref="xgridfit2:att.name"/>
     <xs:attribute name="val" use="required" type="xs:int"/>
   </xs:attributeGroup>
+
+  <!--
+      The cvar element should look like this:
+      <cvar>
+        <axis tag="wght" val="1.0">
+          <cv nm="lc-serif" val="60"/>
+	...
+        </axis>
+	...
+      </cvar>
+  -->
+  <xs:element name="cvar">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="xgridfit2:axis" minOccurs="1"
+		    maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="axis">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="xgridfit2:cvv" minOccurs="1"
+		    maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.axis"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.axis">
+    <xs:attribute name="tag"/>
+    <xs:attribute name="val"/>
+  </xs:attributeGroup>
+  
   <xs:element name="fn">
     <xs:complexType>
       <xs:sequence>
