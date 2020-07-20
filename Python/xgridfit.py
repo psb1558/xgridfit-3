@@ -38,15 +38,21 @@ ns = {"xg": "http://xgridfit.sourceforge.net/Xgridfit2",
 if len(xgffile.xpath("/xg:xgridfit/xi:include", namespaces=ns)):
     xgffile.xinclude()
 
+# Test whether we have a cvar element
+    
+have_cvar = (len(xgffile.xpath("/xg:xgridfit/xg:cvar", namespaces=ns)) > 0)
+
 # Next determine whether we are using long tagnames or short. Best way
 # is to find out which tag is used for the required <pre-program> (<prep>)
 # element. If we don't find it, print an error message and exit.
 
 if len(xgffile.xpath("/xg:xgridfit/xg:pre-program", namespaces=ns)):
     xslfile = "xgridfit-ft.xsl"
+    xslcvarfile = "cvar.xsl"
     xgfschema = "xgridfit.xsd"
 elif len(xgffile.xpath("/xg:xgridfit/xg:prep", namespaces=ns)):
     xslfile = "xgridfit-ft-sh.xsl"
+    xslcvarfile = "cvar-tuple-sh.xsl"
     xgfschema = "xgridfit-sh.xsd"
 else:
     print("The xgridfit program must contain a pre-program (prep) element,")
@@ -76,9 +82,19 @@ else:
 if skipcomp:
     print("Skipping compilation")
 else:
+    cvarstring = "'none'"
+    if have_cvar:
+        xslcvarpath = progpath + "/XSL/" + xslcvarfile
+        xslcvarprog = etree.parse(xslcvarpath)
+        ctransform = etree.XSLT(xslcvarprog)
+        cvarresult = ctransform(xgffile)
+        # print("trying to print cvarresult:")
+        # print(cvarresult)
+        cvarstring = etree.XSLT.strparam(str(cvarresult))
     try:
         transform = etree.XSLT(xslprog)
-        result = transform(xgffile)
+        result = transform(xgffile, cvartable=cvarstring)
+        # result = transform(xgffile)
     except:
         for entry in transform.error_log:
             print('message from line %s, col %s: %s' % (

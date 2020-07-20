@@ -16,6 +16,10 @@
 
   <xsl:output method="text" encoding="UTF-8"/>
 
+  <xsl:param name="cvartable">
+    <xsl:value-of select="'none'"/>
+  </xsl:param>
+
   <xsl:param name="glyph_select">
     <xsl:choose>
       <xsl:when test="/xgf:xgridfit/xgf:gl-select">
@@ -506,6 +510,8 @@
     <xsl:value-of select="$text-newline"/>
     <xsl:text>from fontTools.ttLib import ttFont, tables</xsl:text>
     <xsl:value-of select="$text-newline"/>
+    <xsl:text>from fontTools.ttLib.tables.TupleVariation import TupleVariation</xsl:text>
+    <xsl:value-of select="$text-newline"/>
     <xsl:text>from lxml import etree</xsl:text>
     <xsl:value-of select="$text-newline"/>
     <xsl:text>import array</xsl:text>
@@ -601,6 +607,14 @@ def install_glyph_program(nm, fo, asm):
       <xsl:value-of select="$text-newline"/>
 
       <xsl:apply-templates select="xgf:prep"/>
+
+      <xsl:if test="$cvartable != 'none'">
+	<xsl:value-of select="$cvartable"/>
+	<xsl:value-of select="$text-newline"/>
+	<xsl:text>currentFont['cvar'] = ttFont.newTable('cvar')</xsl:text>
+	<xsl:value-of select="$text-newline"/>
+	<xsl:text>currentFont['cvar'].variations = CVAR_VARIATIONS</xsl:text>
+      </xsl:if>
 
     </xsl:if>
 

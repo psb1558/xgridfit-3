@@ -559,7 +559,7 @@
   <xs:attributeGroup name="attlist.cvv">
     <xs:attribute name="index"/>
     <xs:attributeGroup ref="xgridfit2:att.name"/>
-    <xs:attribute name="val" use="required" type="xs:int"/>
+    <xs:attribute name="val" use="required" type="xs:decimal"/>
   </xs:attributeGroup>
   <xs:element name="cv">
     <xs:complexType>
@@ -601,7 +601,9 @@
   </xs:element>
   <xs:attributeGroup name="attlist.axis">
     <xs:attribute name="tag"/>
-    <xs:attribute name="val"/>
+    <xs:attribute name="val" use="required" type="xs:decimal"/>
+    <xs:attribute name="top" use="required" type="xs:decimal"/>
+    <xs:attribute name="bot" use="required" type="xs:decimal"/>
   </xs:attributeGroup>
   
   <xs:element name="fn">

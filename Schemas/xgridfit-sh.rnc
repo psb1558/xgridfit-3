@@ -304,6 +304,8 @@ axis =
   element axis { attlist.axis, cvv+ }
 attlist.axis &=
   attribute tag { text },
+  attribute top { text },
+  attribute bot { text },
   attribute val { text }
 cvar =
   element cvar { axis+ }
