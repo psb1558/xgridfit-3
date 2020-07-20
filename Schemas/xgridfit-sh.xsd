@@ -940,7 +940,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="attlist.sh">
-    <xs:attribute name="reference-ptr">
+    <xs:attribute name="ref-ptr">
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="1"/>

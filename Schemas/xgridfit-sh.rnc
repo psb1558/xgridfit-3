@@ -441,7 +441,7 @@ sh =
     (pt | range | set | contour | zone)+
   }
 attlist.sh &=
-  attribute reference-ptr { "1" | "2" }?,
+  attribute ref-ptr { "1" | "2" }?,
   att.compile-if?,
   att.round?
 al =
