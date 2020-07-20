@@ -15,4 +15,4 @@ which produces from the Xgridfit program file Elstob-roman.xgf a Python program,
 
 The original documentation is [here](http://xgridfit.sourceforge.net/). Most of it is still valid, but most of the many command-line options are gone: use <default> elements in your Xgridfit program file instead. An updated element reference is in the doc folder.
 
-For **variable fonts**, Xgridfit works well, but cannot yet add a cvar table (which may be added manually, using TTX -m). That is high up on the list of things to do.
+Xgridfit now supports the cvar table, and thus can hint variable fonts. This feature has not yet been rigorously tested; documentation is on the way.
