@@ -7,6 +7,17 @@
                 exclude-result-prefixes="xgf xgfd excom"
 		extension-element-prefixes="excom">
 
+  <!--
+      This file is part of xgridfit, version 3.
+      Licensed under the Apache License, Version 2.0.
+      Copyright (c) 2006-20 by Peter S. Baker
+  -->
+
+  <!--
+      Generate a list of TupleVariations that can be assigned
+      to a cvar.variations property.
+  -->
+
   <xsl:output method="text"/>
   
   <xsl:key name="cvt" match="xgf:cv" use="@nm"/>
@@ -14,17 +25,9 @@
   <xsl:variable name="newline"><xsl:text>
 </xsl:text></xsl:variable>
 
-  <xsl:template name="get-cvt-index">
-    <xsl:param name="name"/>
-    <xsl:param name="need-number-now"/>
-    <xsl:value-of
-	select="count(key('cvt',$name)/preceding-sibling::xgf:cv)"/>
+  <xsl:template match="@*|node()">
+    <xsl:apply-templates select="@*|node()"/>
   </xsl:template>
-
-  
-    <xsl:template match="@*|node()">
-        <xsl:apply-templates select="@*|node()"/>
-    </xsl:template>
 
   <xsl:template match="xgf:cvar">
     <xsl:text>CVAR_VARIATIONS = [</xsl:text>

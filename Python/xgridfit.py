@@ -48,7 +48,7 @@ have_cvar = (len(xgffile.xpath("/xg:xgridfit/xg:cvar", namespaces=ns)) > 0)
 
 if len(xgffile.xpath("/xg:xgridfit/xg:pre-program", namespaces=ns)):
     xslfile = "xgridfit-ft.xsl"
-    xslcvarfile = "cvar.xsl"
+    xslcvarfile = "cvar-tuple-sh.xsl"
     xgfschema = "xgridfit.xsd"
 elif len(xgffile.xpath("/xg:xgridfit/xg:prep", namespaces=ns)):
     xslfile = "xgridfit-ft-sh.xsl"
@@ -84,12 +84,13 @@ if skipcomp:
 else:
     cvarstring = "'none'"
     if have_cvar:
+        # cvar has its own XSLT program. Generate TupleVariation
+        # list as a big string and pass it to the main program
+        # as a parameter.
         xslcvarpath = progpath + "/XSL/" + xslcvarfile
         xslcvarprog = etree.parse(xslcvarpath)
         ctransform = etree.XSLT(xslcvarprog)
         cvarresult = ctransform(xgffile)
-        # print("trying to print cvarresult:")
-        # print(cvarresult)
         cvarstring = etree.XSLT.strparam(str(cvarresult))
     try:
         transform = etree.XSLT(xslprog)
