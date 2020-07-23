@@ -575,37 +575,36 @@
   <!--
       The cvar element should look like this:
       <cvar>
-        <axis tag="wght" val="1.0">
-          <cv nm="lc-serif" val="60"/>
+        <region tag="wght" bot="0.0" top="1.0" peak="1.0">
+          <cvv nm="lc-serif" val="60"/>
 	...
-        </axis>
+        </region>
 	...
       </cvar>
   -->
   <xs:element name="cvar">
     <xs:complexType>
       <xs:sequence>
-	<xs:element ref="xgridfit2:axis" minOccurs="1"
+	<xs:element ref="xgridfit2:region" minOccurs="1"
 		    maxOccurs="unbounded"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="axis">
+  <xs:element name="region">
     <xs:complexType>
       <xs:sequence>
 	<xs:element ref="xgridfit2:cvv" minOccurs="1"
 		    maxOccurs="unbounded"/>
       </xs:sequence>
-      <xs:attributeGroup ref="xgridfit2:attlist.axis"/>
+      <xs:attributeGroup ref="xgridfit2:attlist.region"/>
     </xs:complexType>
   </xs:element>
-  <xs:attributeGroup name="attlist.axis">
+  <xs:attributeGroup name="attlist.region">
     <xs:attribute name="tag"/>
-    <xs:attribute name="val" use="required" type="xs:decimal"/>
+    <xs:attribute name="peak" use="required" type="xs:decimal"/>
     <xs:attribute name="top" use="required" type="xs:decimal"/>
     <xs:attribute name="bot" use="required" type="xs:decimal"/>
   </xs:attributeGroup>
-  
   <xs:element name="fn">
     <xs:complexType>
       <xs:sequence>

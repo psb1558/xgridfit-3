@@ -32,17 +32,17 @@
   <xsl:template match="xgf:cvar">
     <xsl:text>CVAR_VARIATIONS = [</xsl:text>
     <xsl:value-of select="$newline"/>
-    <xsl:apply-templates select="xgf:axis"/>
+    <xsl:apply-templates select="xgf:region"/>
     <xsl:text>]</xsl:text>
   </xsl:template>
 
-  <xsl:template match="xgf:axis">
+  <xsl:template match="xgf:region">
     <xsl:text>    TupleVariation({'</xsl:text>
     <xsl:value-of select="@tag"/>
     <xsl:text>': (</xsl:text>
     <xsl:value-of select="@bot"/>
     <xsl:text>, </xsl:text>
-    <xsl:value-of select="@val"/>
+    <xsl:value-of select="@peak"/>
     <xsl:text>, </xsl:text>
     <xsl:value-of select="@top"/>
     <xsl:text>)}, [</xsl:text>

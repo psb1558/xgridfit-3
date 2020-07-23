@@ -300,15 +300,15 @@ entry =
 attlist.entry &=
   att.nm,
   att.val
-axis =
-  element axis { attlist.axis, cvv+ }
-attlist.axis &=
+region =
+  element region { attlist.region, cvv+ }
+attlist.region &=
   attribute tag { text },
   attribute top { text },
   attribute bot { text },
-  attribute val { text }
+  attribute peak { text }
 cvar =
-  element cvar { axis+ }
+  element cvar { region+ }
 cvv =
   element cvv { attlist.cvv, empty }
 attlist.cvv &=
