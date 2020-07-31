@@ -375,6 +375,7 @@
         <xs:element ref="xgridfit2:round-state"/>
         <xs:element ref="xgridfit2:default"/>
         <xs:element ref="xgridfit2:control-value"/>
+	<xs:element ref="xgridfit2:cvar"/>
         <xs:element ref="xgridfit2:function"/>
         <xs:element ref="xgridfit2:macro"/>
         <xs:element ref="xgridfit2:glyph"/>
@@ -550,6 +551,16 @@
     <xs:attributeGroup ref="xgridfit2:att.name"/>
     <xs:attributeGroup ref="xgridfit2:att.value"/>
   </xs:attributeGroup>
+  <xs:element name="cvv">
+    <xs:complexType>
+      <xs:attributeGroup ref="xgridfit2:attlist.cvv"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.cvv">
+    <xs:attribute name="index"/>
+    <xs:attributeGroup ref="xgridfit2:att.name"/>
+    <xs:attribute name="val" use="required" type="xs:decimal"/>
+  </xs:attributeGroup>
   <xs:element name="control-value">
     <xs:complexType>
       <xs:attributeGroup ref="xgridfit2:attlist.control-value"/>
@@ -559,6 +570,40 @@
     <xs:attribute name="index"/>
     <xs:attributeGroup ref="xgridfit2:att.name"/>
     <xs:attribute name="value" use="required" type="xs:int"/>
+  </xs:attributeGroup>
+
+  <!--
+      The cvar element should look like this:
+      <cvar>
+        <region tag="wght" bot="0.0" top="1.0" peak="1.0">
+          <cvv nm="lc-serif" val="60"/>
+	...
+        </region>
+	...
+      </cvar>
+  -->
+  <xs:element name="cvar">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="xgridfit2:region" minOccurs="1"
+		    maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="region">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="xgridfit2:cvv" minOccurs="1"
+		    maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.region"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.region">
+    <xs:attribute name="tag"/>
+    <xs:attribute name="peak" use="required" type="xs:decimal"/>
+    <xs:attribute name="top" use="required" type="xs:decimal"/>
+    <xs:attribute name="bot" use="required" type="xs:decimal"/>
   </xs:attributeGroup>
   <xs:element name="function">
     <xs:complexType>

@@ -54,10 +54,15 @@ elif len(xgffile.xpath("/xg:xgridfit/xg:prep", namespaces=ns)):
     xslfile = "xgridfit-ft-sh.xsl"
     xslcvarfile = "cvar-tuple-sh.xsl"
     xgfschema = "xgridfit-sh.xsd"
+    simpleschema = "xgridfit-simple.rng"
 else:
     print("The xgridfit program must contain a pre-program (prep) element,")
     print("even if it's empty.")
     sys.exit(1)
+
+using_simplified = False
+if len(xgffile.xpath("//xg:mv/@p|//xg:sh/@p|//xg:ip/@p|//xg:set/@p",  namespaces=ns)):
+    using_simplified = True
 
 # Grab the xsl program. This is assumed to be in ../XSL/, relative to this
 # Python file.
@@ -68,10 +73,14 @@ xslprog = etree.parse(xslpath)
 
 # Validate the xgridfit program. We're using the XML Schema rather
 # than the RelaxNG here, because most of the messages seem more
-# intelligible.
+# intelligible. But if using the simple style, only RelaxNG will do.
 
 if skipval:
-    print("Skipping validation")
+    print("# Skipping validation")
+elif using_simplified:
+    rngdoc = etree.parse(progpath + "/Schemas/" + simpleschema)
+    relaxng = etree.RelaxNG(rngdoc)
+    relaxng.assertValid(xgffile)
 else:
     xmlschemadoc = etree.parse(progpath + "/Schemas/" + xgfschema)
     xmlschema = etree.XMLSchema(xmlschemadoc)
@@ -80,8 +89,14 @@ else:
 # Transform the xgridfit program to generate Python output.
     
 if skipcomp:
-    print("Skipping compilation")
+    print("# Skipping compilation")
 else:
+    if using_simplified:
+        # Expand the simplified usage into the short form.
+        pt2ptpath = progpath + "/XSL/pt2pt.xsl"
+        pt2ptprog = etree.parse(pt2ptpath)
+        ptransform = etree.XSLT(pt2ptprog)
+        xgffile = ptransform(xgffile)
     cvarstring = "'none'"
     if have_cvar:
         # cvar has its own XSLT program. Generate TupleVariation

@@ -181,6 +181,7 @@ xgridfit =
         round-state*&
         \default*&
         control-value*&
+	cvar?&
         function*&
         macro*&
         glyph*&
@@ -290,6 +291,21 @@ entry =
 attlist.entry &=
   att.name,
   att.value
+region =
+  element region { attlist.region, cvv+ }
+attlist.region &=
+  attribute tag { text },
+  attribute top { text },
+  attribute bot { text },
+  attribute peak { text }
+cvar =
+  element cvar { region+ }
+cvv =
+  element cvv { attlist.cvv, empty }
+attlist.cvv &=
+  attribute index { text }?,
+  att.nm,
+  attribute val { xsd:int }
 control-value =
   element control-value { attlist.control-value, empty }
 attlist.control-value &=

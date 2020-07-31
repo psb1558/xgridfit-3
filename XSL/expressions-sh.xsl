@@ -135,6 +135,10 @@
       <xsl:when test="contains($use-s,' ')">
 	<xsl:value-of select="substring-before($use-s, ' ')"/>
       </xsl:when>
+      <xsl:when test="contains($use-s,':')">
+	<xsl:value-of
+	    select="substring($use-s,1,string-length(substring-before($use-s,':')+1))"/>
+      </xsl:when>
       <xsl:when test="string-length($use-s) &gt; 0">
         <xsl:value-of select="$use-s"/>
       </xsl:when>
