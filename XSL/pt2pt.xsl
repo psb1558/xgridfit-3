@@ -40,46 +40,49 @@
 
   <xsl:template name="make-params">
     <xsl:param name="s"/>
-    <xsl:variable name="attname">
-      <xsl:variable name="a">
-	<xsl:call-template name="get-first-token">
-          <xsl:with-param  name="s" select="normalize-space($s)"/>
-	</xsl:call-template>
-      </xsl:variable>
-      <xsl:value-of select="substring($a,1,string-length($a))"/>
+    <!-- Isolate the key-value pair; set aside what remains -->
+    <xsl:variable name="thispair">
+      <xsl:choose>
+	<xsl:when test="contains($s,',')">
+	  <xsl:value-of select="normalize-space(substring-before($s,','))"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="$s"/>
+	</xsl:otherwise>
+      </xsl:choose>
     </xsl:variable>
-    <xsl:variable name="remaining1">
-      <xsl:call-template name="get-remaining-tokens">
-	<xsl:with-param  name="s" select="$s"/>
-      </xsl:call-template>
+    <xsl:variable name="remaining">
+      <xsl:value-of select="normalize-space(substring-after($s,','))"/>
     </xsl:variable>
-    <xsl:variable name="val">
-      <xsl:call-template name="get-first-token">
-        <xsl:with-param  name="s"
-			 select="normalize-space($remaining1)"/>
-      </xsl:call-template>
+    <!-- Divide into key and value -->
+    <xsl:variable name="keystr">
+      <xsl:value-of
+	  select="normalize-space(substring-before($thispair,':'))"/>
     </xsl:variable>
-<!--    <xsl:value-of select="concat('*',$val,'*')"/> -->
-    <xsl:if test="string-length($attname) &gt; 0 and
-		  string-length($val) &gt; 0">
-      <xgf:wpm>
-	<xsl:attribute name="nm">
-	  <xsl:value-of
-	      select="substring($attname,1,string-length($attname)-1)"/>
-	</xsl:attribute>
-	<xsl:attribute name="val">
-	  <xsl:value-of select="$val"/>
-	</xsl:attribute>
-      </xgf:wpm>
+    <xsl:variable name="valstr">
+      <xsl:value-of
+	  select="normalize-space(substring-after($thispair,':'))"/>
+    </xsl:variable>
+    <!-- Test validity of key-value pair -->
+    <xsl:if test="string-length($keystr) = 0 or
+		  string-length($valstr) = 0">
+      <xsl:message terminate="yes">
+	<xsl:text>Ill-formed key-value pair in &lt;pms&gt;</xsl:text>
+      </xsl:message>
     </xsl:if>
-    <xsl:variable name="remaining2">
-      <xsl:call-template name="get-remaining-tokens">
-	<xsl:with-param  name="s" select="$remaining1"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:if test="string-length($remaining2) &gt; 0">
+    <!-- Output the parameter -->
+    <xgf:wpm>
+      <xsl:attribute name="nm">
+	<xsl:value-of select="$keystr"/>
+      </xsl:attribute>
+      <xsl:attribute name="val">
+	<xsl:value-of select="$valstr"/>
+      </xsl:attribute>
+    </xgf:wpm>
+    <!-- Recurs if necessary -->
+    <xsl:if test="string-length($remaining) &gt; 0">
       <xsl:call-template name="make-params">
-	<xsl:with-param name="s" select="$remaining2"/>
+	<xsl:with-param name="s" select="$remaining"/>
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
