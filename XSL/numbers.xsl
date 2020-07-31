@@ -142,45 +142,12 @@
 	<xsl:with-param name="mp-container" select="$mp-container"/>
       </xsl:call-template>
     </xsl:variable>
-          <xsl:message><xsl:text>ID: </xsl:text><xsl:value-of select="$this-id"/></xsl:message>
-<!--
-    <xsl:message>
-      <xsl:text>this-id: </xsl:text>
-      <xsl:value-of select="$this-id"/>
-      <xsl:value-of select="$text-newline"/>
-      <xsl:text>Containers: </xsl:text>
-      <xsl:value-of select="count($mp-containers)"/>
-      <xsl:value-of select="$text-newline"/>
-      <xsl:text>Container ids: </xsl:text>
-      <xsl:for-each select="$mp-containers">
-	<xsl:value-of select="local-name()"/>
-	<xsl:text> : </xsl:text>
-	<xsl:value-of select="generate-id()"/>
-	<xsl:value-of select="$text-newline"/>
-      </xsl:for-each>
-      <xsl:text>with-param: </xsl:text>
-      <xsl:value-of select="count($mp-containers[generate-id() = $this-id]/xgf:with-param)"/>
-    </xsl:message>
--->
+    <!-- <xsl:message><xsl:text>ID: </xsl:text><xsl:value-of
+	 select="$this-id"/></xsl:message> -->
     <xsl:variable name="val-passed-in"
 		  select="string-length($this-id) and
 			  $mp-containers and
 			  $mp-containers[generate-id() = $this-id]/xgf:with-param[@name = $vn]"/>
-<!--
-    <xsl:if test="$debug">
-      <xsl:message>
-	<xsl:value-of select="$text-newline"/>
-	<xsl:text>expression-with-offset - - - - - - - - -</xsl:text>
-	<xsl:value-of select="$text-newline"/>
-	<xsl:text>called from: </xsl:text>
-	<xsl:value-of select="$called-from"/>
-	<xsl:value-of select="$text-newline"/>
-	<xsl:text>evaluating: "</xsl:text>
-	<xsl:value-of select="$val"/>
-	<xsl:text>"</xsl:text>
-      </xsl:message>
-    </xsl:if>
--->
     <xsl:choose>
       <xsl:when test="$this-glyph/xgf:param[@name='offset'] and not($val-passed-in)">
 	<!--
@@ -330,28 +297,6 @@
         <xsl:with-param name="s" select="$val"/>
       </xsl:call-template>
     </xsl:variable>
-
-    <xsl:message>
-      <xsl:if test="ancestor::xgf:macro">
-	<xsl:text>In a macro!</xsl:text>
-	<xsl:value-of select="name()"/>
-      </xsl:if>
-    </xsl:message>
-    <!-- <xsl:variable name="is-macro" select="ancestor::macro"/> -->
-
-<!--
-    <xsl:message>
-      <xsl:text>Evaluating expression. </xsl:text>
-      <xsl:value-of select="$valn"/>
-    </xsl:message>
-    <xsl:if test="ancestor::xgf:macro">
-      <xsl:message>
-	<xsl:text>In a macro: </xsl:text>
-	<xsl:value-of select="ancestor::xgf:macro/@name"/>
-      </xsl:message>
-      </xsl:if>
--->
-
     <xsl:if test="$debug">
       <xsl:message>
 	<xsl:choose>
@@ -452,12 +397,6 @@
 	  thing, so investigate further.
       -->
       <xsl:when test="$all-macro-params[@name=$valn]">
-      <!-- <xsl:when test="$is-macro"> -->
-	<xsl:if test="$debug">
-	  <xsl:message>
-	    <xsl:text>This is a macro parameter.</xsl:text>
-	  </xsl:message>
-	</xsl:if>
 	<xsl:variable name="this-id">
 	  <xsl:call-template name="get-first-mp-id">
 	    <xsl:with-param name="mp-container" select="$mp-container"/>
@@ -537,9 +476,9 @@
 	      <with-param> or the <param>.
 	  -->
 	  <xsl:otherwise>
-	    <xsl:message>
+	    <!-- <xsl:message>
 	      <xsl:value-of select="$all-macro-params"/>
-	    </xsl:message>
+	    </xsl:message> -->
 	    <xsl:call-template name="error-message">
 	      <xsl:with-param name="msg">
 		<xsl:text>Can't find value for param "</xsl:text>
@@ -600,24 +539,12 @@
 	    <xsl:when test="not($is-common) and
 			    contains($permitted,'x') and contains($valn,'.') and
 			    (number($valn) = 0 or number($valn))">
-
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got an F26dot6 number (a)</xsl:text>
-		</xsl:message>
-	      </xsl:if>
 	      <xsl:value-of select="round(number($valn) * 64)"/>
 	    </xsl:when>
 	    <!-- It's a number literal, an integer. -->
 	    <xsl:when test="not($is-common) and
 			    contains($permitted,'1') and (number($valn) = 0 or
 			    number($valn))">
-
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got an integer</xsl:text>
-		</xsl:message>
-	      </xsl:if>
 	      <xsl:value-of select="number($valn)"/>
 	    </xsl:when>
 	    <!-- It's a number literal with suffix p, a distance on the
@@ -626,11 +553,6 @@
 			    contains($permitted,'x') and
 			    (number($all-but-last-char) or number($all-but-last-char) = 0) and
 			    $last-char = 'p'">
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got an F26dot6 number (b)</xsl:text>
-		</xsl:message>
-	      </xsl:if>
 	      <xsl:value-of select="round(number($all-but-last-char) * 64)"/>
 	    </xsl:when>
 	    <!-- It's an F2dot14 number, for setting a vector. -->
@@ -638,11 +560,6 @@
 			    contains($permitted,'2') and $last-char = 'v' and
 			    number($all-but-last-char) &gt;= -1 and
 			    number($all-but-last-char) &lt;= 1">
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got an F2dot14 number</xsl:text>
-		</xsl:message>
-	      </xsl:if>
 	      <xsl:value-of select="round(number($all-but-last-char) * 16384)"/>
 	    </xsl:when>
 	    <!--
@@ -656,47 +573,22 @@
 	    <xsl:when test="not($is-common) and
 			    contains($permitted,'r') and
 			    document('xgfdata.xml')/*/xgfd:round-states/xgfd:round[@name = $valn]">
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a round state identifier</xsl:text>
-		</xsl:message>
-	      </xsl:if>
 	      <xsl:value-of select="document('xgfdata.xml')/*/xgfd:round-states/xgfd:round[@name
 				    = $valn]/@num"/>
 	    </xsl:when>
 	    <!-- It's a selector for getinfo. -->
 	    <xsl:when test="not($is-common) and $getinfo-index and
 			    document('xgfdata.xml')/*/xgfd:getinfo/xgfd:entry[@name = $valn]">
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a getinfo selector</xsl:text>
-		</xsl:message>
-	      </xsl:if>
 	      <xsl:value-of select="document('xgfdata.xml')/*/xgfd:getinfo/xgfd:entry[@name =
 				    $valn]/@selector"/>
 	    </xsl:when>
 	    <!-- It's an engine version -->
 	    <xsl:when test="not($is-common) and
 			    document('xgfdata.xml')/*/xgfd:engine-versions/xgfd:entry[@name = $valn]">
-
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got an engine version</xsl:text>
-		</xsl:message>
-	      </xsl:if>
-
 	      <xsl:value-of select="document('xgfdata.xml')/*/xgfd:engine-versions/xgfd:entry[@name =
 				    $valn]/@num"/>
 	    </xsl:when>
-	    <!-- It's "merge-mode" -->
 	    <xsl:when test="not($is-common) and $valn = 'merge-mode'">
-<!--
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got "merge-mode"</xsl:text>
-		</xsl:message>
-	      </xsl:if>
--->
 	      <xsl:value-of select="number($merge-mode)"/>
 	    </xsl:when>
 	    <!--
@@ -712,13 +604,6 @@
 	    <!-- pixels-per-em -->
 	    <xsl:when test="not($is-common) and
 			    $to-stack and contains($permitted,'m') and $valn='pixels-per-em'">
-<!--
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got "pixels-per-em"</xsl:text>
-		</xsl:message>
-	      </xsl:if>
--->
 	      <xsl:call-template name="simple-command">
 		<xsl:with-param name="cmd" select="'MPPEM'"/>
 	      </xsl:call-template>
@@ -726,13 +611,6 @@
 	    <!-- point-size -->
 	    <xsl:when test="not($is-common) and
 			    $to-stack and contains($permitted,'p') and $valn='point-size'">
-<!--
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got "point-size"</xsl:text>
-		</xsl:message>
-	      </xsl:if>
--->
 	      <xsl:call-template name="simple-command">
 		<xsl:with-param name="cmd" select="'MPS'"/>
 	      </xsl:call-template>
@@ -741,13 +619,6 @@
 	    <xsl:when test="not($is-common) and
 			    $to-stack and not($getinfo-index) and contains($permitted,'p') and
 			    document('xgfdata.xml')/*/xgfd:getinfo/xgfd:entry[@name = $valn]">
-
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a getinfo request</xsl:text>
-		</xsl:message>
-	      </xsl:if>
-
 	      <xsl:call-template name="number-command">
 		<xsl:with-param name="cmd" select="'GETINFO'"/>
 		<xsl:with-param name="num"
@@ -760,13 +631,6 @@
 			    $to-stack and contains($permitted,'l') and
 			    document('xgfdata.xml')/*/xgfd:var-locations/xgfd:loc[@name =
 			    $valn]">
-
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a storage area locator</xsl:text>
-		</xsl:message>
-	      </xsl:if>
-
 	      <xsl:call-template name="push-num">
 		<xsl:with-param name="num">
 		  <xsl:call-template name="resolve-std-variable-loc">
@@ -789,13 +653,6 @@
 		 Otherwise, call this recursively to find out what it is. -->
 	    <xsl:when test="string-length($v-name) &gt; 0 and
 			    contains($permitted,'n')">
-<!--
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a local constant</xsl:text>
-		</xsl:message>
-		</xsl:if>
--->
 	      <xsl:choose>
 		<xsl:when test="(number($v-name) or number($v-name) = 0) and
 				not(contains($v-name,'.'))">
@@ -827,11 +684,6 @@
 	    <!-- It's a local variable. -->
 	    <xsl:when test="not($is-common) and
 			    $to-stack and contains($permitted,'v') and $all-variables[@name=$valn]">
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a local variable</xsl:text>
-		</xsl:message>
-	      </xsl:if>
 	      <xsl:call-template name="push-variable">
 		<xsl:with-param name="val" select="$all-variables[@name=$valn]"/>
 		<xsl:with-param name="add-mode" select="$add-mode"/>
@@ -842,11 +694,6 @@
 	    <xsl:when test="not($is-common) and
 			    $to-stack and contains($permitted,'f') and
 			    $all-function-params[@name=$valn]">
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a function param</xsl:text>
-		</xsl:message>
-	      </xsl:if>
 	      <xsl:call-template name="push-function-parameter">
 		<xsl:with-param name="val" select="$valn"/>
 		<xsl:with-param name="this-function" select="$this-function"/>
@@ -864,13 +711,6 @@
 			    contains($permitted,'c') and
 			    ($cvt-mode = 'index' or $force-to-index) and
 			    key('cvt',$valn)">
-
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a request for cvt index</xsl:text>
-		</xsl:message>
-	      </xsl:if>
-
 	      <xsl:call-template name="get-cvt-index">
 		<xsl:with-param name="need-number-now" select="$need-number-now"/>
 		<xsl:with-param name="name" select="$valn"/>
@@ -880,13 +720,6 @@
 	    <xsl:when test="not($is-common) and
 			    $to-stack and contains($permitted,'c') and
 			    $cvt-mode = 'value' and key('cvt',$valn)">
-
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a request for cvt value</xsl:text>
-		</xsl:message>
-	      </xsl:if>
-
 	      <xsl:call-template name="push-num">
 		<xsl:with-param name="num">
 		  <xsl:call-template name="get-cvt-index">
@@ -902,13 +735,6 @@
 	    <xsl:when test="not($is-common) and
 			    contains($permitted,'n') and
 			    $all-global-constants[@name=$valn]">
-
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a global constant</xsl:text>
-		</xsl:message>
-	      </xsl:if>
-
 	      <xsl:variable name="nn" select="$all-global-constants[@name = $valn]/@value"/>
 	      <xsl:choose>
 		<xsl:when test="(number($nn) or number($nn) = 0) and
@@ -935,13 +761,6 @@
 	    <!-- It's the name of a function, and we want the index -->
 	    <xsl:when test="not($is-common) and
 			    (not($merge-mode) or $to-stack) and key('function-index',$valn)">
-
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a request for function index</xsl:text>
-		</xsl:message>
-	      </xsl:if>
-
 	      <xsl:call-template name="get-function-number">
 		<xsl:with-param name="function-name" select="$valn"/>
 	      </xsl:call-template>
@@ -958,13 +777,6 @@
 			    $to-stack and
 			    contains($permitted,'v') and
 			    $all-global-variables[@name=$valn]">
-
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a global variable</xsl:text>
-		</xsl:message>
-	      </xsl:if>
-
 	      <xsl:call-template name="push-global-variable">
 		<xsl:with-param name="val" select="$all-global-variables[@name=$valn]"/>
 		<xsl:with-param name="index-only" select="$force-to-index"/>
@@ -980,13 +792,6 @@
 	    <xsl:when test="not($is-common) and
 			    contains($permitted,'n') and contains($valn,'/') and
 			    not(contains($valn,' ')) and not(contains($valn,'('))">
-
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Got a glyph/constant</xsl:text>
-		</xsl:message>
-	      </xsl:if>
-
 	      <xsl:variable name="gname" select="normalize-space(substring-before($valn,'/'))"/>
 	      <xsl:if test="not(key('glyph-index', $gname))">
 		<xsl:call-template name="error-message">
@@ -1015,11 +820,6 @@
 		* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	    -->
 	    <xsl:otherwise>
-	      <xsl:if test="$debug">
-		<xsl:message>
-		  <xsl:text>Trying to parse as an expression</xsl:text>
-		</xsl:message>
-	      </xsl:if>
 	      <xsl:variable name="op">
 		<xsl:call-template name="find-operator">
 		  <xsl:with-param name="s" select="$valn"/>
@@ -1462,15 +1262,6 @@
 	</xsl:variable> <!-- end of resolved-val -->
 	<xsl:choose>
 	  <xsl:when test="$resolved-val = 'NaN' and ($crash-on-fail or $to-stack)">
-<!--
-	    <xsl:if test="$debug">
-	      <xsl:message>
-		<xsl:text>resolved-val is NaN (valn was </xsl:text>
-		<xsl:value-of select="$valn"/>
-		<xsl:text>), and I am crashing</xsl:text>
-	      </xsl:message>
-	    </xsl:if>
--->
 	    <xsl:call-template name="error-message">
 	      <xsl:with-param name="msg">
 		<xsl:text>Cannot resolve value </xsl:text>
@@ -1479,29 +1270,9 @@
 	    </xsl:call-template>
 	  </xsl:when>
 	  <xsl:when test="$resolved-val = 'NaN'">
-<!--
-	    <xsl:if test="$debug">
-	      <xsl:message>
-		<xsl:text>resolved-val is NaN (valn was </xsl:text>
-		<xsl:value-of select="$valn"/>
-		<xsl:text>), and I am NOT crashing</xsl:text>
-	      </xsl:message>
-	    </xsl:if>
--->
 	    <xsl:value-of select="$resolved-val"/>
 	  </xsl:when>
 	  <xsl:when test="number($resolved-val) or number($resolved-val) = 0">
-<!--
-	    <xsl:if test="$debug">
-	      <xsl:message>
-		<xsl:text>resolved-val is the number </xsl:text>
-		<xsl:value-of select="$resolved-val"/>
-		<xsl:text> (valn was </xsl:text>
-		<xsl:value-of select="$valn"/>
-		<xsl:text>)</xsl:text>
-	      </xsl:message>
-	    </xsl:if>
--->
 	    <xsl:choose>
 	      <xsl:when test="$to-stack">
 		<xsl:call-template name="push-num">
@@ -1528,31 +1299,9 @@
 	    -->
 	    <xsl:choose>
 	      <xsl:when test="starts-with($resolved-val,$inst-newline)">
-<!--
-		<xsl:if test="$debug">
-		  <xsl:message>
-		    <xsl:text>resolved-val looks like code: </xsl:text>
-		    <xsl:value-of select="$resolved-val"/>
-		    <xsl:text> (valn was </xsl:text>
-		    <xsl:value-of select="$valn"/>
-		    <xsl:text>)</xsl:text>
-		  </xsl:message>
-		</xsl:if>
--->
 		<xsl:value-of select="$resolved-val"/>
 	      </xsl:when>
 	      <xsl:otherwise>
-<!--
-		<xsl:if test="$debug">
-		  <xsl:message>
-		    <xsl:text>resolved-val looks like a merge-mode meta-number: </xsl:text>
-		    <xsl:value-of select="$resolved-val"/>
-		    <xsl:text> (valn was </xsl:text>
-		    <xsl:value-of select="$valn"/>
-		    <xsl:text>)</xsl:text>
-		  </xsl:message>
-		</xsl:if>
--->
 		<xsl:call-template name="push-num">
 		  <xsl:with-param name="num" select="$resolved-val"/>
 		  <xsl:with-param name="expect" select="$expect"/>
@@ -1562,18 +1311,6 @@
 	    </xsl:choose>
 	  </xsl:when>
 	  <xsl:otherwise>
-<!--
-	    <xsl:if test="$debug">
-	      <xsl:message>
-		<xsl:text>resolved-val is </xsl:text>
-		<xsl:value-of select="$resolved-val"/>
-		<xsl:text> (was </xsl:text>
-		<xsl:value-of select="$valn"/>
-		<xsl:text>), and to-stack is </xsl:text>
-		<xsl:value-of select="number($to-stack)"/>
-	      </xsl:message>
-	    </xsl:if>
--->
 	    <xsl:choose>
 	      <xsl:when test="starts-with($resolved-val,$inst-newline)">
 		<xsl:text>NaN</xsl:text>
@@ -1629,7 +1366,7 @@
       <xsl:with-param name="need-number-now"
 		      select="$need-number-now"/>
 
-      <xsl:with-param name="debug" select="true()"/>
+      <xsl:with-param name="debug" select="$debug"/>
     </xsl:call-template>
   </xsl:template>
 
@@ -2382,19 +2119,6 @@
     <xsl:param name="permitted" select="'12xmplrfvncg'"/>
     <xsl:param name="mp-container"/>
     <xsl:param name="debug" select="false()"/>
-<!--
-    <xsl:if test="$debug">
-      <xsl:message>
-	<xsl:text>queue-count is </xsl:text>
-	<xsl:value-of select="$queue-count"/>
-      </xsl:message>
-      <xsl:message>
-	<xsl:text>list is "</xsl:text>
-	<xsl:value-of select="$list"/>
-	<xsl:text>"</xsl:text>
-      </xsl:message>
-    </xsl:if>
--->
     <xsl:if test="not(string-length($list)) and not(string-length($queue))">
       <xsl:call-template name="error-message">
 	<xsl:with-param name="type" select="'internal'"/>

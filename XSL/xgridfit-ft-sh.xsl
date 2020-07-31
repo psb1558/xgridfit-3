@@ -474,19 +474,6 @@
   
 
   <xsl:template match="/">
-    <!--
-    <xsl:message>
-      <xsl:text>mp-containers: </xsl:text>
-      <xsl:value-of select="count($mp-containers)"/>
-      <xsl:value-of select="$text-newline"/>
-      <xsl:for-each select="$mp-containers">
-	<xsl:value-of select="name()"/>
-	<xsl:text> : </xsl:text>
-	<xsl:value-of select="generate-id()"/>
-	<xsl:value-of select="$text-newline"/>
-      </xsl:for-each>
-    </xsl:message>
-    -->
     <xsl:if test="not(xgf:xgridfit)">
       <xsl:call-template name="error-message">
 	<xsl:with-param name="msg" select="$no-namespace-error"/>
