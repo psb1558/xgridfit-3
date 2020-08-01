@@ -51,9 +51,9 @@
       <xsl:variable name="cvname" select="@nm"/>
       <xsl:choose>
 	<xsl:when test="$cvvs[@nm = $cvname]">
-	  <xsl:variable name="defcv" select="number(@val)"/>
+	  <xsl:variable name="defcv" select="number(@value)"/>
 	  <xsl:variable name="varcv" select="number($cvvs[@nm
-					     = $cvname]/@val)"/>
+					     = $cvname]/@value)"/>
 	  <xsl:variable name="r" select="$varcv - $defcv"/>
 	  <xsl:choose>
 	    <xsl:when test="$r = 0">
