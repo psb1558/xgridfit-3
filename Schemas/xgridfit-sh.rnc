@@ -100,11 +100,8 @@ primitive = command | push | to-stack
 programming =
   various | movements | graphics | vars | flow | measure | primitive
 token.pnm = xsd:token {pattern = "\.notdef|[A-Za-z_][A-Za-z0-9_\.]{0,30}" }
-att.pyflags = attribute pyflags { list { ("afm" | "pfm" | "tfm" | "ofm" |
-  "composites-in-afm" | "glyph-map-file" | "short-post" | "apple" |
-  "opentype" | "old-kern" | "dummy-dsig" | "TeX-table" | "round" |
-  "no-hints" | "omit-instructions" | "PfEd-comments" | "PfEd-colors" |
-  "PfEd-lookups" | "PfEd-guidelines" | "PfEd-background" | "symbol")* } }
+att.p = attribute p { text }
+att.r = attribute r { text }
 att.val = attribute val { text }
 att.num = attribute num { text }
 att.n = attribute n { text }
@@ -112,7 +109,7 @@ att.nm = attribute nm { xsd:NCName }
 att.ref = attribute ref { xsd:NCName }
 att.target = attribute target { xsd:NCName }
 att.zone = attribute zone { "twilight" | "glyph" }
-att.color = attribute color { "gray" | "black" | "white" }
+att.col = attribute col { "g" | "b" | "w" }
 att.axis = attribute axis { "x" | "y" }
 att.unit = attribute unit { "pixel" | "font" }
 att.units.per.pixel = attribute units-per-pixel { "2" | "4" | "8" | "16" | "32" | "64" }
@@ -223,7 +220,6 @@ infile =
 outfile =
   element outfile {
     attribute fmflags { xsd:int }?,
-    att.pyflags?,
     xsd:anyURI }
 outfile-base =
   element outfile-base { xsd:anyURI }
@@ -285,7 +281,7 @@ attlist.default &=
     | "function-base"
     | "compile-globals"
     | "init-graphics"
-    | "color"
+    | "col"
     | "delete-all"
     | "combine-prep"
     | "auto-instr"
@@ -386,19 +382,19 @@ ref =
 dual.ref =
   element ref { pt, pt }
 line = element line {
-    attlist.line, (att.ref | (pt, pt))
+    attlist.line, (att.ref | (att.p | (pt, pt)))
   }
 attlist.line &=
   att.nm?,
   att.zone?
 range = element range {
-    attlist.range, (att.ref | (pt, pt))
+    attlist.range, (att.ref | (att.p | (pt, pt)))
   }
 attlist.range &=
   att.nm?,
   att.zone?
 set = element set {
-    attlist.set, (att.ref | pt+)
+    attlist.set, (att.ref | (att.p | pt)+)
   }
 attlist.set &=
   att.nm?,
@@ -420,14 +416,14 @@ attlist.mirp &=
   att.cut-in?,
   att.boolean.min-distance?,
   att.set-rp0?,
-  att.color?
+  att.col?
 mdrp =
   element mdrp { attlist.mdrp, ref?, pt }
 attlist.mdrp &=
   att.round?,
   att.boolean.min-distance?,
   att.set-rp0?,
-  att.color?
+  att.col?
 miap =
   element miap { attlist.miap, pt }
 attlist.miap &=
@@ -439,8 +435,8 @@ mdap =
 sh =
   element sh {
     attlist.sh,
-    ref?,
-    (pt | range | set | contour | zone)+
+    (att.r | ref)?,
+    ((att.p | pt+) | (range | set | contour | zone)+)
   }
 attlist.sh &=
   attribute ref-ptr { "1" | "2" }?,
@@ -448,7 +444,7 @@ attlist.sh &=
   att.round?
 al =
   element al {
-    att.compile-if?, ref?, (pt | range | set)+
+    att.compile-if?, (att.r | ref)?, ((att.p | pt+) | (range | set)+)
   }
 move-point-to-intersection =
   element move-point-to-intersection {
@@ -456,7 +452,7 @@ move-point-to-intersection =
   }
 ip =
   element ip {
-    attlist.ip, dual.ref?, (pt | range | set)+
+    attlist.ip, (att.r | dual.ref)?, ((att.p | pt+) | (range | set)+)
   }
 attlist.ip &=
   att.compile-if?,
@@ -479,7 +475,7 @@ untouch = element untouch { pt }
 top.level.mv =
   element mv {
     attlist.mv,
-      ((ref, pt, nested.delta*,
+      (((att.r | ref)?, (att.p | pt), nested.delta*,
       (al*& ip*& sh*),
       nested.mv*, nested.delta*)
     | (pt, nested.delta*,
@@ -489,7 +485,7 @@ top.level.mv =
 nested.mv =
   element mv {
     attlist.mv,
-    pt, nested.delta*,
+    (att.p | pt), nested.delta*,
     (al*& ip*& sh*),
     nested.mv*, nested.delta*
   }
@@ -498,7 +494,7 @@ attlist.mv &=
   att.round?,
   attribute cut-in { text }?,
   att.val.min-distance?,
-  att.color?,
+  att.col?,
   att.compile-if?
 diagonal-stem =
   element diagonal-stem { attlist.diagonal-stem,
@@ -508,7 +504,7 @@ attlist.diagonal-stem &=
   att.round?,
   att.cut-in?,
   att.val.min-distance?,
-  att.color?,
+  att.col?,
   attribute freedom-vector { YESNO }?,
   attribute save-vectors { YESNO }?
 top.level.delta =
@@ -702,7 +698,7 @@ no-round =
   element no-round { attlist.round, empty }
 attlist.round &=
   att.val,
-  att.color?,
+  att.col?,
   att.result-to?
 form.round =
   element round { attlist.form.round, empty }
@@ -710,26 +706,28 @@ form.no-round =
   element no-round { attlist.form.round, empty }
 attlist.form.round &=
   att.val?,
-  att.color?
+  att.col?
 formula =
   element formula { att.result-to?, (form.vars)+ }
 #
 # Function and macro calls
 #
+pms =
+  element pms { text }
 callf =
   element callf {
     attlist.callf,
-    (fn.pmset* | fn.wpm*)
+    (pms? | fn.pmset* | fn.wpm*)
   }
 attlist.callf &=
   att.nm,
   att.result-to?
 callm =
-  element callm { att.nm, (pmset* | wpm*) }
+  element callm { att.nm, (pms? | pmset* | wpm*) }
 callp =
   element callp { att.nm, empty }
 callg =
-  element callg { att.pnm, wpm* }
+  element callg { att.pnm, (pms? | wpm*) }
 fn.pmset =
   element pmset { attribute opt { YESNO }?, fn.wpm+ }
 pmset =
@@ -775,7 +773,7 @@ attlist.modifier &=
       "set-rp0"
     | "round"
     | "minimum-distance"
-    | "color"
+    | "col"
     | "grid-fitted"
     | "to-line"
     | "axis"

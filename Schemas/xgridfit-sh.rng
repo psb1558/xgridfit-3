@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-  <!--
-      This file is part of xgridfit, version 3.
-      Licensed under the Apache License, Version 2.0.
-      Copyright (c) 2006-20 by Peter S. Baker
-      -->
-
-<grammar ns="http://xgridfit.sourceforge.net/Xgridfit2" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<!--
+       This file is part of xgridfit, version 3.
+       Licensed under the Apache License, Version 2.0.
+       Copyright (c) 2006-20 by Peter S. Baker
+-->
+<grammar ns="http://xgridfit.sourceforge.net/Xgridfit2" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <define name="YESNO">
     <choice>
       <value>yes</value>
@@ -157,8 +155,17 @@
       <param name="pattern">\.notdef|[A-Za-z_][A-Za-z0-9_\.]{0,30}</param>
     </data>
   </define>
+  <define name="att.p">
+    <attribute name="p"/>
+  </define>
+  <define name="att.r">
+    <attribute name="r"/>
+  </define>
   <define name="att.val">
     <attribute name="val"/>
+  </define>
+  <define name="att.num">
+    <attribute name="num"/>
   </define>
   <define name="att.n">
     <attribute name="n"/>
@@ -186,12 +193,12 @@
       </choice>
     </attribute>
   </define>
-  <define name="att.color">
-    <attribute name="color">
+  <define name="att.col">
+    <attribute name="col">
       <choice>
-        <value>gray</value>
-        <value>black</value>
-        <value>white</value>
+        <value>g</value>
+        <value>b</value>
+        <value>w</value>
       </choice>
     </attribute>
   </define>
@@ -268,8 +275,8 @@
   <define name="att.compile-if">
     <attribute name="compile-if"/>
   </define>
-  <define name="att.distance">
-    <attribute name="distance"/>
+  <define name="att.di">
+    <attribute name="di"/>
   </define>
   <define name="att.pixel-distance">
     <attribute name="pixel-distance"/>
@@ -279,7 +286,7 @@
       <ref name="YESNO"/>
     </attribute>
   </define>
-  <define name="att.value.min-distance">
+  <define name="att.val.min-distance">
     <attribute name="min-distance"/>
   </define>
   <define name="att.pnm">
@@ -299,21 +306,21 @@
     </optional>
   </define>
   <define name="attlist.dual.op">
-    <attribute name="value1"/>
-    <attribute name="value2"/>
+    <attribute name="val1"/>
+    <attribute name="val2"/>
     <optional>
       <ref name="att.result-to"/>
     </optional>
   </define>
   <define name="attlist.form.dual.op">
     <optional>
-      <attribute name="value1"/>
+      <attribute name="val1"/>
     </optional>
     <optional>
-      <attribute name="value2"/>
+      <attribute name="val2"/>
     </optional>
   </define>
-  <define name="attlist.value.with.name">
+  <define name="attlist.val.with.name">
     <ref name="att.val"/>
     <ref name="att.nm"/>
   </define>
@@ -351,7 +358,7 @@
       <ref name="att.result-to"/>
     </optional>
   </define>
-  <define name="model.setvs">
+  <define name="model.set-vector">
     <choice>
       <ref name="att.axis"/>
       <ref name="attlist.vector.components"/>
@@ -363,7 +370,7 @@
       </group>
     </choice>
   </define>
-  <define name="model.wv">
+  <define name="model.with-vector">
     <choice>
       <group>
         <ref name="att.axis"/>
@@ -447,6 +454,9 @@
         <zeroOrMore>
           <ref name="cv"/>
         </zeroOrMore>
+        <optional>
+          <ref name="cvar"/>
+        </optional>
         <zeroOrMore>
           <ref name="fn"/>
         </zeroOrMore>
@@ -454,7 +464,7 @@
           <ref name="mo"/>
         </zeroOrMore>
         <zeroOrMore>
-          <ref name="glyph"/>
+          <ref name="gl"/>
         </zeroOrMore>
         <zeroOrMore>
           <ref name="xg.xi.include"/>
@@ -469,7 +479,7 @@
   -->
   <define name="cn">
     <element name="cn">
-      <ref name="attlist.value.with.name"/>
+      <ref name="attlist.val.with.name"/>
       <empty/>
     </element>
   </define>
@@ -513,7 +523,7 @@
     <element name="no-compile">
       <zeroOrMore>
         <choice>
-          <ref name="glyph"/>
+          <ref name="gl"/>
           <ref name="xg.xi.include"/>
         </choice>
       </zeroOrMore>
@@ -526,22 +536,27 @@
   -->
   <define name="infile">
     <element name="infile">
-      <data type="string"/>
+      <data type="anyURI"/>
     </element>
   </define>
   <define name="outfile">
     <element name="outfile">
-      <data type="string"/>
+      <optional>
+        <attribute name="fmflags">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <data type="anyURI"/>
     </element>
   </define>
   <define name="outfile-base">
     <element name="outfile-base">
-      <data type="string"/>
+      <data type="anyURI"/>
     </element>
   </define>
   <define name="outfile-script-name">
     <element name="outfile-script-name">
-      <data type="string"/>
+      <data type="anyURI"/>
     </element>
   </define>
   <!--
@@ -619,7 +634,7 @@
         <value>function-base</value>
         <value>compile-globals</value>
         <value>init-graphics</value>
-        <value>color</value>
+        <value>col</value>
         <value>delete-all</value>
         <value>combine-prep</value>
         <value>auto-instr</value>
@@ -645,6 +660,42 @@
   <define name="attlist.entry" combine="interleave">
     <ref name="att.nm"/>
     <ref name="att.val"/>
+  </define>
+  <define name="region">
+    <element name="region">
+      <ref name="attlist.region"/>
+      <oneOrMore>
+        <ref name="cvv"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.region" combine="interleave">
+    <attribute name="tag"/>
+    <attribute name="top"/>
+    <attribute name="bot"/>
+    <attribute name="peak"/>
+  </define>
+  <define name="cvar">
+    <element name="cvar">
+      <oneOrMore>
+        <ref name="region"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="cvv">
+    <element name="cvv">
+      <ref name="attlist.cvv"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.cvv" combine="interleave">
+    <optional>
+      <attribute name="index"/>
+    </optional>
+    <ref name="att.nm"/>
+    <attribute name="val">
+      <data type="int"/>
+    </attribute>
   </define>
   <define name="cv">
     <element name="cv">
@@ -687,7 +738,7 @@
       <ref name="att.id"/>
     </optional>
     <optional>
-      <attribute name="n">
+      <attribute name="num">
         <data type="nonNegativeInteger"/>
       </attribute>
     </optional>
@@ -782,9 +833,9 @@
       </zeroOrMore>
     </element>
   </define>
-  <define name="glyph">
-    <element name="glyph">
-      <ref name="attlist.glyph"/>
+  <define name="gl">
+    <element name="gl">
+      <ref name="attlist.gl"/>
       <zeroOrMore>
         <ref name="pm"/>
       </zeroOrMore>
@@ -803,7 +854,7 @@
       </zeroOrMore>
     </element>
   </define>
-  <define name="attlist.glyph" combine="interleave">
+  <define name="attlist.gl" combine="interleave">
     <ref name="att.pnm"/>
     <optional>
       <attribute name="init-graphics">
@@ -826,7 +877,7 @@
   </define>
   <!--
     
-    Points and pt structures
+    Points and point structures
     
   -->
   <define name="pt">
@@ -857,10 +908,13 @@
       <ref name="attlist.line"/>
       <choice>
         <ref name="att.ref"/>
-        <group>
-          <ref name="pt"/>
-          <ref name="pt"/>
-        </group>
+        <choice>
+          <ref name="att.p"/>
+          <group>
+            <ref name="pt"/>
+            <ref name="pt"/>
+          </group>
+        </choice>
       </choice>
     </element>
   </define>
@@ -877,10 +931,13 @@
       <ref name="attlist.range"/>
       <choice>
         <ref name="att.ref"/>
-        <group>
-          <ref name="pt"/>
-          <ref name="pt"/>
-        </group>
+        <choice>
+          <ref name="att.p"/>
+          <group>
+            <ref name="pt"/>
+            <ref name="pt"/>
+          </group>
+        </choice>
       </choice>
     </element>
   </define>
@@ -898,7 +955,10 @@
       <choice>
         <ref name="att.ref"/>
         <oneOrMore>
-          <ref name="pt"/>
+          <choice>
+            <ref name="att.p"/>
+            <ref name="pt"/>
+          </choice>
         </oneOrMore>
       </choice>
     </element>
@@ -918,7 +978,7 @@
     </element>
   </define>
   <define name="attlist.contour" combine="interleave">
-    <ref name="att.n"/>
+    <ref name="att.num"/>
     <optional>
       <ref name="att.zone"/>
     </optional>
@@ -944,7 +1004,7 @@
     </element>
   </define>
   <define name="attlist.mirp" combine="interleave">
-    <ref name="att.distance"/>
+    <ref name="att.di"/>
     <optional>
       <ref name="att.round"/>
     </optional>
@@ -958,7 +1018,7 @@
       <ref name="att.set-rp0"/>
     </optional>
     <optional>
-      <ref name="att.color"/>
+      <ref name="att.col"/>
     </optional>
   </define>
   <define name="mdrp">
@@ -981,7 +1041,7 @@
       <ref name="att.set-rp0"/>
     </optional>
     <optional>
-      <ref name="att.color"/>
+      <ref name="att.col"/>
     </optional>
   </define>
   <define name="miap">
@@ -991,7 +1051,7 @@
     </element>
   </define>
   <define name="attlist.miap" combine="interleave">
-    <ref name="att.distance"/>
+    <ref name="att.di"/>
     <optional>
       <ref name="att.round"/>
     </optional>
@@ -1011,22 +1071,32 @@
     <element name="sh">
       <ref name="attlist.sh"/>
       <optional>
-        <ref name="ref"/>
-      </optional>
-      <oneOrMore>
         <choice>
-          <ref name="pt"/>
-          <ref name="range"/>
-          <ref name="set"/>
-          <ref name="contour"/>
-          <ref name="zone"/>
+          <ref name="att.r"/>
+          <ref name="ref"/>
         </choice>
-      </oneOrMore>
+      </optional>
+      <choice>
+        <choice>
+          <ref name="att.p"/>
+          <oneOrMore>
+            <ref name="pt"/>
+          </oneOrMore>
+        </choice>
+        <oneOrMore>
+          <choice>
+            <ref name="range"/>
+            <ref name="set"/>
+            <ref name="contour"/>
+            <ref name="zone"/>
+          </choice>
+        </oneOrMore>
+      </choice>
     </element>
   </define>
   <define name="attlist.sh" combine="interleave">
     <optional>
-      <attribute name="reference-ptr">
+      <attribute name="ref-ptr">
         <choice>
           <value>1</value>
           <value>2</value>
@@ -1046,15 +1116,25 @@
         <ref name="att.compile-if"/>
       </optional>
       <optional>
-        <ref name="ref"/>
-      </optional>
-      <oneOrMore>
         <choice>
-          <ref name="pt"/>
-          <ref name="range"/>
-          <ref name="set"/>
+          <ref name="att.r"/>
+          <ref name="ref"/>
         </choice>
-      </oneOrMore>
+      </optional>
+      <choice>
+        <choice>
+          <ref name="att.p"/>
+          <oneOrMore>
+            <ref name="pt"/>
+          </oneOrMore>
+        </choice>
+        <oneOrMore>
+          <choice>
+            <ref name="range"/>
+            <ref name="set"/>
+          </choice>
+        </oneOrMore>
+      </choice>
     </element>
   </define>
   <define name="move-point-to-intersection">
@@ -1082,15 +1162,25 @@
     <element name="ip">
       <ref name="attlist.ip"/>
       <optional>
-        <ref name="dual.ref"/>
-      </optional>
-      <oneOrMore>
         <choice>
-          <ref name="pt"/>
-          <ref name="range"/>
-          <ref name="set"/>
+          <ref name="att.r"/>
+          <ref name="dual.ref"/>
         </choice>
-      </oneOrMore>
+      </optional>
+      <choice>
+        <choice>
+          <ref name="att.p"/>
+          <oneOrMore>
+            <ref name="pt"/>
+          </oneOrMore>
+        </choice>
+        <oneOrMore>
+          <choice>
+            <ref name="range"/>
+            <ref name="set"/>
+          </choice>
+        </oneOrMore>
+      </choice>
     </element>
   </define>
   <define name="attlist.ip" combine="interleave">
@@ -1164,8 +1254,16 @@
       <ref name="attlist.mv"/>
       <choice>
         <group>
-          <ref name="ref"/>
-          <ref name="pt"/>
+          <optional>
+            <choice>
+              <ref name="att.r"/>
+              <ref name="ref"/>
+            </choice>
+          </optional>
+          <choice>
+            <ref name="att.p"/>
+            <ref name="pt"/>
+          </choice>
           <zeroOrMore>
             <ref name="nested.delta"/>
           </zeroOrMore>
@@ -1213,7 +1311,10 @@
   <define name="nested.mv">
     <element name="mv">
       <ref name="attlist.mv"/>
-      <ref name="pt"/>
+      <choice>
+        <ref name="att.p"/>
+        <ref name="pt"/>
+      </choice>
       <zeroOrMore>
         <ref name="nested.delta"/>
       </zeroOrMore>
@@ -1239,7 +1340,7 @@
   <define name="attlist.mv" combine="interleave">
     <choice>
       <optional>
-        <ref name="att.distance"/>
+        <ref name="att.di"/>
       </optional>
       <optional>
         <ref name="att.pixel-distance"/>
@@ -1252,10 +1353,10 @@
       <attribute name="cut-in"/>
     </optional>
     <optional>
-      <ref name="att.value.min-distance"/>
+      <ref name="att.val.min-distance"/>
     </optional>
     <optional>
-      <ref name="att.color"/>
+      <ref name="att.col"/>
     </optional>
     <optional>
       <ref name="att.compile-if"/>
@@ -1275,7 +1376,7 @@
     </element>
   </define>
   <define name="attlist.diagonal-stem" combine="interleave">
-    <ref name="att.distance"/>
+    <ref name="att.di"/>
     <optional>
       <ref name="att.round"/>
     </optional>
@@ -1283,10 +1384,10 @@
       <ref name="att.cut-in"/>
     </optional>
     <optional>
-      <ref name="att.value.min-distance"/>
+      <ref name="att.val.min-distance"/>
     </optional>
     <optional>
-      <ref name="att.color"/>
+      <ref name="att.col"/>
     </optional>
     <optional>
       <attribute name="freedom-vector">
@@ -1389,32 +1490,32 @@
   -->
   <define name="setvs">
     <element name="setvs">
-      <ref name="model.setvs"/>
+      <ref name="model.set-vector"/>
     </element>
   </define>
   <define name="wvs">
     <element name="wvs">
-      <ref name="model.wv"/>
+      <ref name="model.with-vector"/>
     </element>
   </define>
   <define name="set-projection-vector">
     <element name="set-projection-vector">
-      <ref name="model.setvs"/>
+      <ref name="model.set-vector"/>
     </element>
   </define>
   <define name="with-projection-vector">
     <element name="with-projection-vector">
-      <ref name="model.wv"/>
+      <ref name="model.with-vector"/>
     </element>
   </define>
   <define name="set-freedom-vector">
     <element name="set-freedom-vector">
-      <ref name="model.setvs"/>
+      <ref name="model.set-vector"/>
     </element>
   </define>
   <define name="with-freedom-vector">
     <element name="with-freedom-vector">
-      <ref name="model.wv"/>
+      <ref name="model.with-vector"/>
     </element>
   </define>
   <define name="set-dual-projection-vector">
@@ -1473,11 +1574,11 @@
   </define>
   <define name="set-dropout-type">
     <element name="set-dropout-type">
-      <ref name="att.dropout.value"/>
+      <ref name="att.dropout.val"/>
       <empty/>
     </element>
   </define>
-  <define name="att.dropout.value">
+  <define name="att.dropout.val">
     <attribute name="val">
       <data type="nonNegativeInteger">
         <param name="maxInclusive">7</param>
@@ -1499,7 +1600,7 @@
     </element>
   </define>
   <define name="attlist.setcv" combine="interleave">
-    <ref name="attlist.value.with.name"/>
+    <ref name="attlist.val.with.name"/>
     <optional>
       <ref name="att.unit"/>
     </optional>
@@ -1829,7 +1930,7 @@
   <define name="attlist.round" combine="interleave">
     <ref name="att.val"/>
     <optional>
-      <ref name="att.color"/>
+      <ref name="att.col"/>
     </optional>
     <optional>
       <ref name="att.result-to"/>
@@ -1852,7 +1953,7 @@
       <ref name="att.val"/>
     </optional>
     <optional>
-      <ref name="att.color"/>
+      <ref name="att.col"/>
     </optional>
   </define>
   <define name="formula">
@@ -1870,10 +1971,18 @@
     Function and macro calls
     
   -->
+  <define name="pms">
+    <element name="pms">
+      <text/>
+    </element>
+  </define>
   <define name="callf">
     <element name="callf">
       <ref name="attlist.callf"/>
       <choice>
+        <optional>
+          <ref name="pms"/>
+        </optional>
         <zeroOrMore>
           <ref name="fn.pmset"/>
         </zeroOrMore>
@@ -1893,6 +2002,9 @@
     <element name="callm">
       <ref name="att.nm"/>
       <choice>
+        <optional>
+          <ref name="pms"/>
+        </optional>
         <zeroOrMore>
           <ref name="pmset"/>
         </zeroOrMore>
@@ -1911,9 +2023,14 @@
   <define name="callg">
     <element name="callg">
       <ref name="att.pnm"/>
-      <zeroOrMore>
-        <ref name="wpm"/>
-      </zeroOrMore>
+      <choice>
+        <optional>
+          <ref name="pms"/>
+        </optional>
+        <zeroOrMore>
+          <ref name="wpm"/>
+        </zeroOrMore>
+      </choice>
     </element>
   </define>
   <define name="fn.pmset">
@@ -2071,7 +2188,7 @@
         <value>set-rp0</value>
         <value>round</value>
         <value>minimum-distance</value>
-        <value>color</value>
+        <value>col</value>
         <value>grid-fitted</value>
         <value>to-line</value>
         <value>axis</value>
