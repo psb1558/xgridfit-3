@@ -34,7 +34,7 @@ ns = {"xg": "http://xgridfit.sourceforge.net/Xgridfit2",
           "xi": "http://www.w3.org/2001/XInclude"}
 
 # Do xinclude if this is a multipart file
-    
+
 if len(xgffile.xpath("/xg:xgridfit/xi:include", namespaces=ns)):
     xgffile.xinclude()
 
@@ -46,43 +46,28 @@ have_cvar = (len(xgffile.xpath("/xg:xgridfit/xg:cvar", namespaces=ns)) > 0)
 # is to find out which tag is used for the required <pre-program> (<prep>)
 # element. If we don't find it, print an error message and exit.
 
-if len(xgffile.xpath("/xg:xgridfit/xg:pre-program", namespaces=ns)):
-    xslfile = "xgridfit-ft.xsl"
-    xslcvarfile = "cvar-tuple-sh.xsl"
-    xgfschema = "xgridfit.xsd"
-elif len(xgffile.xpath("/xg:xgridfit/xg:prep", namespaces=ns)):
-    xslfile = "xgridfit-ft-sh.xsl"
-    xslcvarfile = "cvar-tuple-sh.xsl"
-    xgfschema = "xgridfit-sh.xsd"
-    simpleschema = "xgridfit-simple.rng"
-else:
+# Look for all program files relative to this python file:
+# xsl files in ../XSL/, schemas in ../Schemas.
+progpath = os.path.split(os.path.dirname(__file__))[0]
+
+# If we're using compact syntax, expand it.
+if len(xgffile.xpath("/xg:xgridfit/xg:prep", namespaces=ns)):
+    expandprog = etree.parse(progpath + "/XSL/expand.xsl")
+    etransform = etree.XSLT(expandprog)
+    xgffile = etransform(xgffile)
+elif not(len(xgffile.xpath("/xg:xgridfit/xg:pre-program", namespaces=ns))):
     print("The xgridfit program must contain a pre-program (prep) element,")
     print("even if it's empty.")
     sys.exit(1)
 
-using_simplified = False
-if len(xgffile.xpath("//xg:mv/@p|//xg:sh/@p|//xg:ip/@p|//xg:set/@p",  namespaces=ns)):
-    using_simplified = True
-
-# Grab the xsl program. This is assumed to be in ../XSL/, relative to this
-# Python file.
-
-progpath = os.path.split(os.path.dirname(__file__))[0]
-xslpath = progpath + "/XSL/" + xslfile
-xslprog = etree.parse(xslpath)
-
 # Validate the xgridfit program. We're using the XML Schema rather
 # than the RelaxNG here, because most of the messages seem more
-# intelligible. But if using the simple style, only RelaxNG will do.
+# intelligible.
 
 if skipval:
     print("# Skipping validation")
-elif using_simplified:
-    rngdoc = etree.parse(progpath + "/Schemas/" + simpleschema)
-    relaxng = etree.RelaxNG(rngdoc)
-    relaxng.assertValid(xgffile)
 else:
-    xmlschemadoc = etree.parse(progpath + "/Schemas/" + xgfschema)
+    xmlschemadoc = etree.parse(progpath + "/Schemas/xgridfit.xsd")
     xmlschema = etree.XMLSchema(xmlschemadoc)
     xmlschema.assertValid(xgffile)
 
@@ -91,26 +76,21 @@ else:
 if skipcomp:
     print("# Skipping compilation")
 else:
-    if using_simplified:
-        # Expand the simplified usage into the short form.
-        pt2ptpath = progpath + "/XSL/pt2pt.xsl"
-        pt2ptprog = etree.parse(pt2ptpath)
-        ptransform = etree.XSLT(pt2ptprog)
-        xgffile = ptransform(xgffile)
     cvarstring = "'none'"
     if have_cvar:
         # cvar has its own XSLT program. Generate TupleVariation
         # list as a big string and pass it to the main program
         # as a parameter.
-        xslcvarpath = progpath + "/XSL/" + xslcvarfile
-        xslcvarprog = etree.parse(xslcvarpath)
+        xslcvarprog = etree.parse(progpath + "/XSL/cvar-tuple-sh.xsl")
         ctransform = etree.XSLT(xslcvarprog)
         cvarresult = ctransform(xgffile)
         cvarstring = etree.XSLT.strparam(str(cvarresult))
     try:
+        # Do the transformation of xgridfit file to Python program
+        # and store in string "result."
+        xslprog = etree.parse(progpath + "/XSL/xgridfit-ft.xsl")
         transform = etree.XSLT(xslprog)
         result = transform(xgffile, cvartable=cvarstring)
-        # result = transform(xgffile)
     except:
         for entry in transform.error_log:
             print('message from line %s, col %s: %s' % (
