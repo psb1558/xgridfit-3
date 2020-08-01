@@ -559,7 +559,7 @@
   <xs:attributeGroup name="attlist.cvv">
     <xs:attribute name="index"/>
     <xs:attributeGroup ref="xgridfit2:att.name"/>
-    <xs:attribute name="val" use="required" type="xs:decimal"/>
+    <xs:attribute name="value" use="required" type="xs:decimal"/>
   </xs:attributeGroup>
   <xs:element name="control-value">
     <xs:complexType>

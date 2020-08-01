@@ -304,8 +304,8 @@ cvv =
   element cvv { attlist.cvv, empty }
 attlist.cvv &=
   attribute index { text }?,
-  att.nm,
-  attribute val { xsd:int }
+  att.name,
+  attribute value { xsd:int }
 control-value =
   element control-value { attlist.control-value, empty }
 attlist.control-value &=
