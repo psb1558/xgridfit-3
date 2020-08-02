@@ -312,6 +312,7 @@
     <xgf:macro>
       <xsl:apply-templates select="@nm"/>
       <xsl:apply-templates select="@xml:id"/>
+      <xsl:apply-templates select="node()"/>
     </xgf:macro>
   </xsl:template>
 
