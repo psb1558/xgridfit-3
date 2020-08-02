@@ -6,7 +6,7 @@
 
   <xsl:output method="xml" indent="yes"/>
 
-  <xsl:include href="expressions-sh.xsl"/>
+  <xsl:include href="expressions.xsl"/>
 
   <xsl:template match="@* | node()">
     <xsl:copy>
