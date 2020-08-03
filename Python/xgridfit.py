@@ -48,6 +48,7 @@ have_cvar = (len(xgffile.xpath("/xg:xgridfit/xg:cvar", namespaces=ns)) > 0)
 
 # Look for all program files relative to this python file:
 # xsl files in ../XSL/, schemas in ../Schemas.
+
 progpath = os.path.split(os.path.dirname(__file__))[0]
 
 # Next determine whether we are using long tagnames or short. Best way
@@ -95,7 +96,6 @@ else:
 if skipval:
     print("# Skipping validation")
 else:
-    # xmlschemadoc = etree.parse(progpath + "/Schemas/xgridfit.xsd")
     xmlschema = etree.XMLSchema(etree.parse(progpath + "/Schemas/xgridfit.xsd"))
     xmlschema.assertValid(xgffile)
 
@@ -109,15 +109,13 @@ else:
         # cvar has its own XSLT program. Generate TupleVariation
         # list as a big string and pass it to the main program
         # as a parameter.
-        xslcvarprog = etree.parse(progpath + "/XSL/cvar-tuple-sh.xsl")
-        ctransform = etree.XSLT(xslcvarprog)
+        ctransform = etree.XSLT(etree.parse(progpath + "/XSL/cvar-tuple-sh.xsl"))
         cvarresult = ctransform(xgffile)
         cvarstring = etree.XSLT.strparam(str(cvarresult))
     try:
         # Do the transformation of xgridfit file to Python program
         # and store in string "result."
-        xslprog = etree.parse(progpath + "/XSL/xgridfit-ft.xsl")
-        transform = etree.XSLT(xslprog)
+        transform = etree.XSLT(etree.parse(progpath + "/XSL/xgridfit-ft.xsl"))
         result = transform(xgffile, cvartable=cvarstring)
     except:
         for entry in transform.error_log:
