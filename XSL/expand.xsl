@@ -44,7 +44,7 @@
    </xsl:attribute>
   </xsl:template>
 
-  <xsl:template match="ref-ptr">
+  <xsl:template match="@ref-ptr">
    <xsl:attribute name="reference-ptr">
       <xsl:value-of select="."/>
    </xsl:attribute>
@@ -179,6 +179,37 @@
       <xsl:apply-templates select="@p"/>
       <xsl:apply-templates select="node()"/>
     </xgf:move>
+  </xsl:template>
+
+  <xsl:template match="xgf:modifier">
+    <xsl:copy>
+      <xsl:attribute name="type">
+	<xsl:choose>
+	  <xsl:when test="@type = 'col'">
+	    <xsl:text>color</xsl:text>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:value-of select="@type"/>
+	  </xsl:otherwise>
+	</xsl:choose>
+      </xsl:attribute>
+      <xsl:attribute name="value">
+	<xsl:choose>
+	  <xsl:when test="@val = 'b'">
+	    <xsl:text>black</xsl:text>
+	  </xsl:when>
+	  <xsl:when test="@val = 'w'">
+	    <xsl:text>white</xsl:text>
+	  </xsl:when>
+	  <xsl:when test="@val = 'g'">
+	    <xsl:text>gray</xsl:text>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:value-of select="@val"/>
+	  </xsl:otherwise>
+	</xsl:choose>
+      </xsl:attribute>
+    </xsl:copy>
   </xsl:template>
 
   <xsl:template match="xgf:ip">
