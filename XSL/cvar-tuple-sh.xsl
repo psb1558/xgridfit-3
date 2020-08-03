@@ -20,7 +20,7 @@
 
   <xsl:output method="text"/>
   
-  <xsl:key name="cvt" match="xgf:cv" use="@nm"/>
+  <xsl:key name="cvt" match="xgf:control-value" use="@name"/>
 
   <xsl:variable name="newline"><xsl:text>
 </xsl:text></xsl:variable>
@@ -47,12 +47,12 @@
     <xsl:value-of select="@top"/>
     <xsl:text>)}, [</xsl:text>
     <xsl:variable name="cvvs" select="*"/>
-    <xsl:for-each select="/xgf:xgridfit/xgf:cv">
-      <xsl:variable name="cvname" select="@nm"/>
+    <xsl:for-each select="/xgf:xgridfit/xgf:control-value">
+      <xsl:variable name="cvname" select="@name"/>
       <xsl:choose>
-	<xsl:when test="$cvvs[@nm = $cvname]">
+	<xsl:when test="$cvvs[@name = $cvname]">
 	  <xsl:variable name="defcv" select="number(@value)"/>
-	  <xsl:variable name="varcv" select="number($cvvs[@nm
+	  <xsl:variable name="varcv" select="number($cvvs[@name
 					     = $cvname]/@value)"/>
 	  <xsl:variable name="r" select="$varcv - $defcv"/>
 	  <xsl:choose>
