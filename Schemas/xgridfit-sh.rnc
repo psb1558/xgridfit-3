@@ -216,11 +216,11 @@ no-compile =
 # Script I/O
 #
 infile =
-  element infile { xsd:anyURI }
+  element infile { text }
 outfile =
   element outfile {
-    attribute fmflags { xsd:int }?,
-    xsd:anyURI }
+    attribute fmflags { text }?,
+    text }
 outfile-base =
   element outfile-base { xsd:anyURI }
 outfile-script-name =
