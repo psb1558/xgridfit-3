@@ -77,6 +77,7 @@ elif len(xgffile.xpath("/xg:xgridfit/xg:pre-program", namespaces=ns)):
         tstr = str(xgffile)
         tstr = tstr.replace('xgf:','')
         tstr = tstr.replace('xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"','')
+        tstr = tstr.replace(' >','>')
         if outputfile:
             of = open(outputfile, "w")
             of.write(tstr)

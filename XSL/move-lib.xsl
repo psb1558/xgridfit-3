@@ -479,6 +479,21 @@
     </xsl:call-template>
   </xsl:template>
 
+  <xsl:template name="round-always-y">
+    <xsl:param name="pts"/>
+    <xsl:param name="mp-container"/>
+    <xsl:call-template name="push-points">
+      <xsl:with-param name="pts" select="$pts"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
+    </xsl:call-template>
+    <xsl:for-each select="$pts">
+      <xsl:call-template name="simple-command">
+	<xsl:with-param name="cmd" select="'MDAP'"/>
+	<xsl:with-param name="modifier" select="'1'"/>
+      </xsl:call-template>
+    </xsl:for-each>
+  </xsl:template>
+
   <xsl:template name="round-points-with-scfs">
     <xsl:param name="pts"/>
     <xsl:param name="round"/>

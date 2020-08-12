@@ -530,6 +530,7 @@
           <xs:enumeration value="auto-instr"/>
           <xs:enumeration value="auto-hint"/>
           <xs:enumeration value="cv-num-in-compile-if"/>
+	  <xs:enumeration value="assume-always-y"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -717,6 +718,7 @@
     <xs:attributeGroup ref="xgridfit2:att.ps-name"/>
     <xs:attribute name="init-graphics" type="xgridfit2:YESNO"/>
     <xs:attribute ref="xml:id"/>
+    <xs:attribute name="assume-y" type="xgridfit2:YESNO"/>
   </xs:attributeGroup>
   <!--
     

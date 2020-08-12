@@ -251,6 +251,11 @@
       <ref name="YESNO"/>
     </attribute>
   </define>
+  <define name="att.assume-y">
+    <attribute name="assume-y">
+      <ref name="YESNO"/>
+    </attribute>
+  </define>
   <define name="att.whichpointer">
     <attribute name="whichpointer"/>
   </define>
@@ -640,6 +645,7 @@
         <value>auto-instr</value>
         <value>auto-hint</value>
         <value>cv-num-in-compile-if</value>
+	<value>assume-always-y</value>
       </choice>
     </attribute>
     <ref name="att.val"/>
@@ -863,6 +869,9 @@
     </optional>
     <optional>
       <ref name="att.id"/>
+    </optional>
+    <optional>
+      <ref name="att.assume-y"/>
     </optional>
   </define>
   <!--

@@ -53,8 +53,20 @@
     </xsl:choose>
   </xsl:param>
 
-  <!-- How many points permitted in the twilight zone. This is generous,
-       I think. -->
+  <xsl:param name="assume-always-y">
+    <xsl:choose>
+      <xsl:when
+	  test="/xgf:xgridfit/xgf:default[@type='assume-always-y']">
+	<xsl:value-of select="/xgf:xgridfit/xgf:default[@type='assume-always-y']/@value"/>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:value-of select="'no'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:param>
+
+  <!-- How many points permitted in the twilight zone. This is
+       generous, I think. -->
   <xsl:param name="max_twilight_points">
     <xsl:choose>
       <xsl:when test="/xgf:xgridfit/xgf:default[@type='max-twilight-points']">
@@ -489,7 +501,7 @@
     <xsl:if test="not(xgf:pre-program) and $compile_globals='yes'">
       <xsl:call-template name="error-message">
 	<xsl:with-param name="msg">
-	  <xsl:text>A &lt;pre-program&gt; element must be present, even if empty.</xsl:text>
+	  <xsl:text>A &lt;pre-program&gt; (&lt;prep&gt;) element must be present, even if empty.</xsl:text>
 	</xsl:with-param>
       </xsl:call-template>
     </xsl:if>
@@ -703,6 +715,9 @@ def install_glyph_program(nm, fo, asm):
 			    count(/xgf:xgridfit/xgf:function)"/>
       <xsl:value-of select="$text-newline"/>
     </xsl:if>
+    <!-- fix flags in head table per GF guidelines -->
+    <xsl:text>currentFont['head'].flags |= 0b0000000000001000</xsl:text>
+    <xsl:value-of select="$text-newline"/>
     <xsl:if test="$outfile != '!!nofile!!'">
       <xsl:variable name="o" select="normalize-space($outfile)"/>
       <xsl:variable name="ext" select="substring($o,string-length($o)-3)"/>
@@ -852,7 +867,29 @@ def install_glyph_program(nm, fo, asm):
       <xsl:text>x</xsl:text>
       <xsl:apply-templates select="." mode="survey-vars"/>
     </xsl:variable>
-    <xsl:variable name="need-variable-frame" select="contains($var-string,'v')"/>
+    <xsl:variable name="need-variable-frame"
+		  select="contains($var-string,'v')"/>
+    <xsl:variable name="assume-y">
+      <xsl:choose>
+	<xsl:when test="@assume-y">
+	  <xsl:value-of select="@assume-y"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="$assume-always-y"/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <!--
+    <xsl:if test="@ps-name = 'uni0126'">
+      <xsl:message terminate="yes">
+	<xsl:value-of select="@ps-name"/>
+	<xsl:text> </xsl:text>
+	<xsl:value-of select="$assume-y"/>
+	<xsl:text>; attr </xsl:text>
+	<xsl:value-of select="@assume-y"/>
+      </xsl:message>
+      </xsl:if>
+      -->
     <xsl:variable name="init-g">
       <xsl:choose>
 	<xsl:when test="@init-graphics">
@@ -884,7 +921,20 @@ def install_glyph_program(nm, fo, asm):
 	  <xsl:with-param name="cmd" select="'CALL'"/>
 	</xsl:call-template>
       </xsl:if>
+      <xsl:if test="$assume-y = 'yes' and (not(xgf:set-vectors) and
+		    not(xgf:with-vectors))">
+	<xsl:call-template name="simple-command">
+	  <xsl:with-param name="cmd" select="'SVTCA'"/>
+	  <xsl:with-param name="modifier" select="'0'"/>
+	</xsl:call-template>
+      </xsl:if>
       <xsl:apply-templates/>
+      <xsl:if test="$assume-y = 'yes' and not(xgf:interpolate-untouched-points)">
+	<xsl:call-template name="simple-command">
+	  <xsl:with-param name="cmd" select="'IUP'"/>
+	  <xsl:with-param name="modifier" select="'0'"/>
+	</xsl:call-template>
+      </xsl:if>
     </xsl:variable>
     <xsl:value-of select="substring-after($current-inst,$leading-newline)"/>
     <xsl:text>")</xsl:text>

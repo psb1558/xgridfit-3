@@ -117,6 +117,7 @@ att.to-line = attribute to-line { "orthogonal" | "parallel" }
 att.result-to = attribute result-to { xsd:NCName }
 att.test = attribute test { text }
 att.grid-fitted = attribute grid-fitted { YESNO }
+att.assume-y = attribute assume-y { YESNO }
 att.whichpointer = attribute whichpointer { text }
 att.id = attribute xml:id { xsd:ID }
 att.round = attribute round { text }
@@ -287,6 +288,7 @@ attlist.default &=
     | "auto-instr"
     | "auto-hint"
     | "cv-num-in-compile-if"
+    | "assume-always-y"
   },
   att.val
 ps-private =
@@ -364,7 +366,8 @@ gl =
 attlist.gl &=
   att.pnm,
   attribute init-graphics { YESNO }?,
-  att.id?
+  att.id?,
+  att.assume-y?
 #
 # Miscellaneous / Oddball
 #

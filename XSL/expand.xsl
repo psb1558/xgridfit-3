@@ -329,6 +329,7 @@
       <xsl:apply-templates select="@xml:id"/>
       <xsl:apply-templates select="@init-graphics"/>
       <xsl:apply-templates select="@pnm"/>
+      <xsl:apply-templates select="@assume-y"/>
       <xsl:apply-templates select="node()"/>
     </xgf:glyph>
   </xsl:template>

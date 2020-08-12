@@ -144,6 +144,16 @@
 			select="$mp-container"/>
       </xsl:call-template>
     </xsl:variable>
+    <xsl:variable name="assume-y">
+      <xsl:choose>
+	<xsl:when test="ancestor::glyph/@assume-y">
+	  <xsl:value-of select="ancestor::glyph/@assume-y"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="$assume-always-y"/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
     <xsl:if test="number($comp-if)">
       <!-- First establish which reference pointer to use: the default
 	   is 1. -->
@@ -287,12 +297,23 @@
 	</xsl:call-template>
       </xsl:for-each>
       <xsl:if test="xgf:point and @round != 'no'">
-	<xsl:call-template name="round-points-with-scfs">
-	  <xsl:with-param name="pts" select="xgf:point"/>
-	  <xsl:with-param name="round" select="@round"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
-	</xsl:call-template>
+	<xsl:choose>
+	  <xsl:when test="$assume-y = 'yes'">
+	    <xsl:call-template name="round-always-y">
+	      <xsl:with-param name="pts" select="xgf:point"/>
+	      <xsl:with-param name="mp-container"
+			      select="$mp-container"/>
+	    </xsl:call-template>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:call-template name="round-points-with-scfs">
+	      <xsl:with-param name="pts" select="xgf:point"/>
+	      <xsl:with-param name="round" select="@round"/>
+	      <xsl:with-param name="mp-container"
+			      select="$mp-container"/>
+	    </xsl:call-template>
+	  </xsl:otherwise>
+	</xsl:choose>
       </xsl:if>
       <xsl:call-template name="set-zone-pointers-to-glyph"/>
     </xsl:if>
@@ -310,6 +331,16 @@
 	<xsl:with-param name="mp-container"
 			select="$mp-container"/>
       </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="assume-y">
+      <xsl:choose>
+	<xsl:when test="ancestor::glyph/@assume-y">
+	  <xsl:value-of select="ancestor::glyph/@assume-y"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="$assume-always-y"/>
+	</xsl:otherwise>
+      </xsl:choose>
     </xsl:variable>
     <xsl:if test="number($comp-if)">
       <xsl:call-template name="check-for-move-points"/>
@@ -390,12 +421,23 @@
 			select="$mp-container"/>
       </xsl:apply-templates>
       <xsl:if test="xgf:point and @round != 'no'">
-	<xsl:call-template name="round-points-with-scfs">
-	  <xsl:with-param name="pts" select="xgf:point"/>
-	  <xsl:with-param name="round" select="@round"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
-	</xsl:call-template>
+	<xsl:choose>
+	  <xsl:when test="$assume-y = 'yes'">
+	    <xsl:call-template name="round-always-y">
+	      <xsl:with-param name="pts" select="xgf:point"/>
+	      <xsl:with-param name="mp-container"
+			      select="$mp-container"/>
+	    </xsl:call-template>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:call-template name="round-points-with-scfs">
+	      <xsl:with-param name="pts" select="xgf:point"/>
+	      <xsl:with-param name="round" select="@round"/>
+	      <xsl:with-param name="mp-container"
+			      select="$mp-container"/>
+	    </xsl:call-template>
+	  </xsl:otherwise>
+	</xsl:choose>
       </xsl:if>
       <xsl:call-template name="set-zone-pointers-to-glyph"/>
     </xsl:if>
