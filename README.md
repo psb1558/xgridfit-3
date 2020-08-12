@@ -29,7 +29,9 @@ That syntax still works in Xgridfit 3, but this is quicker to write, and no less
 </mv>
 ```
 
-Xgridfit 3 can also produce a cvar table, and thus can hint variable fonts.
+Because hinting is now done almost exclusively on the y axis, Xgridfit 3 has an "assume-always-y" default setting which allows optimization of some rounding operations, and also relieves you of having to tediously repeat ``<set-vectors> (<setvs>)`` and ``<interpolate-untouched-points> (<iup>)`` at the beginning and end of every glyph program.
+
+Finally Xgridfit 3 can produce a cvar table, and thus can hint variable fonts.
 
 To run Xgridfit 3, unzip the program files in any convenient place and run the program `xgridfit.py` with Python3, e.g.
 
