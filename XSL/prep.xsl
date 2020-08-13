@@ -61,6 +61,22 @@
     <xsl:variable name="use-tt-defaults"
                   select="boolean($all-defaults[@type =
                          'use-truetype-defaults']/@value = 'yes')"/>
+    <xsl:variable name="cleartype"
+                  select="boolean($all-defaults[@type =
+                         'cleartype']/@value = 'yes')"/>
+    <xsl:if test="$cleartype">
+      <xsl:call-template name="push-num">
+        <xsl:with-param name="num" select="4"/>
+        <xsl:with-param name="expect" select="2"/>
+      </xsl:call-template>
+      <xsl:call-template name="push-num">
+        <xsl:with-param name="num" select="3"/>
+        <xsl:with-param name="add-mode" select="true()"/>
+      </xsl:call-template>
+      <xsl:call-template name="simple-command">
+        <xsl:with-param name="cmd" select="'INSTCTRL'"/>
+      </xsl:call-template>
+    </xsl:if>
     <xsl:if test="$use-tt-defaults">
       <xsl:call-template name="push-num">
         <xsl:with-param name="num" select="1"/>

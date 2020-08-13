@@ -520,6 +520,7 @@
           <xs:enumeration value="legacy-storage"/>
           <xs:enumeration value="max-stack"/>
           <xs:enumeration value="use-truetype-defaults"/>
+          <xs:enumeration value="cleartype"/>
           <xs:enumeration value="round-state"/>
           <xs:enumeration value="function-base"/>
           <xs:enumeration value="compile-globals"/>

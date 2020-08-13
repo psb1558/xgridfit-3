@@ -679,6 +679,7 @@
         <value>legacy-storage</value>
         <value>max-stack</value>
         <value>use-truetype-defaults</value>
+        <value>cleartype</value>
         <value>round-state</value>
         <value>function-base</value>
         <value>compile-globals</value>

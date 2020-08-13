@@ -836,7 +836,7 @@ def install_glyph_program(nm, fo, asm):
     <xsl:variable name="all-defaults" select="/xgf:xgridfit/xgf:default"/>
     <xsl:variable name="use-tt-defaults"
                   select="boolean($all-defaults[@type =
-                         'use-truetype-defaults']/@value = 'yes')"/>
+                          'use-truetype-defaults']/@value = 'yes')"/>
     <xsl:text>currentFont['prep'] = ttFont.newTable('prep')</xsl:text>
     <xsl:value-of select="$text-newline"/>
     <xsl:text>currentFont['prep'].program = tables.ttProgram.Program()</xsl:text>

@@ -273,6 +273,7 @@ attlist.default &=
     | "legacy-storage"
     | "max-stack"
     | "use-truetype-defaults"
+    | "cleartype"
     | "round-state"
     | "function-base"
     | "compile-globals"
