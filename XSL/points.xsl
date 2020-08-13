@@ -436,7 +436,9 @@
       <xsl:call-template name="error-message">
 	<xsl:with-param name="msg">
 	  <xsl:text>All num attributes on points in a set must resolve to
-numbers at compile time.</xsl:text>
+numbers at compile time. Attribute was "</xsl:text>
+          <xsl:value-of select="$pts[$pos]/@num"/>
+          <xsl:text>"</xsl:text>
 	</xsl:with-param>
       </xsl:call-template>
     </xsl:if>
