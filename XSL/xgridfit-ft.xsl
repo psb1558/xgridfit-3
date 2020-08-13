@@ -879,17 +879,6 @@ def install_glyph_program(nm, fo, asm):
 	</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <!--
-    <xsl:if test="@ps-name = 'uni0126'">
-      <xsl:message terminate="yes">
-	<xsl:value-of select="@ps-name"/>
-	<xsl:text> </xsl:text>
-	<xsl:value-of select="$assume-y"/>
-	<xsl:text>; attr </xsl:text>
-	<xsl:value-of select="@assume-y"/>
-      </xsl:message>
-      </xsl:if>
-      -->
     <xsl:variable name="init-g">
       <xsl:choose>
 	<xsl:when test="@init-graphics">
