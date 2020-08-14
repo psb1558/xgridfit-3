@@ -310,6 +310,7 @@
       <xsl:apply-templates select="@index"/>
       <xsl:apply-templates select="@nm"/>
       <xsl:apply-templates select="@val"/>
+      <xsl:apply-templates select="@col"/>
       <xsl:apply-templates select="node()"/>
     </xgf:control-value>
   </xsl:template>

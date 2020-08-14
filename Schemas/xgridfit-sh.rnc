@@ -318,6 +318,7 @@ cv =
   element cv { attlist.cv, empty }
 attlist.cv &=
   attribute index { text }?,
+  att.col?,
   att.nm,
   attribute val { xsd:int }
 fn =

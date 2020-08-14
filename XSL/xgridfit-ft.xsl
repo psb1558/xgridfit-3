@@ -176,6 +176,7 @@
   <xsl:key name="macro-index" match="xgf:macro" use="@name"/>
   <xsl:key name="glyph-index" match="xgf:glyph|xgf:no-compile/xgf:glyph"
 	   use="@ps-name"/>
+  <xsl:key name="alias-index" match="xgf:alias" use="@name"/>
 
   <!-- We'll do our own formatting of all TT instructions, providing all
        line breaks and spacing. So no space or line breaks kept from source

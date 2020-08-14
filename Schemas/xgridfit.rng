@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar xmlns="http://relaxng.org/ns/structure/1.0"
-         ns="http://xgridfit.sourceforge.net/Xgridfit2"
-         xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
-         xmlns:xi="http://www.w3.org/2001/XInclude"
-         xmlns:xml="http://www.w3.org/XML/1998/namespace"
-         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<!--
+       This file is part of xgridfit, version 3.
+       Licensed under the Apache License, Version 2.0.
+       Copyright (c) 2006-20 by Peter S. Baker
+-->
+<grammar ns="http://xgridfit.sourceforge.net/Xgridfit2" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <define name="YESNO">
     <choice>
       <value>yes</value>
@@ -156,38 +156,28 @@
     </data>
   </define>
   <define name="att.value">
-    <attribute>
-      <name ns="">value</name>
-      <text/>
-    </attribute>
+    <attribute name="value"/>
   </define>
   <define name="att.num">
-    <attribute>
-      <name ns="">num</name>
-      <text/>
-    </attribute>
+    <attribute name="num"/>
   </define>
   <define name="att.name">
-    <attribute>
-      <name ns="">name</name>
+    <attribute name="name">
       <data type="NCName"/>
     </attribute>
   </define>
   <define name="att.ref">
-    <attribute>
-      <name ns="">ref</name>
+    <attribute name="ref">
       <data type="NCName"/>
     </attribute>
   </define>
   <define name="att.target">
-    <attribute>
-      <name ns="">target</name>
+    <attribute name="target">
       <data type="NCName"/>
     </attribute>
   </define>
   <define name="att.zone">
-    <attribute>
-      <name ns="">zone</name>
+    <attribute name="zone">
       <choice>
         <value>twilight</value>
         <value>glyph</value>
@@ -195,8 +185,7 @@
     </attribute>
   </define>
   <define name="att.color">
-    <attribute>
-      <name ns="">color</name>
+    <attribute name="color">
       <choice>
         <value>gray</value>
         <value>black</value>
@@ -205,8 +194,7 @@
     </attribute>
   </define>
   <define name="att.axis">
-    <attribute>
-      <name ns="">axis</name>
+    <attribute name="axis">
       <choice>
         <value>x</value>
         <value>y</value>
@@ -214,8 +202,7 @@
     </attribute>
   </define>
   <define name="att.unit">
-    <attribute>
-      <name ns="">unit</name>
+    <attribute name="unit">
       <choice>
         <value>pixel</value>
         <value>font</value>
@@ -223,8 +210,7 @@
     </attribute>
   </define>
   <define name="att.units.per.pixel">
-    <attribute>
-      <name ns="">units-per-pixel</name>
+    <attribute name="units-per-pixel">
       <choice>
         <value>2</value>
         <value>4</value>
@@ -236,8 +222,7 @@
     </attribute>
   </define>
   <define name="att.to-line">
-    <attribute>
-      <name ns="">to-line</name>
+    <attribute name="to-line">
       <choice>
         <value>orthogonal</value>
         <value>parallel</value>
@@ -245,92 +230,63 @@
     </attribute>
   </define>
   <define name="att.result-to">
-    <attribute>
-      <name ns="">result-to</name>
+    <attribute name="result-to">
       <data type="NCName"/>
     </attribute>
   </define>
   <define name="att.test">
-    <attribute>
-      <name ns="">test</name>
-      <text/>
-    </attribute>
+    <attribute name="test"/>
   </define>
   <define name="att.grid-fitted">
-    <attribute>
-      <name ns="">grid-fitted</name>
+    <attribute name="grid-fitted">
       <ref name="YESNO"/>
     </attribute>
   </define>
   <define name="att.assume-y">
-    <attribute>
-      <name ns="">assume-y</name>
+    <attribute name="assume-y">
       <ref name="YESNO"/>
     </attribute>
   </define>
   <define name="att.whichpointer">
-    <attribute>
-      <name ns="">whichpointer</name>
-      <text/>
-    </attribute>
+    <attribute name="whichpointer"/>
   </define>
   <define name="att.id">
-    <attribute>
-      <name ns="http://www.w3.org/XML/1998/namespace">id</name>
+    <attribute name="xml:id">
       <data type="ID"/>
     </attribute>
   </define>
   <define name="att.round">
-    <attribute>
-      <name ns="">round</name>
-      <text/>
-    </attribute>
+    <attribute name="round"/>
   </define>
   <define name="att.set-rp0">
-    <attribute>
-      <name ns="">set-rp0</name>
+    <attribute name="set-rp0">
       <ref name="YESNO"/>
     </attribute>
   </define>
   <define name="att.cut-in">
-    <attribute>
-      <name ns="">cut-in</name>
+    <attribute name="cut-in">
       <ref name="YESNO"/>
     </attribute>
   </define>
   <define name="att.compile-if">
-    <attribute>
-      <name ns="">compile-if</name>
-      <text/>
-    </attribute>
+    <attribute name="compile-if"/>
   </define>
   <define name="att.distance">
-    <attribute>
-      <name ns="">distance</name>
-      <text/>
-    </attribute>
+    <attribute name="distance"/>
   </define>
   <define name="att.pixel-distance">
-    <attribute>
-      <name ns="">pixel-distance</name>
-      <text/>
-    </attribute>
+    <attribute name="pixel-distance"/>
   </define>
   <define name="att.boolean.min-distance">
-    <attribute>
-      <name ns="">min-distance</name>
+    <attribute name="min-distance">
       <ref name="YESNO"/>
     </attribute>
   </define>
   <define name="att.value.min-distance">
-    <attribute>
-      <name ns="">min-distance</name>
-      <text/>
-    </attribute>
+    <attribute name="min-distance"/>
   </define>
   <define name="att.ps-name">
-    <attribute>
-      <name ns="">ps-name</name>
+    <attribute name="ps-name">
       <ref name="token.ps-name"/>
     </attribute>
   </define>
@@ -346,30 +302,18 @@
     </optional>
   </define>
   <define name="attlist.dual.op">
-    <attribute>
-      <name ns="">value1</name>
-      <text/>
-    </attribute>
-    <attribute>
-      <name ns="">value2</name>
-      <text/>
-    </attribute>
+    <attribute name="value1"/>
+    <attribute name="value2"/>
     <optional>
       <ref name="att.result-to"/>
     </optional>
   </define>
   <define name="attlist.form.dual.op">
     <optional>
-      <attribute>
-        <name ns="">value1</name>
-        <text/>
-      </attribute>
+      <attribute name="value1"/>
     </optional>
     <optional>
-      <attribute>
-        <name ns="">value2</name>
-        <text/>
-      </attribute>
+      <attribute name="value2"/>
     </optional>
   </define>
   <define name="attlist.value.with.name">
@@ -377,43 +321,29 @@
     <ref name="att.name"/>
   </define>
   <define name="attlist.delta-set-basic">
-    <attribute>
-      <name ns="">size</name>
+    <attribute name="size">
       <data type="nonNegativeInteger">
         <param name="maxInclusive">47</param>
       </data>
     </attribute>
-    <attribute>
-      <name ns="">distance</name>
+    <attribute name="distance">
       <data type="int">
         <param name="pattern">[\-]?[1-8]</param>
       </data>
     </attribute>
   </define>
   <define name="attlist.vector.components">
-    <group>
-      <attribute>
-        <name ns="">x-component</name>
-        <text/>
-      </attribute>
-      <attribute>
-        <name ns="">y-component</name>
-        <text/>
-      </attribute>
-    </group>
+    <attribute name="x-component"/>
+    <attribute name="y-component"/>
   </define>
   <define name="attlist.vector.store">
     <optional>
-      <group>
-        <attribute>
-          <name ns="">x-component</name>
-          <data type="NCName"/>
-        </attribute>
-        <attribute>
-          <name ns="">y-component</name>
-          <data type="NCName"/>
-        </attribute>
-      </group>
+      <attribute name="x-component">
+        <data type="NCName"/>
+      </attribute>
+      <attribute name="y-component">
+        <data type="NCName"/>
+      </attribute>
     </optional>
   </define>
   <define name="attlist.measurement">
@@ -464,9 +394,13 @@
       </zeroOrMore>
     </choice>
   </define>
+  <!--
+    
+    Top level
+    
+  -->
   <define name="xgridfit">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">xgridfit</name>
+    <element name="xgridfit">
       <interleave>
         <optional>
           <ref name="att.id"/>
@@ -516,6 +450,9 @@
         <zeroOrMore>
           <ref name="control-value"/>
         </zeroOrMore>
+        <optional>
+          <ref name="cvar"/>
+        </optional>
         <zeroOrMore>
           <ref name="function"/>
         </zeroOrMore>
@@ -531,16 +468,19 @@
       </interleave>
     </element>
   </define>
+  <!--
+    
+    Value declarations
+    
+  -->
   <define name="constant">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">constant</name>
+    <element name="constant">
       <ref name="attlist.value.with.name"/>
       <empty/>
     </element>
   </define>
   <define name="variable">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">variable</name>
+    <element name="variable">
       <ref name="attlist.variable"/>
       <empty/>
     </element>
@@ -552,8 +492,7 @@
     </optional>
   </define>
   <define name="alias">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">alias</name>
+    <element name="alias">
       <ref name="attlist.alias"/>
       <empty/>
     </element>
@@ -562,9 +501,13 @@
     <ref name="att.name"/>
     <ref name="att.target"/>
   </define>
+  <!--
+    
+    Controlling compilation of glyph programs
+    
+  -->
   <define name="glyph-select">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">glyph-select</name>
+    <element name="glyph-select">
       <list>
         <zeroOrMore>
           <ref name="token.ps-name"/>
@@ -573,8 +516,7 @@
     </element>
   </define>
   <define name="no-compile">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">no-compile</name>
+    <element name="no-compile">
       <zeroOrMore>
         <choice>
           <ref name="glyph"/>
@@ -583,49 +525,52 @@
       </zeroOrMore>
     </element>
   </define>
+  <!--
+    
+    Script I/O
+    
+  -->
   <define name="infile">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">infile</name>
+    <element name="infile">
       <data type="string"/>
     </element>
   </define>
   <define name="outfile">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">outfile</name>
+    <element name="outfile">
       <data type="string"/>
     </element>
   </define>
   <define name="outfile-base">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">outfile-base</name>
+    <element name="outfile-base">
       <data type="string"/>
     </element>
   </define>
   <define name="outfile-script-name">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">outfile-script-name</name>
+    <element name="outfile-script-name">
       <data type="string"/>
     </element>
   </define>
+  <!--
+    
+    Top-level declarations
+    
+  -->
   <define name="round-state">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">round-state</name>
+    <element name="round-state">
       <ref name="attlist.round-state"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.round-state" combine="interleave">
     <ref name="att.name"/>
-    <attribute>
-      <name ns="">period</name>
+    <attribute name="period">
       <choice>
         <value>half-pixel</value>
         <value>one-pixel</value>
         <value>two-pixel</value>
       </choice>
     </attribute>
-    <attribute>
-      <name ns="">phase</name>
+    <attribute name="phase">
       <choice>
         <value>zero</value>
         <value>one-quarter</value>
@@ -633,8 +578,7 @@
         <value>three-quarters</value>
       </choice>
     </attribute>
-    <attribute>
-      <name ns="">threshold</name>
+    <attribute name="threshold">
       <choice>
         <value>period-minus-one</value>
         <value>minus-three-eighths</value>
@@ -656,15 +600,13 @@
     </attribute>
   </define>
   <define name="default">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">default</name>
+    <element name="default">
       <ref name="attlist.default"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.default" combine="interleave">
-    <attribute>
-      <name ns="">type</name>
+    <attribute name="type">
       <choice>
         <value>minimum-distance</value>
         <value>control-value-cut-in</value>
@@ -690,22 +632,20 @@
         <value>auto-instr</value>
         <value>auto-hint</value>
         <value>cv-num-in-compile-if</value>
-	<value>assume-always-y</value>
+        <value>assume-always-y</value>
       </choice>
     </attribute>
     <ref name="att.value"/>
   </define>
   <define name="ps-private">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">ps-private</name>
+    <element name="ps-private">
       <oneOrMore>
         <ref name="entry"/>
       </oneOrMore>
     </element>
   </define>
   <define name="entry">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">entry</name>
+    <element name="entry">
       <ref name="attlist.entry"/>
       <empty/>
     </element>
@@ -714,29 +654,62 @@
     <ref name="att.name"/>
     <ref name="att.value"/>
   </define>
+  <define name="region">
+    <element name="region">
+      <ref name="attlist.region"/>
+      <oneOrMore>
+        <ref name="cvv"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.region" combine="interleave">
+    <attribute name="tag"/>
+    <attribute name="top"/>
+    <attribute name="bot"/>
+    <attribute name="peak"/>
+  </define>
+  <define name="cvar">
+    <element name="cvar">
+      <oneOrMore>
+        <ref name="region"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="cvv">
+    <element name="cvv">
+      <ref name="attlist.cvv"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.cvv" combine="interleave">
+    <optional>
+      <attribute name="index"/>
+    </optional>
+    <ref name="att.name"/>
+    <attribute name="value">
+      <data type="int"/>
+    </attribute>
+  </define>
   <define name="control-value">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">control-value</name>
+    <element name="control-value">
       <ref name="attlist.control-value"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.control-value" combine="interleave">
     <optional>
-      <attribute>
-        <name ns="">index</name>
-        <text/>
-      </attribute>
+      <attribute name="index"/>
+    </optional>
+    <optional>
+      <ref name="att.color"/>
     </optional>
     <ref name="att.name"/>
-    <attribute>
-      <name ns="">value</name>
+    <attribute name="value">
       <data type="int"/>
     </attribute>
   </define>
   <define name="function">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">function</name>
+    <element name="function">
       <ref name="attlist.function"/>
       <zeroOrMore>
         <ref name="function.param"/>
@@ -761,21 +734,18 @@
       <ref name="att.id"/>
     </optional>
     <optional>
-      <attribute>
-        <name ns="">num</name>
+      <attribute name="num">
         <data type="nonNegativeInteger"/>
       </attribute>
     </optional>
     <optional>
-      <attribute>
-        <name ns="">return</name>
+      <attribute name="return">
         <ref name="YESNO"/>
       </attribute>
     </optional>
   </define>
   <define name="variant">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">variant</name>
+    <element name="variant">
       <ref name="att.test"/>
       <zeroOrMore>
         <ref name="programming"/>
@@ -783,8 +753,7 @@
     </element>
   </define>
   <define name="macro">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">macro</name>
+    <element name="macro">
       <ref name="attlist.macro"/>
       <zeroOrMore>
         <ref name="param"/>
@@ -804,14 +773,12 @@
     </optional>
   </define>
   <define name="function.param">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">param</name>
+    <element name="param">
       <ref name="attlist.param"/>
     </element>
   </define>
   <define name="param">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">param</name>
+    <element name="param">
       <ref name="attlist.param"/>
       <optional>
         <choice>
@@ -834,8 +801,7 @@
     </optional>
   </define>
   <define name="legacy-functions">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">legacy-functions</name>
+    <element name="legacy-functions">
       <ref name="attlist.legacy-functions"/>
       <zeroOrMore>
         <ref name="programming"/>
@@ -843,14 +809,12 @@
     </element>
   </define>
   <define name="attlist.legacy-functions" combine="interleave">
-    <attribute>
-      <name ns="">max-function-defs</name>
+    <attribute name="max-function-defs">
       <data type="nonNegativeInteger"/>
     </attribute>
   </define>
   <define name="pre-program">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">pre-program</name>
+    <element name="pre-program">
       <optional>
         <ref name="att.id"/>
       </optional>
@@ -866,8 +830,7 @@
     </element>
   </define>
   <define name="glyph">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">glyph</name>
+    <element name="glyph">
       <ref name="attlist.glyph"/>
       <zeroOrMore>
         <ref name="param"/>
@@ -890,8 +853,7 @@
   <define name="attlist.glyph" combine="interleave">
     <ref name="att.ps-name"/>
     <optional>
-      <attribute>
-        <name ns="">init-graphics</name>
+      <attribute name="init-graphics">
         <ref name="YESNO"/>
       </attribute>
     </optional>
@@ -902,15 +864,23 @@
       <ref name="att.assume-y"/>
     </optional>
   </define>
+  <!--
+    
+    Miscellaneous / Oddball
+    
+  -->
   <define name="message">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">message</name>
+    <element name="message">
       <text/>
     </element>
   </define>
+  <!--
+    
+    Points and point structures
+    
+  -->
   <define name="point">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">point</name>
+    <element name="point">
       <ref name="attlist.point"/>
       <empty/>
     </element>
@@ -922,21 +892,18 @@
     </optional>
   </define>
   <define name="reference">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">reference</name>
+    <element name="reference">
       <ref name="point"/>
     </element>
   </define>
   <define name="dual.reference">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">reference</name>
+    <element name="reference">
       <ref name="point"/>
       <ref name="point"/>
     </element>
   </define>
   <define name="line">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">line</name>
+    <element name="line">
       <ref name="attlist.line"/>
       <choice>
         <ref name="att.ref"/>
@@ -956,8 +923,7 @@
     </optional>
   </define>
   <define name="range">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">range</name>
+    <element name="range">
       <ref name="attlist.range"/>
       <choice>
         <ref name="att.ref"/>
@@ -977,8 +943,7 @@
     </optional>
   </define>
   <define name="set">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set</name>
+    <element name="set">
       <ref name="attlist.set"/>
       <choice>
         <ref name="att.ref"/>
@@ -997,8 +962,7 @@
     </optional>
   </define>
   <define name="contour">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">contour</name>
+    <element name="contour">
       <ref name="attlist.contour"/>
       <empty/>
     </element>
@@ -1010,15 +974,18 @@
     </optional>
   </define>
   <define name="zone">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">zone</name>
+    <element name="zone">
       <ref name="att.zone"/>
       <empty/>
     </element>
   </define>
+  <!--
+    
+    Point-moving instructions
+    
+  -->
   <define name="mirp">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">mirp</name>
+    <element name="mirp">
       <ref name="attlist.mirp"/>
       <optional>
         <ref name="reference"/>
@@ -1045,8 +1012,7 @@
     </optional>
   </define>
   <define name="mdrp">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">mdrp</name>
+    <element name="mdrp">
       <ref name="attlist.mdrp"/>
       <optional>
         <ref name="reference"/>
@@ -1069,8 +1035,7 @@
     </optional>
   </define>
   <define name="miap">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">miap</name>
+    <element name="miap">
       <ref name="attlist.miap"/>
       <ref name="point"/>
     </element>
@@ -1085,8 +1050,7 @@
     </optional>
   </define>
   <define name="mdap">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">mdap</name>
+    <element name="mdap">
       <optional>
         <ref name="att.round"/>
       </optional>
@@ -1094,8 +1058,7 @@
     </element>
   </define>
   <define name="shift">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">shift</name>
+    <element name="shift">
       <ref name="attlist.shift"/>
       <optional>
         <ref name="reference"/>
@@ -1113,8 +1076,7 @@
   </define>
   <define name="attlist.shift" combine="interleave">
     <optional>
-      <attribute>
-        <name ns="">reference-ptr</name>
+      <attribute name="reference-ptr">
         <choice>
           <value>1</value>
           <value>2</value>
@@ -1129,8 +1091,7 @@
     </optional>
   </define>
   <define name="align">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">align</name>
+    <element name="align">
       <optional>
         <ref name="att.compile-if"/>
       </optional>
@@ -1147,8 +1108,7 @@
     </element>
   </define>
   <define name="move-point-to-intersection">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">move-point-to-intersection</name>
+    <element name="move-point-to-intersection">
       <choice>
         <group>
           <ref name="point"/>
@@ -1169,8 +1129,7 @@
     </element>
   </define>
   <define name="interpolate">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">interpolate</name>
+    <element name="interpolate">
       <ref name="attlist.interpolate"/>
       <optional>
         <ref name="dual.reference"/>
@@ -1193,8 +1152,7 @@
     </optional>
   </define>
   <define name="interpolate-untouched-points">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">interpolate-untouched-points</name>
+    <element name="interpolate-untouched-points">
       <optional>
         <ref name="att.axis"/>
       </optional>
@@ -1202,18 +1160,13 @@
     </element>
   </define>
   <define name="set-coordinate">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-coordinate</name>
-      <attribute>
-        <name ns="">coordinate</name>
-        <text/>
-      </attribute>
+    <element name="set-coordinate">
+      <attribute name="coordinate"/>
       <ref name="point"/>
     </element>
   </define>
   <define name="shift-absolute">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">shift-absolute</name>
+    <element name="shift-absolute">
       <ref name="att.pixel-distance"/>
       <oneOrMore>
         <choice>
@@ -1225,8 +1178,7 @@
     </element>
   </define>
   <define name="toggle-points">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">toggle-points</name>
+    <element name="toggle-points">
       <oneOrMore>
         <choice>
           <ref name="point"/>
@@ -1237,33 +1189,28 @@
     </element>
   </define>
   <define name="align-midway">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">align-midway</name>
+    <element name="align-midway">
       <ref name="point"/>
       <ref name="point"/>
     </element>
   </define>
   <define name="flip-on">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">flip-on</name>
+    <element name="flip-on">
       <ref name="range"/>
     </element>
   </define>
   <define name="flip-off">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">flip-off</name>
+    <element name="flip-off">
       <ref name="range"/>
     </element>
   </define>
   <define name="untouch">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">untouch</name>
+    <element name="untouch">
       <ref name="point"/>
     </element>
   </define>
   <define name="top.level.move">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">move</name>
+    <element name="move">
       <ref name="attlist.move"/>
       <choice>
         <group>
@@ -1314,8 +1261,7 @@
     </element>
   </define>
   <define name="nested.move">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">move</name>
+    <element name="move">
       <ref name="attlist.move"/>
       <ref name="point"/>
       <zeroOrMore>
@@ -1353,10 +1299,7 @@
       <ref name="att.round"/>
     </optional>
     <optional>
-      <attribute>
-        <name ns="">cut-in</name>
-        <text/>
-      </attribute>
+      <attribute name="cut-in"/>
     </optional>
     <optional>
       <ref name="att.value.min-distance"/>
@@ -1369,8 +1312,7 @@
     </optional>
   </define>
   <define name="diagonal-stem">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">diagonal-stem</name>
+    <element name="diagonal-stem">
       <ref name="attlist.diagonal-stem"/>
       <ref name="line"/>
       <ref name="line"/>
@@ -1397,21 +1339,18 @@
       <ref name="att.color"/>
     </optional>
     <optional>
-      <attribute>
-        <name ns="">freedom-vector</name>
+      <attribute name="freedom-vector">
         <ref name="YESNO"/>
       </attribute>
     </optional>
     <optional>
-      <attribute>
-        <name ns="">save-vectors</name>
+      <attribute name="save-vectors">
         <ref name="YESNO"/>
       </attribute>
     </optional>
   </define>
   <define name="top.level.delta">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">delta</name>
+    <element name="delta">
       <optional>
         <ref name="att.compile-if"/>
       </optional>
@@ -1432,8 +1371,7 @@
     </element>
   </define>
   <define name="nested.delta">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">delta</name>
+    <element name="delta">
       <optional>
         <ref name="att.compile-if"/>
       </optional>
@@ -1449,92 +1387,88 @@
     </element>
   </define>
   <define name="control-value-delta">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">control-value-delta</name>
+    <element name="control-value-delta">
       <oneOrMore>
         <ref name="cv.delta-set"/>
       </oneOrMore>
     </element>
   </define>
   <define name="cv.delta-set">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">delta-set</name>
+    <element name="delta-set">
       <ref name="attlist.cv.delta-set"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.cv.delta-set" combine="interleave">
-    <attribute>
-      <name ns="">cv</name>
+    <attribute name="cv">
       <data type="NCName"/>
     </attribute>
     <ref name="attlist.delta-set-basic"/>
   </define>
   <define name="point.delta-set">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">delta-set</name>
+    <element name="delta-set">
       <ref name="attlist.delta-set-basic"/>
       <ref name="point"/>
     </element>
   </define>
   <define name="empty.delta-set">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">delta-set</name>
+    <element name="delta-set">
       <ref name="attlist.delta-set-basic"/>
       <empty/>
     </element>
   </define>
+  <!--
+    
+    Enable/disable instructions
+    
+  -->
   <define name="disable-instructions">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">disable-instructions</name>
+    <element name="disable-instructions">
       <empty/>
     </element>
   </define>
   <define name="enable-instructions">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">enable-instructions</name>
+    <element name="enable-instructions">
       <empty/>
     </element>
   </define>
+  <!--
+    
+    Graphics state
+    
+  -->
   <define name="set-vectors">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-vectors</name>
+    <element name="set-vectors">
       <ref name="model.set-vector"/>
     </element>
   </define>
   <define name="with-vectors">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-vectors</name>
+    <element name="with-vectors">
       <ref name="model.with-vector"/>
     </element>
   </define>
   <define name="set-projection-vector">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-projection-vector</name>
+    <element name="set-projection-vector">
       <ref name="model.set-vector"/>
     </element>
   </define>
   <define name="with-projection-vector">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-projection-vector</name>
+    <element name="with-projection-vector">
       <ref name="model.with-vector"/>
     </element>
   </define>
   <define name="set-freedom-vector">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-freedom-vector</name>
+    <element name="set-freedom-vector">
       <ref name="model.set-vector"/>
     </element>
   </define>
   <define name="with-freedom-vector">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-freedom-vector</name>
+    <element name="with-freedom-vector">
       <ref name="model.with-vector"/>
     </element>
   </define>
   <define name="set-dual-projection-vector">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-dual-projection-vector</name>
+    <element name="set-dual-projection-vector">
       <optional>
         <ref name="att.to-line"/>
       </optional>
@@ -1542,29 +1476,25 @@
     </element>
   </define>
   <define name="store-projection-vector">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">store-projection-vector</name>
+    <element name="store-projection-vector">
       <ref name="attlist.vector.store"/>
       <empty/>
     </element>
   </define>
   <define name="store-freedom-vector">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">store-freedom-vector</name>
+    <element name="store-freedom-vector">
       <ref name="attlist.vector.store"/>
       <empty/>
     </element>
   </define>
   <define name="srp">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">srp</name>
+    <element name="srp">
       <ref name="att.whichpointer"/>
       <ref name="point"/>
     </element>
   </define>
   <define name="szp">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">szp</name>
+    <element name="szp">
       <ref name="attlist.szp"/>
       <empty/>
     </element>
@@ -1574,51 +1504,44 @@
     <ref name="att.zone"/>
   </define>
   <define name="set-dropout-control">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-dropout-control</name>
+    <element name="set-dropout-control">
       <ref name="attlist.set-dropout-control"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.set-dropout-control" combine="interleave">
-    <attribute>
-      <name ns="">threshold</name>
+    <attribute name="threshold">
       <data type="nonNegativeInteger">
         <param name="maxInclusive">255</param>
       </data>
     </attribute>
-    <attribute>
-      <name ns="">flags</name>
+    <attribute name="flags">
       <data type="nonNegativeInteger">
         <param name="maxInclusive">63</param>
       </data>
     </attribute>
   </define>
   <define name="set-dropout-type">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-dropout-type</name>
+    <element name="set-dropout-type">
       <ref name="att.dropout.value"/>
       <empty/>
     </element>
   </define>
   <define name="att.dropout.value">
-    <attribute>
-      <name ns="">value</name>
+    <attribute name="value">
       <data type="nonNegativeInteger">
         <param name="maxInclusive">7</param>
       </data>
     </attribute>
   </define>
   <define name="set-control-value">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-control-value</name>
+    <element name="set-control-value">
       <ref name="attlist.set-control-value"/>
       <empty/>
     </element>
   </define>
   <define name="with-control-value">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-control-value</name>
+    <element name="with-control-value">
       <ref name="attlist.set-control-value"/>
       <zeroOrMore>
         <ref name="programming"/>
@@ -1632,15 +1555,13 @@
     </optional>
   </define>
   <define name="set-control-value-cut-in">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-control-value-cut-in</name>
+    <element name="set-control-value-cut-in">
       <ref name="att.value"/>
       <empty/>
     </element>
   </define>
   <define name="with-control-value-cut-in">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-control-value-cut-in</name>
+    <element name="with-control-value-cut-in">
       <ref name="att.value"/>
       <zeroOrMore>
         <ref name="programming"/>
@@ -1648,15 +1569,13 @@
     </element>
   </define>
   <define name="set-minimum-distance">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-minimum-distance</name>
+    <element name="set-minimum-distance">
       <ref name="att.value"/>
       <empty/>
     </element>
   </define>
   <define name="with-minimum-distance">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-minimum-distance</name>
+    <element name="with-minimum-distance">
       <ref name="att.value"/>
       <zeroOrMore>
         <ref name="programming"/>
@@ -1664,15 +1583,13 @@
     </element>
   </define>
   <define name="set-round-state">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-round-state</name>
+    <element name="set-round-state">
       <ref name="att.round"/>
       <empty/>
     </element>
   </define>
   <define name="with-round-state">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-round-state</name>
+    <element name="with-round-state">
       <ref name="att.round"/>
       <zeroOrMore>
         <ref name="programming"/>
@@ -1680,15 +1597,13 @@
     </element>
   </define>
   <define name="set-single-width-cut-in">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-single-width-cut-in</name>
+    <element name="set-single-width-cut-in">
       <ref name="att.value"/>
       <empty/>
     </element>
   </define>
   <define name="with-single-width-cut-in">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-single-width-cut-in</name>
+    <element name="with-single-width-cut-in">
       <ref name="att.value"/>
       <zeroOrMore>
         <ref name="programming"/>
@@ -1696,15 +1611,13 @@
     </element>
   </define>
   <define name="set-single-width">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-single-width</name>
+    <element name="set-single-width">
       <ref name="att.value"/>
       <empty/>
     </element>
   </define>
   <define name="with-single-width">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-single-width</name>
+    <element name="with-single-width">
       <ref name="att.value"/>
       <zeroOrMore>
         <ref name="programming"/>
@@ -1712,10 +1625,8 @@
     </element>
   </define>
   <define name="set-auto-flip">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-auto-flip</name>
-      <attribute>
-        <name ns="">value</name>
+    <element name="set-auto-flip">
+      <attribute name="value">
         <choice>
           <value>on</value>
           <value>off</value>
@@ -1725,15 +1636,13 @@
     </element>
   </define>
   <define name="set-delta-base">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-delta-base</name>
+    <element name="set-delta-base">
       <ref name="att.value"/>
       <empty/>
     </element>
   </define>
   <define name="with-delta-base">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-delta-base</name>
+    <element name="with-delta-base">
       <ref name="att.value"/>
       <zeroOrMore>
         <ref name="programming"/>
@@ -1741,15 +1650,13 @@
     </element>
   </define>
   <define name="set-delta-shift">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-delta-shift</name>
+    <element name="set-delta-shift">
       <ref name="att.units.per.pixel"/>
       <empty/>
     </element>
   </define>
   <define name="with-delta-shift">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-delta-shift</name>
+    <element name="with-delta-shift">
       <ref name="att.units.per.pixel"/>
       <zeroOrMore>
         <ref name="programming"/>
@@ -1757,15 +1664,13 @@
     </element>
   </define>
   <define name="restore-default">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">restore-default</name>
+    <element name="restore-default">
       <ref name="attlist.restore-default"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.restore-default" combine="interleave">
-    <attribute>
-      <name ns="">name</name>
+    <attribute name="name">
       <choice>
         <value>minimum-distance</value>
         <value>control-value-cut-in</value>
@@ -1778,30 +1683,29 @@
       </choice>
     </attribute>
   </define>
+  <!--
+    
+    Arithmetic elements
+    
+  -->
   <define name="set-equal">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">set-equal</name>
+    <element name="set-equal">
       <ref name="attlist.set-equal"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.set-equal" combine="interleave">
     <ref name="att.target"/>
-    <attribute>
-      <name ns="">source</name>
-      <text/>
-    </attribute>
+    <attribute name="source"/>
   </define>
   <define name="control-value-index">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">control-value-index</name>
+    <element name="control-value-index">
       <ref name="attlist.control-value-index"/>
       <empty/>
     </element>
   </define>
   <define name="form.control-value-index">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">control-value-index</name>
+    <element name="control-value-index">
       <ref name="att.value"/>
       <empty/>
     </element>
@@ -1811,209 +1715,163 @@
     <ref name="att.result-to"/>
   </define>
   <define name="add">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">add</name>
+    <element name="add">
       <ref name="attlist.dual.op"/>
       <empty/>
     </element>
   </define>
   <define name="form.add">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">add</name>
+    <element name="add">
       <ref name="attlist.form.dual.op"/>
       <empty/>
     </element>
   </define>
   <define name="subtract">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">subtract</name>
+    <element name="subtract">
       <ref name="attlist.subtract"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.subtract" combine="interleave">
-    <attribute>
-      <name ns="">minuend</name>
-      <text/>
-    </attribute>
-    <attribute>
-      <name ns="">subtrahend</name>
-      <text/>
-    </attribute>
+    <attribute name="minuend"/>
+    <attribute name="subtrahend"/>
     <optional>
       <ref name="att.result-to"/>
     </optional>
   </define>
   <define name="form.subtract">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">subtract</name>
+    <element name="subtract">
       <ref name="attlist.form.subtract"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.form.subtract" combine="interleave">
     <optional>
-      <attribute>
-        <name ns="">minuend</name>
-        <text/>
-      </attribute>
+      <attribute name="minuend"/>
     </optional>
     <optional>
-      <attribute>
-        <name ns="">subtrahend</name>
-        <text/>
-      </attribute>
+      <attribute name="subtrahend"/>
     </optional>
   </define>
   <define name="divide">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">divide</name>
+    <element name="divide">
       <ref name="attlist.divide"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.divide" combine="interleave">
-    <attribute>
-      <name ns="">dividend</name>
-      <text/>
-    </attribute>
-    <attribute>
-      <name ns="">divisor</name>
-      <text/>
-    </attribute>
+    <attribute name="dividend"/>
+    <attribute name="divisor"/>
     <optional>
       <ref name="att.result-to"/>
     </optional>
   </define>
   <define name="form.divide">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">divide</name>
+    <element name="divide">
       <ref name="attlist.form.divide"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.form.divide" combine="interleave">
     <optional>
-      <attribute>
-        <name ns="">dividend</name>
-        <text/>
-      </attribute>
+      <attribute name="dividend"/>
     </optional>
     <optional>
-      <attribute>
-        <name ns="">divisor</name>
-        <text/>
-      </attribute>
+      <attribute name="divisor"/>
     </optional>
   </define>
   <define name="multiply">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">multiply</name>
+    <element name="multiply">
       <ref name="attlist.dual.op"/>
       <empty/>
     </element>
   </define>
   <define name="form.multiply">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">multiply</name>
+    <element name="multiply">
       <ref name="attlist.form.dual.op"/>
       <empty/>
     </element>
   </define>
   <define name="absolute">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">absolute</name>
+    <element name="absolute">
       <ref name="attlist.single.op"/>
       <empty/>
     </element>
   </define>
   <define name="form.absolute">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">absolute</name>
+    <element name="absolute">
       <ref name="attlist.form.single.op"/>
       <empty/>
     </element>
   </define>
   <define name="negate">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">negate</name>
+    <element name="negate">
       <ref name="attlist.single.op"/>
       <empty/>
     </element>
   </define>
   <define name="form.negate">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">negate</name>
+    <element name="negate">
       <ref name="attlist.form.single.op"/>
       <empty/>
     </element>
   </define>
   <define name="floor">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">floor</name>
+    <element name="floor">
       <ref name="attlist.single.op"/>
       <empty/>
     </element>
   </define>
   <define name="form.floor">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">floor</name>
+    <element name="floor">
       <ref name="attlist.form.single.op"/>
       <empty/>
     </element>
   </define>
   <define name="ceiling">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">ceiling</name>
+    <element name="ceiling">
       <ref name="attlist.single.op"/>
       <empty/>
     </element>
   </define>
   <define name="form.ceiling">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">ceiling</name>
+    <element name="ceiling">
       <ref name="attlist.form.single.op"/>
       <empty/>
     </element>
   </define>
   <define name="minimum">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">minimum</name>
+    <element name="minimum">
       <ref name="attlist.dual.op"/>
       <empty/>
     </element>
   </define>
   <define name="form.minimum">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">minimum</name>
+    <element name="minimum">
       <ref name="attlist.form.dual.op"/>
       <empty/>
     </element>
   </define>
   <define name="maximum">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">maximum</name>
+    <element name="maximum">
       <ref name="attlist.dual.op"/>
       <empty/>
     </element>
   </define>
   <define name="form.maximum">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">maximum</name>
+    <element name="maximum">
       <ref name="attlist.form.dual.op"/>
       <empty/>
     </element>
   </define>
   <define name="round">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">round</name>
+    <element name="round">
       <ref name="attlist.round"/>
       <empty/>
     </element>
   </define>
   <define name="no-round">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">no-round</name>
+    <element name="no-round">
       <ref name="attlist.round"/>
       <empty/>
     </element>
@@ -2028,15 +1886,13 @@
     </optional>
   </define>
   <define name="form.round">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">round</name>
+    <element name="round">
       <ref name="attlist.form.round"/>
       <empty/>
     </element>
   </define>
   <define name="form.no-round">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">no-round</name>
+    <element name="no-round">
       <ref name="attlist.form.round"/>
       <empty/>
     </element>
@@ -2050,8 +1906,7 @@
     </optional>
   </define>
   <define name="formula">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">formula</name>
+    <element name="formula">
       <optional>
         <ref name="att.result-to"/>
       </optional>
@@ -2060,9 +1915,13 @@
       </oneOrMore>
     </element>
   </define>
+  <!--
+    
+    Function and macro calls
+    
+  -->
   <define name="call-function">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">call-function</name>
+    <element name="call-function">
       <ref name="attlist.call-function"/>
       <choice>
         <zeroOrMore>
@@ -2081,8 +1940,7 @@
     </optional>
   </define>
   <define name="call-macro">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">call-macro</name>
+    <element name="call-macro">
       <ref name="att.name"/>
       <choice>
         <zeroOrMore>
@@ -2095,15 +1953,13 @@
     </element>
   </define>
   <define name="call-param">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">call-param</name>
+    <element name="call-param">
       <ref name="att.name"/>
       <empty/>
     </element>
   </define>
   <define name="call-glyph">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">call-glyph</name>
+    <element name="call-glyph">
       <ref name="att.ps-name"/>
       <zeroOrMore>
         <ref name="with-param"/>
@@ -2111,11 +1967,9 @@
     </element>
   </define>
   <define name="function.param-set">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">param-set</name>
+    <element name="param-set">
       <optional>
-        <attribute>
-          <name ns="">opt</name>
+        <attribute name="opt">
           <ref name="YESNO"/>
         </attribute>
       </optional>
@@ -2125,24 +1979,21 @@
     </element>
   </define>
   <define name="param-set">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">param-set</name>
+    <element name="param-set">
       <oneOrMore>
         <ref name="with-param"/>
       </oneOrMore>
     </element>
   </define>
   <define name="function.with-param">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-param</name>
+    <element name="with-param">
       <ref name="att.name"/>
       <ref name="att.value"/>
       <empty/>
     </element>
   </define>
   <define name="with-param">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">with-param</name>
+    <element name="with-param">
       <ref name="att.name"/>
       <choice>
         <ref name="att.value"/>
@@ -2164,9 +2015,13 @@
       </choice>
     </element>
   </define>
+  <!--
+    
+    Conditionals
+    
+  -->
   <define name="if">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">if</name>
+    <element name="if">
       <ref name="att.test"/>
       <zeroOrMore>
         <ref name="programming"/>
@@ -2177,16 +2032,14 @@
     </element>
   </define>
   <define name="else">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">else</name>
+    <element name="else">
       <zeroOrMore>
         <ref name="programming"/>
       </zeroOrMore>
     </element>
   </define>
   <define name="compile-if">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">compile-if</name>
+    <element name="compile-if">
       <ref name="att.test"/>
       <zeroOrMore>
         <ref name="programming"/>
@@ -2197,59 +2050,57 @@
     </element>
   </define>
   <define name="no-warning">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">no-warning</name>
+    <element name="no-warning">
       <zeroOrMore>
         <ref name="programming"/>
       </zeroOrMore>
     </element>
   </define>
+  <!--
+    
+    Getting info
+    
+  -->
   <define name="measure-distance">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">measure-distance</name>
+    <element name="measure-distance">
       <ref name="attlist.measurement"/>
       <ref name="point"/>
       <ref name="point"/>
     </element>
   </define>
   <define name="get-coordinate">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">get-coordinate</name>
+    <element name="get-coordinate">
       <ref name="attlist.measurement"/>
       <ref name="point"/>
     </element>
   </define>
   <define name="getinfo">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">getinfo</name>
+    <element name="getinfo">
       <ref name="attlist.getinfo"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.getinfo" combine="interleave">
-    <attribute>
-      <name ns="">selector</name>
-      <text/>
-    </attribute>
+    <attribute name="selector"/>
     <optional>
       <ref name="att.result-to"/>
     </optional>
   </define>
+  <!--
+    
+    Primitives
+    
+  -->
   <define name="command">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">command</name>
-      <attribute>
-        <name ns="">name</name>
+    <element name="command">
+      <attribute name="name">
         <data type="token">
           <param name="pattern">[A-Z0-5]{2,9}</param>
         </data>
       </attribute>
       <choice>
         <optional>
-          <attribute>
-            <name ns="">modifier</name>
-            <text/>
-          </attribute>
+          <attribute name="modifier"/>
         </optional>
         <zeroOrMore>
           <ref name="modifier"/>
@@ -2258,16 +2109,14 @@
     </element>
   </define>
   <define name="modifier">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">modifier</name>
+    <element name="modifier">
       <ref name="attlist.modifier"/>
       <empty/>
     </element>
   </define>
   <define name="attlist.modifier" combine="interleave">
     <ref name="att.value"/>
-    <attribute>
-      <name ns="">type</name>
+    <attribute name="type">
       <choice>
         <value>set-rp0</value>
         <value>round</value>
@@ -2281,27 +2130,28 @@
     </attribute>
   </define>
   <define name="push">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">push</name>
+    <element name="push">
       <text/>
     </element>
   </define>
   <define name="to-stack">
-    <element>
-      <name ns="http://xgridfit.sourceforge.net/Xgridfit2">to-stack</name>
+    <element name="to-stack">
       <text/>
     </element>
   </define>
+  <!--
+    
+    XInclude
+    
+  -->
   <define name="xg.xi.include.attlist">
     <optional>
-      <attribute>
-        <name ns="">href</name>
+      <attribute name="href">
         <data type="anyURI"/>
       </attribute>
     </optional>
     <optional>
-      <attribute a:defaultValue="xml">
-        <name ns="">parse</name>
+      <attribute name="parse" a:defaultValue="xml">
         <choice>
           <value>xml</value>
           <value>text</value>
@@ -2309,33 +2159,20 @@
       </attribute>
     </optional>
     <optional>
-      <attribute>
-        <name ns="">xpointer</name>
-        <text/>
-      </attribute>
+      <attribute name="xpointer"/>
     </optional>
     <optional>
-      <attribute>
-        <name ns="">encoding</name>
-        <text/>
-      </attribute>
+      <attribute name="encoding"/>
     </optional>
     <optional>
-      <attribute>
-        <name ns="">accept</name>
-        <text/>
-      </attribute>
+      <attribute name="accept"/>
     </optional>
     <optional>
-      <attribute>
-        <name ns="">accept-language</name>
-        <text/>
-      </attribute>
+      <attribute name="accept-language"/>
     </optional>
   </define>
   <define name="xg.xi.include">
-    <element>
-      <name ns="http://www.w3.org/2001/XInclude">include</name>
+    <element name="xi:include">
       <ref name="xg.xi.include.attlist"/>
     </element>
   </define>

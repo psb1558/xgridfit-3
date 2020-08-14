@@ -541,17 +541,15 @@
   -->
   <define name="infile">
     <element name="infile">
-      <data type="anyURI"/>
+      <text/>
     </element>
   </define>
   <define name="outfile">
     <element name="outfile">
       <optional>
-        <attribute name="fmflags">
-          <data type="int"/>
-        </attribute>
+        <attribute name="fmflags"/>
       </optional>
-      <data type="anyURI"/>
+      <text/>
     </element>
   </define>
   <define name="outfile-base">
@@ -646,7 +644,7 @@
         <value>auto-instr</value>
         <value>auto-hint</value>
         <value>cv-num-in-compile-if</value>
-	<value>assume-always-y</value>
+        <value>assume-always-y</value>
       </choice>
     </attribute>
     <ref name="att.val"/>
@@ -713,6 +711,9 @@
   <define name="attlist.cv" combine="interleave">
     <optional>
       <attribute name="index"/>
+    </optional>
+    <optional>
+      <ref name="att.col"/>
     </optional>
     <ref name="att.nm"/>
     <attribute name="val">

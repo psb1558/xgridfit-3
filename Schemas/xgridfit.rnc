@@ -313,6 +313,7 @@ control-value =
   element control-value { attlist.control-value, empty }
 attlist.control-value &=
   attribute index { text }?,
+  att.color?,
   att.name,
   attribute value { xsd:int }
 function =

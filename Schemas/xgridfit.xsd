@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-  <!--
-      This file is part of xgridfit, version 3.
-      Licensed under the Apache License, Version 2.0.
-      Copyright (c) 2006-20 by Peter S. Baker
-      -->
-
+<!--
+       This file is part of xgridfit, version 3.
+       Licensed under the Apache License, Version 2.0.
+       Copyright (c) 2006-20 by Peter S. Baker
+-->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://xgridfit.sourceforge.net/Xgridfit2" xmlns:xgridfit2="http://xgridfit.sourceforge.net/Xgridfit2" xmlns:xi="http://www.w3.org/2001/XInclude">
   <xs:import namespace="http://www.w3.org/2001/XInclude" schemaLocation="xi.xsd"/>
   <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
@@ -24,13 +22,13 @@
       <xs:element ref="xgridfit2:mdap"/>
       <xs:element ref="xgridfit2:shift"/>
       <xs:element ref="xgridfit2:align"/>
-      <!-- <xs:element ref="xgridfit2:move-point-to-intersection"/> -->
+      <xs:element ref="xgridfit2:move-point-to-intersection"/>
       <xs:element ref="xgridfit2:interpolate"/>
       <xs:element ref="xgridfit2:interpolate-untouched-points"/>
       <xs:element ref="xgridfit2:shift-absolute"/>
       <xs:element ref="xgridfit2:set-coordinate"/>
       <xs:group ref="xgridfit2:top.level.move"/>
-      <!-- <xs:element ref="xgridfit2:diagonal-stem"/> -->
+      <xs:element ref="xgridfit2:diagonal-stem"/>
       <xs:group ref="xgridfit2:top.level.delta"/>
       <xs:element ref="xgridfit2:control-value-delta"/>
       <xs:element ref="xgridfit2:untouch"/>
@@ -97,39 +95,6 @@
       <xs:pattern value="\.notdef|[A-Za-z_][A-Za-z0-9_\.]{0,30}"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:attributeGroup name="att.pyflags">
-    <xs:attribute name="pyflags" use="required">
-      <xs:simpleType>
-        <xs:list>
-          <xs:simpleType>
-            <xs:restriction base="xs:token">
-              <xs:enumeration value="afm"/>
-              <xs:enumeration value="pfm"/>
-              <xs:enumeration value="tfm"/>
-              <xs:enumeration value="ofm"/>
-              <xs:enumeration value="composites-in-afm"/>
-              <xs:enumeration value="glyph-map-file"/>
-              <xs:enumeration value="short-post"/>
-              <xs:enumeration value="apple"/>
-              <xs:enumeration value="opentype"/>
-              <xs:enumeration value="old-kern"/>
-              <xs:enumeration value="dummy-dsig"/>
-              <xs:enumeration value="TeX-table"/>
-              <xs:enumeration value="round"/>
-              <xs:enumeration value="no-hints"/>
-              <xs:enumeration value="omit-instructions"/>
-              <xs:enumeration value="PfEd-comments"/>
-              <xs:enumeration value="PfEd-colors"/>
-              <xs:enumeration value="PfEd-lookups"/>
-              <xs:enumeration value="PfEd-guidelines"/>
-              <xs:enumeration value="PfEd-background"/>
-              <xs:enumeration value="symbol"/>
-            </xs:restriction>
-          </xs:simpleType>
-        </xs:list>
-      </xs:simpleType>
-    </xs:attribute>
-  </xs:attributeGroup>
   <xs:attributeGroup name="att.value">
     <xs:attribute name="value" use="required"/>
   </xs:attributeGroup>
@@ -218,6 +183,9 @@
   </xs:attributeGroup>
   <xs:attributeGroup name="att.grid-fitted">
     <xs:attribute name="grid-fitted" use="required" type="xgridfit2:YESNO"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="att.assume-y">
+    <xs:attribute name="assume-y" use="required" type="xgridfit2:YESNO"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="att.whichpointer">
     <xs:attribute name="whichpointer" use="required"/>
@@ -375,7 +343,7 @@
         <xs:element ref="xgridfit2:round-state"/>
         <xs:element ref="xgridfit2:default"/>
         <xs:element ref="xgridfit2:control-value"/>
-	<xs:element ref="xgridfit2:cvar"/>
+        <xs:element ref="xgridfit2:cvar"/>
         <xs:element ref="xgridfit2:function"/>
         <xs:element ref="xgridfit2:macro"/>
         <xs:element ref="xgridfit2:glyph"/>
@@ -434,11 +402,6 @@
     
     Script I/O
     
-  -->
-  <!--
-       We were using xs:anyURI, but it didn't accept filenames
-       on the pattern expected by Goofle for variable fonts. So
-       we are no longer checking the validity of filenames.
   -->
   <xs:element name="infile" type="xs:string"/>
   <xs:element name="outfile" type="xs:string"/>
@@ -531,7 +494,7 @@
           <xs:enumeration value="auto-instr"/>
           <xs:enumeration value="auto-hint"/>
           <xs:enumeration value="cv-num-in-compile-if"/>
-	  <xs:enumeration value="assume-always-y"/>
+          <xs:enumeration value="assume-always-y"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -553,6 +516,27 @@
     <xs:attributeGroup ref="xgridfit2:att.name"/>
     <xs:attributeGroup ref="xgridfit2:att.value"/>
   </xs:attributeGroup>
+  <xs:element name="region">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="xgridfit2:cvv"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="xgridfit2:attlist.region"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.region">
+    <xs:attribute name="tag" use="required"/>
+    <xs:attribute name="top" use="required"/>
+    <xs:attribute name="bot" use="required"/>
+    <xs:attribute name="peak" use="required"/>
+  </xs:attributeGroup>
+  <xs:element name="cvar">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="xgridfit2:region"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="cvv">
     <xs:complexType>
       <xs:attributeGroup ref="xgridfit2:attlist.cvv"/>
@@ -561,7 +545,7 @@
   <xs:attributeGroup name="attlist.cvv">
     <xs:attribute name="index"/>
     <xs:attributeGroup ref="xgridfit2:att.name"/>
-    <xs:attribute name="value" use="required" type="xs:decimal"/>
+    <xs:attribute name="value" use="required" type="xs:int"/>
   </xs:attributeGroup>
   <xs:element name="control-value">
     <xs:complexType>
@@ -570,42 +554,17 @@
   </xs:element>
   <xs:attributeGroup name="attlist.control-value">
     <xs:attribute name="index"/>
+    <xs:attribute name="color">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="gray"/>
+          <xs:enumeration value="black"/>
+          <xs:enumeration value="white"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attributeGroup ref="xgridfit2:att.name"/>
     <xs:attribute name="value" use="required" type="xs:int"/>
-  </xs:attributeGroup>
-
-  <!--
-      The cvar element should look like this:
-      <cvar>
-        <region tag="wght" bot="0.0" top="1.0" peak="1.0">
-          <cvv nm="lc-serif" val="60"/>
-	...
-        </region>
-	...
-      </cvar>
-  -->
-  <xs:element name="cvar">
-    <xs:complexType>
-      <xs:sequence>
-	<xs:element ref="xgridfit2:region" minOccurs="1"
-		    maxOccurs="unbounded"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="region">
-    <xs:complexType>
-      <xs:sequence>
-	<xs:element ref="xgridfit2:cvv" minOccurs="1"
-		    maxOccurs="unbounded"/>
-      </xs:sequence>
-      <xs:attributeGroup ref="xgridfit2:attlist.region"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:attributeGroup name="attlist.region">
-    <xs:attribute name="tag"/>
-    <xs:attribute name="peak" use="required" type="xs:decimal"/>
-    <xs:attribute name="top" use="required" type="xs:decimal"/>
-    <xs:attribute name="bot" use="required" type="xs:decimal"/>
   </xs:attributeGroup>
   <xs:element name="function">
     <xs:complexType>
@@ -968,16 +927,15 @@
       <xs:attribute name="compile-if"/>
     </xs:complexType>
   </xs:element>
-<!--
   <xs:element name="move-point-to-intersection">
     <xs:complexType>
-      <xs:choice>
+<!--      <xs:choice> -->
         <xs:sequence>
           <xs:element ref="xgridfit2:point"/>
           <xs:element ref="xgridfit2:line"/>
           <xs:element ref="xgridfit2:line"/>
         </xs:sequence>
-        <xs:sequence>
+<!--        <xs:sequence>
           <xs:element ref="xgridfit2:line"/>
           <xs:element ref="xgridfit2:line"/>
           <xs:element ref="xgridfit2:point"/>
@@ -987,10 +945,9 @@
           <xs:element ref="xgridfit2:point"/>
           <xs:element ref="xgridfit2:line"/>
         </xs:sequence>
-      </xs:choice>
+      </xs:choice> -->
     </xs:complexType>
-    </xs:element>
-    -->
+  </xs:element>
   <xs:element name="interpolate">
     <xs:complexType>
       <xs:sequence>
@@ -1146,19 +1103,17 @@
     </xs:attribute>
     <xs:attribute name="compile-if"/>
   </xs:attributeGroup>
-<!--
   <xs:element name="diagonal-stem">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="xgridfit2:line"/>
         <xs:element ref="xgridfit2:line"/>
         <xs:element minOccurs="0" ref="xgridfit2:align"/>
-        <xs:element minOccurs="0" ref="xgridfit2:align"/>
+<!--        <xs:element minOccurs="0" ref="xgridfit2:align"/> -->
       </xs:sequence>
       <xs:attributeGroup ref="xgridfit2:attlist.diagonal-stem"/>
     </xs:complexType>
-    </xs:element>
-    -->
+  </xs:element>
   <xs:attributeGroup name="attlist.diagonal-stem">
     <xs:attributeGroup ref="xgridfit2:att.distance"/>
     <xs:attribute name="round"/>

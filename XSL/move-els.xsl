@@ -572,11 +572,34 @@
 
   <xsl:template match="xgf:move">
     <xsl:param name="mp-container"/>
+    <xsl:variable name="local-dist">
+      <xsl:choose>
+	<xsl:when test="@distance">
+	  <xsl:choose>
+	    <xsl:when test="key('alias-index',@distance)">
+	      <xsl:value-of select="key('alias-index',@distance)/@target"/>
+	    </xsl:when>
+	    <xsl:when test="key('cvt',@distance)">
+	      <xsl:value-of select="@distance"/>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <xsl:value-of select="false()"/>
+	    </xsl:otherwise>
+	  </xsl:choose>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="false()"/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
     <xsl:variable name="local-color">
       <xsl:choose>
 	<xsl:when test="@color">
 	  <xsl:value-of select="@color"/>
 	</xsl:when>
+	<xsl:when test="$local-dist and key('cvt',$local-dist)/@color">
+	  <xsl:value-of select="key('cvt',$local-dist)/@color"/>
+	  </xsl:when>
 	<xsl:otherwise>
 	  <xsl:value-of select="$color"/>
 	</xsl:otherwise>
