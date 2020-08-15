@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
+                xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
                 version="1.0"
                 exclude-result-prefixes="xgf">
 
@@ -49,7 +49,7 @@
        in a glyph program or function. -->
   <xsl:variable name="variable-frame-base"
                 select="$global-variable-base +
-			count(/xgf:xgridfit/xgf:variable)"/>
+                        count(/xgf:xgridfit/xgf:variable)"/>
 
   <xsl:variable name="no-namespace-error">
     <xsl:text>Either the xgridfit element is missing or it lacks the required</xsl:text>

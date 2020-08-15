@@ -227,8 +227,8 @@
         <operator symbol="-" priority="3" dir="b" at-compile="y">SUB</operator>
         <operator symbol="*" priority="3" dir="b" at-compile="n">MUL</operator>
         <operator symbol="/" priority="3" dir="b" at-compile="n">DIV</operator>
-	<operator symbol="--" priority="4" dir="b" at-compile="n">MD</operator>
-	<operator symbol="---" priority="4" dir="b" at-compile="n">MD</operator>
+        <operator symbol="--" priority="4" dir="b" at-compile="n">MD</operator>
+        <operator symbol="---" priority="4" dir="b" at-compile="n">MD</operator>
         <operator symbol="odd" priority="5" dir="r" at-compile="n">ODD</operator>
         <operator symbol="even" priority="5" dir="r" at-compile="n">EVEN</operator>
         <operator symbol="floor" priority="5" dir="r" at-compile="n">FLOOR</operator>
@@ -241,16 +241,16 @@
         <operator symbol="round-black" priority="5" dir="r" at-compile="n">ROUND</operator>
         <operator symbol="round-gray" priority="5" dir="r" at-compile="n">ROUND</operator>
         <operator symbol="control-value" priority="5" dir="r" at-compile="n">RCVT</operator>
-	<operator symbol="variable" priority="5" dir="r" at-compile="n">RS</operator>
-	<operator symbol="coord" priority="5" dir="r" at-compile="n">GC</operator>
-	<operator symbol="initial-coord" priority="5" dir="r" at-compile="n">GC</operator>
-	<operator symbol="x-coord" priority="5" dir="r" at-compile="n">GC</operator>
-	<operator symbol="y-coord" priority="5" dir="r" at-compile="n">GC</operator>
-	<operator symbol="initial-x-coord" priority="5" dir="r" at-compile="n">GC</operator>
-	<operator symbol="initial-y-coord" priority="5" dir="r" at-compile="n">GC</operator>
-	<operator symbol="index" priority="5" dir="r" at-compile="y">no-op</operator>
-	<operator symbol="nan" priority="5" dir="r" at-compile="y">no-op</operator>
-	<operator symbol="point" priority="5" dir="r" at-compile="y">no-op</operator>
+        <operator symbol="variable" priority="5" dir="r" at-compile="n">RS</operator>
+        <operator symbol="coord" priority="5" dir="r" at-compile="n">GC</operator>
+        <operator symbol="initial-coord" priority="5" dir="r" at-compile="n">GC</operator>
+        <operator symbol="x-coord" priority="5" dir="r" at-compile="n">GC</operator>
+        <operator symbol="y-coord" priority="5" dir="r" at-compile="n">GC</operator>
+        <operator symbol="initial-x-coord" priority="5" dir="r" at-compile="n">GC</operator>
+        <operator symbol="initial-y-coord" priority="5" dir="r" at-compile="n">GC</operator>
+        <operator symbol="index" priority="5" dir="r" at-compile="y">no-op</operator>
+        <operator symbol="nan" priority="5" dir="r" at-compile="y">no-op</operator>
+        <operator symbol="point" priority="5" dir="r" at-compile="y">no-op</operator>
     </operators>
     <defaults>
       <entry name="minimum-distance" loc="5" def="6" inst="SMD"/>

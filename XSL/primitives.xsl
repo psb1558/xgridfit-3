@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
+                xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
                 xmlns:xgfd="http://www.engl.virginia.edu/OE/xgridfit-data"
                 version="1.0">
-  
+
   <!--
       This file is part of xgridfit, version 3.
       Licensed under the Apache License, Version 2.0.
@@ -15,7 +15,7 @@
     <xsl:param name="built-string" select="''"/>
     <xsl:variable name="current">
       <xsl:if test="string-length($built-string) &gt; 0">
-	<xsl:value-of select="';'"/>
+        <xsl:value-of select="';'"/>
       </xsl:if>
       <xsl:call-template name="get-first-token">
         <xsl:with-param  name="s" select="$s"/>
@@ -23,18 +23,18 @@
     </xsl:variable>
     <xsl:variable name="remaining">
       <xsl:call-template name="get-remaining-tokens">
-	<xsl:with-param  name="s" select="$s"/>
+        <xsl:with-param  name="s" select="$s"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="string-length($remaining) &gt; 0">
-	<xsl:call-template name="make-push-list">
-	  <xsl:with-param name="s" select="$remaining"/>
-	  <xsl:with-param name="built-string" select="concat($built-string,$current)"/>
-	</xsl:call-template>
+        <xsl:call-template name="make-push-list">
+          <xsl:with-param name="s" select="$remaining"/>
+          <xsl:with-param name="built-string" select="concat($built-string,$current)"/>
+        </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-	<xsl:value-of select="concat($built-string,$current)"/>
+        <xsl:value-of select="concat($built-string,$current)"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -45,7 +45,7 @@
     <xsl:call-template name="expression">
       <xsl:with-param name="val" select="."/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+                      select="$mp-container"/>
       <xsl:with-param name="to-stack" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
@@ -57,16 +57,16 @@
     <xsl:variable name="push-vals" select="normalize-space(string(.))"/>
     <xsl:if test="string-length($push-vals) = 0">
       <xsl:call-template name="error-message">
-	<xsl:with-param name="msg">
-	  <xsl:text>Empty push or to-stack element is not permitted.</xsl:text>
-	</xsl:with-param>
+        <xsl:with-param name="msg">
+          <xsl:text>Empty push or to-stack element is not permitted.</xsl:text>
+        </xsl:with-param>
       </xsl:call-template>
     </xsl:if>
     <xsl:call-template name="push-list">
       <xsl:with-param name="list">
-	<xsl:call-template name="make-push-list">
-	  <xsl:with-param name="s" select="$push-vals"/>
-	</xsl:call-template>
+        <xsl:call-template name="make-push-list">
+          <xsl:with-param name="s" select="$push-vals"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>

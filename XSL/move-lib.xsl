@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
-		version="1.0">
+                xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
+                version="1.0">
 
   <!--
       This file is part of xgridfit, version 3.
       Licensed under the Apache License, Version 2.0.
       Copyright (c) 2006-20 by Peter S. Baker
   -->
-  
+
   <!--
 
       do-mirp
@@ -50,9 +50,8 @@
            previous one when done. -->
       <xsl:call-template name="do-set-round">
         <xsl:with-param name="round-state" select="$round"/>
-	<xsl:with-param name="push-current" select="true()"/>
-	<xsl:with-param name="mp-container"
-			select="$mp-container"/>
+        <xsl:with-param name="push-current" select="true()"/>
+        <xsl:with-param name="mp-container" select="$mp-container"/>
       </xsl:call-template>
     </xsl:if>
     <xsl:if test="not($suppress-set-rp0) and $ref-pt">
@@ -60,8 +59,7 @@
       <xsl:call-template name="push-point">
         <xsl:with-param name="pt" select="$ref-pt"/>
         <xsl:with-param name="zp" select="'0'"/>
-	<xsl:with-param name="mp-container"
-			select="$mp-container"/>
+        <xsl:with-param name="mp-container" select="$mp-container"/>
       </xsl:call-template>
       <xsl:call-template name="simple-command">
         <xsl:with-param name="cmd" select="'SRP0'"/>
@@ -87,12 +85,12 @@
     </xsl:call-template>
     <xsl:if test="$need-set-round">
       <xsl:call-template name="restore-round-state">
-	<xsl:with-param name="from-stack" select="true()"/>
+        <xsl:with-param name="from-stack" select="true()"/>
       </xsl:call-template>
     </xsl:if>
     <xsl:call-template name="set-zone-pointers-to-glyph"/>
   </xsl:template>
-  
+
   <!--
 
        do-miap
@@ -122,9 +120,8 @@
            previous one. -->
       <xsl:call-template name="do-set-round">
         <xsl:with-param name="round-state" select="$round"/>
-	<xsl:with-param name="push-current" select="true()"/>
-	<xsl:with-param name="mp-container"
-			select="$mp-container"/>
+        <xsl:with-param name="push-current" select="true()"/>
+        <xsl:with-param name="mp-container" select="$mp-container"/>
       </xsl:call-template>
     </xsl:if>
     <xsl:call-template name="push-point-and-distance">
@@ -144,13 +141,13 @@
     </xsl:call-template>
     <xsl:if test="$need-set-round">
       <xsl:call-template name="restore-round-state">
-	<xsl:with-param name="from-stack" select="true()"/>
+        <xsl:with-param name="from-stack" select="true()"/>
       </xsl:call-template>
     </xsl:if>
     <xsl:call-template name="set-zone-pointers-to-glyph"/>
   </xsl:template>
-  
-  
+
+
   <!--
 
       do-mdrp
@@ -174,9 +171,8 @@
            previous one. -->
       <xsl:call-template name="do-set-round">
         <xsl:with-param name="round-state" select="$round"/>
-	<xsl:with-param name="push-current" select="true()"/>
-	<xsl:with-param name="mp-container"
-			select="$mp-container"/>
+        <xsl:with-param name="push-current" select="true()"/>
+        <xsl:with-param name="mp-container" select="$mp-container"/>
       </xsl:call-template>
     </xsl:if>
     <xsl:if test="not($suppress-set-rp0) and $ref-pt">
@@ -184,8 +180,7 @@
       <xsl:call-template name="push-point">
         <xsl:with-param name="pt" select="$ref-pt"/>
         <xsl:with-param name="zp" select="'0'"/>
-	<xsl:with-param name="mp-container"
-			select="$mp-container"/>
+        <xsl:with-param name="mp-container" select="$mp-container"/>
       </xsl:call-template>
       <xsl:call-template name="simple-command">
         <xsl:with-param name="cmd" select="'SRP0'"/>
@@ -195,8 +190,7 @@
     <xsl:call-template name="push-point">
       <xsl:with-param name="pt" select="$move-pt"/>
       <xsl:with-param name="zp" select="'1'"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <!-- Do the move. -->
     <xsl:call-template name="simple-command">
@@ -212,12 +206,12 @@
     </xsl:call-template>
     <xsl:if test="$rnot">
       <xsl:call-template name="restore-round-state">
-	<xsl:with-param name="from-stack" select="true()"/>
+        <xsl:with-param name="from-stack" select="true()"/>
       </xsl:call-template>
     </xsl:if>
     <xsl:call-template name="set-zone-pointers-to-glyph"/>
   </xsl:template>
-  
+
   <!--
 
       do-mdap
@@ -234,17 +228,15 @@
            previous one. -->
       <xsl:call-template name="do-set-round">
         <xsl:with-param name="round-state" select="$round"/>
-	<xsl:with-param name="push-current" select="true()"/>
-	<xsl:with-param name="mp-container"
-			select="$mp-container"/>
+        <xsl:with-param name="push-current" select="true()"/>
+        <xsl:with-param name="mp-container" select="$mp-container"/>
       </xsl:call-template>
     </xsl:if>
     <!-- Push the point we're going to move. ZP0 for this point. -->
     <xsl:call-template name="push-point">
       <xsl:with-param name="pt" select="$move-pt"/>
       <xsl:with-param name="zp" select="'0'"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <!-- Do the move. -->
     <xsl:call-template name="simple-command">
@@ -258,12 +250,12 @@
     <!-- Restore round state if we changed it. -->
     <xsl:if test="$rnot">
       <xsl:call-template name="restore-round-state">
-	<xsl:with-param name="from-stack" select="true()"/>
+        <xsl:with-param name="from-stack" select="true()"/>
       </xsl:call-template>
     </xsl:if>
     <xsl:call-template name="set-zone-pointers-to-glyph"/>
   </xsl:template>
-  
+
   <xsl:template name="do-alignrp">
     <xsl:param name="move-pts"/>
     <xsl:param name="ref-pt"/>
@@ -273,8 +265,7 @@
       <xsl:call-template name="push-point">
         <xsl:with-param name="pt" select="$ref-pt"/>
         <xsl:with-param name="zp" select="'0'"/>
-	<xsl:with-param name="mp-container"
-			select="$mp-container"/>
+        <xsl:with-param name="mp-container" select="$mp-container"/>
       </xsl:call-template>
       <xsl:call-template name="simple-command">
         <xsl:with-param name="cmd" select="'SRP0'"/>
@@ -284,8 +275,7 @@
       <xsl:call-template name="push-points">
         <xsl:with-param name="pts" select="$move-pts"/>
         <xsl:with-param name="zp" select="'1'"/>
-	<xsl:with-param name="mp-container"
-			select="$mp-container"/>
+        <xsl:with-param name="mp-container" select="$mp-container"/>
       </xsl:call-template>
       <xsl:if test="count($move-pts) &gt; 1">
         <xsl:call-template name="number-command">
@@ -305,7 +295,7 @@
     </xsl:if>
     <xsl:call-template name="set-zone-pointers-to-glyph"/>
   </xsl:template>
-  
+
   <xsl:template name="do-iup">
     <xsl:param name="axis"/>
     <xsl:choose>
@@ -339,7 +329,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
   <xsl:template name="do-isect">
     <xsl:param name="move-pt"/>
     <xsl:param name="line-a"/>
@@ -348,27 +338,24 @@
     <xsl:call-template name="push-point">
       <xsl:with-param name="pt" select="$move-pt"/>
       <xsl:with-param name="zp" select="'2'"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <xsl:apply-templates mode="push-it" select="$line-a">
       <xsl:with-param name="zp" select="'0'"/>
       <xsl:with-param name="zones" select="1"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:apply-templates>
     <xsl:apply-templates mode="push-it" select="$line-b">
       <xsl:with-param name="zp" select="'0'"/>
       <xsl:with-param name="zones" select="1"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:apply-templates>
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="'ISECT'"/>
     </xsl:call-template>
     <xsl:call-template name="set-zone-pointers-to-glyph"/>
   </xsl:template>
-  
+
   <xsl:template name="do-shpix">
     <xsl:param name="pts"/>
     <xsl:param name="val"/>
@@ -377,16 +364,14 @@
       <xsl:call-template name="push-points">
         <xsl:with-param name="pts" select="$pts"/>
         <xsl:with-param name="zp" select="'2'"/>
-	<xsl:with-param name="mp-container"
-			select="$mp-container"/>
+        <xsl:with-param name="mp-container" select="$mp-container"/>
       </xsl:call-template>
       <xsl:call-template name="expression">
         <xsl:with-param name="val" select="$val"/>
         <xsl:with-param name="permitted" select="'1xfvnc'"/>
         <xsl:with-param name="cvt-mode" select="'value'"/>
-	<xsl:with-param name="mp-container"
-			select="$mp-container"/>
-	<xsl:with-param name="to-stack" select="true()"/>
+        <xsl:with-param name="mp-container" select="$mp-container"/>
+        <xsl:with-param name="to-stack" select="true()"/>
       </xsl:call-template>
       <xsl:if test="count($pts) &gt; 1">
         <xsl:call-template name="number-command">
@@ -405,7 +390,7 @@
       </xsl:if>
     </xsl:if>
   </xsl:template>
-  
+
   <xsl:template name="do-flippt">
     <xsl:param name="pts"/>
     <xsl:param name="mp-container"/>
@@ -413,8 +398,7 @@
       <xsl:call-template name="push-points">
         <xsl:with-param name="pts" select="$pts"/>
         <xsl:with-param name="zp" select="'0'"/>
-	<xsl:with-param name="mp-container"
-			select="$mp-container"/>
+        <xsl:with-param name="mp-container" select="$mp-container"/>
       </xsl:call-template>
       <xsl:if test="count($pts) &gt; 1">
         <xsl:call-template name="number-command">
@@ -433,7 +417,7 @@
       </xsl:if>
     </xsl:if>
   </xsl:template>
-  
+
   <xsl:template name="do-alignpts">
     <xsl:param name="pt-one"/>
     <xsl:param name="pt-two"/>
@@ -441,21 +425,19 @@
     <xsl:call-template name="push-point">
       <xsl:with-param name="pt" select="$pt-one"/>
       <xsl:with-param name="zp" select="'1'"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="push-point">
       <xsl:with-param name="pt" select="$pt-two"/>
       <xsl:with-param name="zp" select="'0'"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="'ALIGNPTS'"/>
     </xsl:call-template>
     <xsl:call-template name="set-zone-pointers-to-glyph"/>
   </xsl:template>
-  
+
   <xsl:template name="do-set-coordinate">
     <xsl:param name="pt"/>
     <xsl:param name="coord"/>
@@ -463,15 +445,13 @@
     <xsl:call-template name="push-point">
       <xsl:with-param name="pt" select="$pt"/>
       <xsl:with-param name="zp" select="'2'"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="expression">
       <xsl:with-param name="val" select="$coord"/>
       <xsl:with-param name="cvt-mode" select="'value'"/>
       <xsl:with-param name="permitted" select="'1xfvnc'"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
       <xsl:with-param name="to-stack" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -488,8 +468,8 @@
     </xsl:call-template>
     <xsl:for-each select="$pts">
       <xsl:call-template name="simple-command">
-	<xsl:with-param name="cmd" select="'MDAP'"/>
-	<xsl:with-param name="modifier" select="'1'"/>
+        <xsl:with-param name="cmd" select="'MDAP'"/>
+        <xsl:with-param name="modifier" select="'1'"/>
       </xsl:call-template>
     </xsl:for-each>
   </xsl:template>
@@ -501,47 +481,45 @@
     <xsl:if test="$round != 'no'">
       <xsl:variable name="must-set-round" select="$round != 'yes'"/>
       <xsl:if test="$must-set-round">
-	<xsl:call-template name="do-set-round">
-	  <xsl:with-param name="round-state" select="$round"/>
-	  <xsl:with-param name="push-current" select="true()"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
-	</xsl:call-template>
+        <xsl:call-template name="do-set-round">
+          <xsl:with-param name="round-state" select="$round"/>
+          <xsl:with-param name="push-current" select="true()"/>
+          <xsl:with-param name="mp-container" select="$mp-container"/>
+        </xsl:call-template>
       </xsl:if>
       <xsl:for-each select="$pts">
-	<xsl:call-template name="push-point">
-	  <xsl:with-param name="pt" select="."/>
-	  <xsl:with-param name="zp" select="'2'"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
-	</xsl:call-template>
-	<xsl:call-template name="simple-command">
-	  <xsl:with-param name="cmd" select="'DUP'"/>
-	</xsl:call-template>
-	<xsl:call-template name="simple-command">
-	  <xsl:with-param name="cmd" select="'GC'"/>
-	  <xsl:with-param name="modifier">
-	    <xsl:call-template name="grid-fitted-bit">
-	      <xsl:with-param name="grid-fitted" select="true()"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
-	</xsl:call-template>
-	<xsl:call-template name="simple-command">
-	  <xsl:with-param name="cmd" select="'ROUND'"/>
-	  <xsl:with-param name="modifier">
-	    <xsl:call-template name="color-bits">
-	      <xsl:with-param name="l-color" select="$color"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
-	</xsl:call-template>
-	<xsl:call-template name="simple-command">
-	  <xsl:with-param name="cmd" select="'SCFS'"/>
-	</xsl:call-template>
+        <xsl:call-template name="push-point">
+          <xsl:with-param name="pt" select="."/>
+          <xsl:with-param name="zp" select="'2'"/>
+          <xsl:with-param name="mp-container" select="$mp-container"/>
+        </xsl:call-template>
+        <xsl:call-template name="simple-command">
+          <xsl:with-param name="cmd" select="'DUP'"/>
+        </xsl:call-template>
+        <xsl:call-template name="simple-command">
+          <xsl:with-param name="cmd" select="'GC'"/>
+          <xsl:with-param name="modifier">
+            <xsl:call-template name="grid-fitted-bit">
+              <xsl:with-param name="grid-fitted" select="true()"/>
+            </xsl:call-template>
+          </xsl:with-param>
+        </xsl:call-template>
+        <xsl:call-template name="simple-command">
+          <xsl:with-param name="cmd" select="'ROUND'"/>
+          <xsl:with-param name="modifier">
+            <xsl:call-template name="color-bits">
+              <xsl:with-param name="l-color" select="$color"/>
+            </xsl:call-template>
+          </xsl:with-param>
+        </xsl:call-template>
+        <xsl:call-template name="simple-command">
+          <xsl:with-param name="cmd" select="'SCFS'"/>
+        </xsl:call-template>
       </xsl:for-each>
       <xsl:if test="$must-set-round">
-	<xsl:call-template name="restore-round-state">
-	  <xsl:with-param name="from-stack" select="true()"/>
-	</xsl:call-template>
+        <xsl:call-template name="restore-round-state">
+          <xsl:with-param name="from-stack" select="true()"/>
+        </xsl:call-template>
       </xsl:if>
     </xsl:if>
   </xsl:template>
@@ -557,8 +535,7 @@
         <xsl:call-template name="do-set-round">
           <xsl:with-param name="round-state" select="$rnd"/>
           <xsl:with-param name="save" select="false()"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
+          <xsl:with-param name="mp-container" select="$mp-container"/>
         </xsl:call-template>
       </xsl:if>
       <xsl:call-template name="simple-command">
@@ -574,5 +551,5 @@
       </xsl:if>
     </xsl:if>
   </xsl:template>
-  
+
 </xsl:stylesheet>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:xgfd="http://www.engl.virginia.edu/OE/xgridfit-data" version="1.0">
+                xmlns:xgfd="http://www.engl.virginia.edu/OE/xgridfit-data" version="1.0">
 
   <!--
       This file is part of xgridfit, version 3.
@@ -13,7 +13,7 @@
     for us is either of two things: 1. a sequence
     containing no whitespace, or 2. a sequence enclosed
     in parentheses.
-    
+
     The first template is for finding the closing
     parenthesis that matches the opening parenthesis
     that begins the string $s. Normally the opening
@@ -133,7 +133,7 @@
         </xsl:choose>
       </xsl:when>
       <xsl:when test="contains($use-s,' ')">
-	<xsl:value-of select="substring-before($use-s, ' ')"/>
+        <xsl:value-of select="substring-before($use-s, ' ')"/>
       </xsl:when>
       <xsl:when test="string-length($use-s) &gt; 0">
         <xsl:value-of select="$use-s"/>
@@ -201,12 +201,12 @@
     <xsl:param name="current-priority" select="1"/>
     <xsl:variable name="use-s">
       <xsl:choose>
-	<xsl:when test="$current-s">
-	  <xsl:value-of select="normalize-space($current-s)"/>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:value-of select="normalize-space($s)"/>
-	</xsl:otherwise>
+        <xsl:when test="$current-s">
+          <xsl:value-of select="normalize-space($current-s)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="normalize-space($s)"/>
+        </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:variable name="current-tok">
@@ -222,7 +222,7 @@
     <xsl:choose>
       <xsl:when
         test="document('xgfdata.xml')/*/xgfd:operators/xgfd:operator[@priority =
-	      $current-priority and @symbol = $current-tok]">
+              $current-priority and @symbol = $current-tok]">
         <!-- 1. The current token is an operator at the current priority level. -->
         <xsl:value-of select="string-length($use-s)"/>
       </xsl:when>

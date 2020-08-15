@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
-		version="1.0">
+                xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
+                version="1.0">
 
   <!--
       This file is part of xgridfit, version 3.
       Licensed under the Apache License, Version 2.0.
       Copyright (c) 2006-20 by Peter S. Baker
   -->
-  
+
   <xsl:template name="do-instctrl">
     <xsl:param name="selector"/>
     <xsl:param name="val"/>
@@ -58,17 +58,16 @@
       <xsl:when test="@result-to">
         <xsl:call-template name="store-value">
           <xsl:with-param name="vname" select="@result-to"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
+          <xsl:with-param name="mp-container" select="$mp-container"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-	<xsl:call-template name="warning">
-	  <xsl:with-param name="msg">
-	    <xsl:text>No place to store result of GETINFO. </xsl:text>
-	    <xsl:text>It will be left on the stack.</xsl:text>
-	  </xsl:with-param>
-	</xsl:call-template>
+        <xsl:call-template name="warning">
+          <xsl:with-param name="msg">
+            <xsl:text>No place to store result of GETINFO. </xsl:text>
+            <xsl:text>It will be left on the stack.</xsl:text>
+          </xsl:with-param>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:call-template name="debug-end"/>

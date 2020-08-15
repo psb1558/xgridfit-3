@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
-		xmlns:xgfd="http://www.engl.virginia.edu/OE/xgridfit-data"
-		version="1.0">
+                xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
+                xmlns:xgfd="http://www.engl.virginia.edu/OE/xgridfit-data"
+                version="1.0">
 
   <!--
       This file is part of xgridfit, version 3.
@@ -11,9 +11,9 @@
   -->
 
   <!--
-  
+
       simple-operation
-  
+
       Fetches and pushes two values, performs an operation, and tries
       to find a place to put the result.
   -->
@@ -28,9 +28,8 @@
         <xsl:call-template name="expression">
           <xsl:with-param name="val" select="$left"/>
           <xsl:with-param name="cvt-mode" select="'value'"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
-	  <xsl:with-param name="to-stack" select="true()"/>
+          <xsl:with-param name="mp-container" select="$mp-container"/>
+          <xsl:with-param name="to-stack" select="true()"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
@@ -50,9 +49,8 @@
         <xsl:call-template name="expression">
           <xsl:with-param name="val" select="$right"/>
           <xsl:with-param name="cvt-mode" select="'value'"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
-	  <xsl:with-param name="to-stack" select="true()"/>
+          <xsl:with-param name="mp-container" select="$mp-container"/>
+          <xsl:with-param name="to-stack" select="true()"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
@@ -79,8 +77,7 @@
       <xsl:when test="$dest">
         <xsl:call-template name="store-value">
           <xsl:with-param name="vname" select="$dest"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
+          <xsl:with-param name="mp-container" select="$mp-container"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:when test="not(ancestor::xgf:formula)">
@@ -88,8 +85,7 @@
           <xsl:when test="$left">
             <xsl:call-template name="store-value">
               <xsl:with-param name="vname" select="$left"/>
-	      <xsl:with-param name="mp-container"
-			      select="$mp-container"/>
+              <xsl:with-param name="mp-container" select="$mp-container"/>
             </xsl:call-template>
           </xsl:when>
           <xsl:otherwise>
@@ -105,11 +101,11 @@
       </xsl:when>
     </xsl:choose>
   </xsl:template>
-  
+
   <!--
-  
+
   unary-operation
-  
+
   Performs an operation on a single number and either copies
   it to the location specified by "dest" or tries to copy it
   back to the location that the number came from.
@@ -125,9 +121,8 @@
         <xsl:call-template name="expression">
           <xsl:with-param name="val" select="$val"/>
           <xsl:with-param name="cvt-mode" select="'value'"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
-	  <xsl:with-param name="to-stack" select="true()"/>
+          <xsl:with-param name="mp-container" select="$mp-container"/>
+          <xsl:with-param name="to-stack" select="true()"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
@@ -163,8 +158,7 @@
       <xsl:when test="$dest">
         <xsl:call-template name="store-value">
           <xsl:with-param name="vname" select="$dest"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
+          <xsl:with-param name="mp-container" select="$mp-container"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:when test="not(ancestor::xgf:formula)">
@@ -172,8 +166,7 @@
           <xsl:when test="$val">
             <xsl:call-template name="store-value">
               <xsl:with-param name="vname" select="$val"/>
-	      <xsl:with-param name="mp-container"
-			      select="$mp-container"/>
+              <xsl:with-param name="mp-container" select="$mp-container"/>
             </xsl:call-template>
           </xsl:when>
           <xsl:otherwise>
@@ -189,7 +182,7 @@
       </xsl:when>
     </xsl:choose>
   </xsl:template>
-  
+
   <xsl:template match="xgf:subtract">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
@@ -198,12 +191,11 @@
       <xsl:with-param name="right" select="@subtrahend"/>
       <xsl:with-param name="op-cmd" select="'SUB'"/>
       <xsl:with-param name="dest" select="@result-to"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:divide">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
@@ -212,8 +204,7 @@
       <xsl:with-param name="right" select="@divisor"/>
       <xsl:with-param name="op-cmd" select="'DIV'"/>
       <xsl:with-param name="dest" select="@result-to"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
@@ -226,10 +217,9 @@
       <xsl:with-param name="left" select="@value1"/>
       <xsl:with-param name="right" select="@value2"/>
       <xsl:with-param name="op-cmd"
-		      select="document('xgfdata.xml')/*/xgfd:instruction-set/xgfd:inst[@el=$ln]/@val"/>
+                      select="document('xgfdata.xml')/*/xgfd:instruction-set/xgfd:inst[@el=$ln]/@val"/>
       <xsl:with-param name="dest" select="@result-to"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
@@ -241,14 +231,13 @@
     <xsl:call-template name="unary-operation">
       <xsl:with-param name="val" select="@value"/>
       <xsl:with-param name="op-cmd"
-		      select="document('xgfdata.xml')/*/xgfd:instruction-set/xgfd:inst[@el=$ln]/@val"/>
+                      select="document('xgfdata.xml')/*/xgfd:instruction-set/xgfd:inst[@el=$ln]/@val"/>
       <xsl:with-param name="dest" select="@result-to"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:round">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
@@ -256,22 +245,21 @@
       <xsl:with-param name="val" select="@value"/>
       <xsl:with-param name="op-cmd" select="'ROUND'"/>
       <xsl:with-param name="l-color">
-	<xsl:choose>
-	  <xsl:when test="@color">
-	    <xsl:value-of select="@color"/>
-	  </xsl:when>
-	  <xsl:otherwise>
-	    <xsl:value-of select="$color"/>
-	  </xsl:otherwise>
-	</xsl:choose>
+        <xsl:choose>
+          <xsl:when test="@color">
+            <xsl:value-of select="@color"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$color"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:with-param>
       <xsl:with-param name="dest" select="@result-to"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:no-round">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
@@ -279,40 +267,37 @@
       <xsl:with-param name="val" select="@value"/>
       <xsl:with-param name="op-cmd" select="'NROUND'"/>
       <xsl:with-param name="l-color">
-	<xsl:choose>
-	  <xsl:when test="@color">
-	    <xsl:value-of select="@color"/>
-	  </xsl:when>
-	  <xsl:otherwise>
-	    <xsl:value-of select="$color"/>
-	  </xsl:otherwise>
-	</xsl:choose>
+        <xsl:choose>
+          <xsl:when test="@color">
+            <xsl:value-of select="@color"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$color"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:with-param>
       <xsl:with-param name="dest" select="@result-to"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:set-equal">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
     <xsl:call-template name="expression">
       <xsl:with-param name="val" select="@source"/>
       <xsl:with-param name="cvt-mode" select="'value'"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
       <xsl:with-param name="to-stack" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="store-value">
       <xsl:with-param name="vname" select="@target"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:control-value-index">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
@@ -330,16 +315,14 @@
     <xsl:call-template name="expression">
       <xsl:with-param name="val" select="@value"/>
       <xsl:with-param name="permitted" select="'c'"/>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
       <xsl:with-param name="to-stack" select="true()"/>
     </xsl:call-template>
     <xsl:choose>
       <xsl:when test="@result-to">
         <xsl:call-template name="store-value">
           <xsl:with-param name="vname" select="@result-to"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
+          <xsl:with-param name="mp-container" select="$mp-container"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
@@ -355,20 +338,18 @@
     </xsl:choose>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:formula">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
     <xsl:apply-templates>
-      <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+      <xsl:with-param name="mp-container" select="$mp-container"/>
     </xsl:apply-templates>
     <xsl:choose>
       <xsl:when test="@result-to">
         <xsl:call-template name="store-value">
           <xsl:with-param name="vname" select="@result-to"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
+          <xsl:with-param name="mp-container" select="$mp-container"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>

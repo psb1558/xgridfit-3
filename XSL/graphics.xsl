@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
+  xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
                 xmlns:xgfd="http://www.engl.virginia.edu/OE/xgridfit-data"
                 version="1.0">
 
@@ -9,9 +9,9 @@
       Licensed under the Apache License, Version 2.0.
       Copyright (c) 2006-20 by Peter S. Baker
   -->
-  
+
   <!--
-  
+
       set-simple-graphics-var
 
       Most graphics variables can be set quite simply by pushing a
@@ -48,9 +48,9 @@
             <xsl:with-param name="val" select="$value"/>
             <xsl:with-param name="permitted" select="$permitted"/>
             <xsl:with-param name="cvt-mode" select="'value'"/>
-	    <xsl:with-param name="mp-container"
-			    select="$mp-container"/>
-	    <xsl:with-param name="to-stack" select="true()"/>
+      <xsl:with-param name="mp-container"
+      select="$mp-container"/>
+      <xsl:with-param name="to-stack" select="true()"/>
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
@@ -85,9 +85,9 @@
       </xsl:if>
     </xsl:if>
   </xsl:template>
-  
+
   <!--
-  
+
       do-with-block
 
       Like set-simple-graphics-var, but the graphics state set
@@ -114,11 +114,11 @@
       <xsl:with-param name="may-record-default" select="false()"/>
       <xsl:with-param name="stack-source-permitted" select="false()"/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
     <xsl:apply-templates>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:apply-templates>
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="'DUP'"/>
@@ -130,7 +130,7 @@
       <xsl:with-param name="loc" select="$loc"/>
     </xsl:call-template>
   </xsl:template>
-  
+
   <!--
 
       set-zone-pointer
@@ -167,7 +167,7 @@
       <xsl:with-param name="cmd" select="concat('SZP', $zp)"/>
     </xsl:call-template>
   </xsl:template>
-  
+
   <!--
 
       set-zone-pointers-to-glyph
@@ -184,7 +184,7 @@
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
-  
+
   <!--
 
       do-set-vector
@@ -223,9 +223,8 @@
           <xsl:with-param name="l" select="$line"/>
         </xsl:call-template>
         <xsl:apply-templates mode="push-it" select="$line">
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
-	</xsl:apply-templates>
+          <xsl:with-param name="mp-container" select="$mp-container"/>
+        </xsl:apply-templates>
         <xsl:call-template name="simple-command">
           <xsl:with-param name="cmd">
             <xsl:text>S</xsl:text>
@@ -243,16 +242,16 @@
         <xsl:call-template name="expression">
           <xsl:with-param name="val" select="$x-component"/>
           <xsl:with-param name="permitted" select="'12fvn'"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
-	  <xsl:with-param name="to-stack" select="true()"/>
+    <xsl:with-param name="mp-container"
+    select="$mp-container"/>
+    <xsl:with-param name="to-stack" select="true()"/>
         </xsl:call-template>
         <xsl:call-template name="expression">
           <xsl:with-param name="val" select="$y-component"/>
           <xsl:with-param name="permitted" select="'12fvn'"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
-	  <xsl:with-param name="to-stack" select="true()"/>
+    <xsl:with-param name="mp-container"
+    select="$mp-container"/>
+    <xsl:with-param name="to-stack" select="true()"/>
         </xsl:call-template>
         <xsl:call-template name="simple-command">
           <xsl:with-param name="cmd" select="concat('S', $which-vector, 'VFS')"/>
@@ -280,7 +279,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
   <!--
 
       do-set-vectors
@@ -317,8 +316,8 @@
           <xsl:with-param name="y-component" select="$y-component"/>
           <xsl:with-param name="stack-source-permitted"
                           select="$stack-source-permitted"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
+    <xsl:with-param name="mp-container"
+    select="$mp-container"/>
         </xsl:call-template>
         <xsl:if test="$line or ($x-component and $y-component) or
                       $stack-source-permitted">
@@ -329,7 +328,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
   <!--
 
       do-store-vector
@@ -351,13 +350,13 @@
       <xsl:when test="$x-component and $y-component">
         <xsl:call-template name="store-value">
           <xsl:with-param name="vname" select="$y-component"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
+    <xsl:with-param name="mp-container"
+    select="$mp-container"/>
         </xsl:call-template>
         <xsl:call-template name="store-value">
           <xsl:with-param name="vname" select="$x-component"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
+    <xsl:with-param name="mp-container"
+    select="$mp-container"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
@@ -370,7 +369,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
   <xsl:template name="resolve-delta-shift-value">
     <xsl:param name="v"/>
     <xsl:choose>
@@ -391,7 +390,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
   <!--
 
       do-set-round
@@ -409,20 +408,20 @@
     <xsl:param name="all-defaults" select="/xgf:xgridfit/xgf:default"/>
     <xsl:if test="$push-current">
       <xsl:call-template name="number-command">
-	<xsl:with-param name="num">
-	  <xsl:call-template name="resolve-std-variable-loc">
-	    <xsl:with-param name="n" select="$var-sround-info"/>
-	  </xsl:call-template>
-	</xsl:with-param>
-	<xsl:with-param name="cmd" select="'RS'"/>
+  <xsl:with-param name="num">
+    <xsl:call-template name="resolve-std-variable-loc">
+      <xsl:with-param name="n" select="$var-sround-info"/>
+    </xsl:call-template>
+  </xsl:with-param>
+  <xsl:with-param name="cmd" select="'RS'"/>
       </xsl:call-template>
       <xsl:call-template name="number-command">
-	<xsl:with-param name="num">
-	  <xsl:call-template name="resolve-std-variable-loc">
-	    <xsl:with-param name="n" select="$var-round-state"/>
-	  </xsl:call-template>
-	</xsl:with-param>
-	<xsl:with-param name="cmd" select="'RS'"/>
+  <xsl:with-param name="num">
+    <xsl:call-template name="resolve-std-variable-loc">
+      <xsl:with-param name="n" select="$var-round-state"/>
+    </xsl:call-template>
+  </xsl:with-param>
+  <xsl:with-param name="cmd" select="'RS'"/>
       </xsl:call-template>
     </xsl:if>
     <xsl:choose>
@@ -442,26 +441,26 @@
                                   $round-state]/@threshold"/>
           <xsl:with-param name="save" select="$save"/>
           <xsl:with-param name="may-record-default" select="$may-record-default"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
+    <xsl:with-param name="mp-container"
+    select="$mp-container"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:when test="document('xgfdata.xml')/*/xgfd:round-states/xgfd:round[@name =
                       $round-state]">
         <xsl:if test="$save">
-	  <!--
-	      Always save two numbers: in $var-round-state,a number
-	      that identifies the current round state (this is
-	      specific to xgridfit and does not correspond to the
-	      number used by the TrueType engine); in
-	      $var-sround-info, a zero since it is not in use.
-	  -->
+    <!--
+        Always save two numbers: in $var-round-state,a number
+        that identifies the current round state (this is
+        specific to xgridfit and does not correspond to the
+        number used by the TrueType engine); in
+        $var-sround-info, a zero since it is not in use.
+    -->
           <xsl:call-template name="push-num">
-	    <xsl:with-param name="num">
-	      <xsl:call-template name="resolve-std-variable-loc">
-		<xsl:with-param name="n" select="$var-round-state"/>
-	      </xsl:call-template>
-	    </xsl:with-param>
+      <xsl:with-param name="num">
+        <xsl:call-template name="resolve-std-variable-loc">
+  <xsl:with-param name="n" select="$var-round-state"/>
+        </xsl:call-template>
+      </xsl:with-param>
             <xsl:with-param name="expect" select="2"/>
           </xsl:call-template>
           <xsl:call-template name="push-num">
@@ -474,11 +473,11 @@
             <xsl:with-param name="cmd" select="'WS'"/>
           </xsl:call-template>
           <xsl:call-template name="push-num">
-	    <xsl:with-param name="num">
-	      <xsl:call-template name="resolve-std-variable-loc">
-		<xsl:with-param name="n" select="$var-sround-info"/>
-	      </xsl:call-template>
-	    </xsl:with-param>
+      <xsl:with-param name="num">
+        <xsl:call-template name="resolve-std-variable-loc">
+  <xsl:with-param name="n" select="$var-sround-info"/>
+        </xsl:call-template>
+      </xsl:with-param>
             <xsl:with-param name="expect" select="2"/>
           </xsl:call-template>
           <xsl:call-template name="push-num">
@@ -490,33 +489,33 @@
           </xsl:call-template>
           <xsl:if test="ancestor-or-self::xgf:pre-program and $may-record-default and
                         not($all-defaults[@type='use-truetype-defaults']/@value = 'yes')">
-	    <!--
-		If a default is being set, copy the same info to the
-		locations that record the default round state.
-	    -->
+      <!--
+  If a default is being set, copy the same info to the
+  locations that record the default round state.
+      -->
             <xsl:call-template name="storage-to-storage">
-	      <xsl:with-param name="src">
-		<xsl:call-template name="resolve-std-variable-loc">
-		  <xsl:with-param name="n" select="$var-round-state"/>
-		</xsl:call-template>
-	      </xsl:with-param>
-	      <xsl:with-param name="dest">
-		<xsl:call-template name="resolve-std-variable-loc">
-		  <xsl:with-param name="n" select="$var-round-state-default"/>
-		</xsl:call-template>
-	      </xsl:with-param>
-	    </xsl:call-template>
+        <xsl:with-param name="src">
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-round-state"/>
+  </xsl:call-template>
+        </xsl:with-param>
+        <xsl:with-param name="dest">
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-round-state-default"/>
+  </xsl:call-template>
+        </xsl:with-param>
+      </xsl:call-template>
             <xsl:call-template name="storage-to-storage">
-	      <xsl:with-param name="src">
-		<xsl:call-template name="resolve-std-variable-loc">
-		  <xsl:with-param name="n" select="$var-sround-info"/>
-		</xsl:call-template>
-	      </xsl:with-param>
-	      <xsl:with-param name="dest">
-		<xsl:call-template name="resolve-std-variable-loc">
-		  <xsl:with-param name="n" select="$var-sround-info-default"/>
-		</xsl:call-template>
-	      </xsl:with-param>
+        <xsl:with-param name="src">
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-sround-info"/>
+  </xsl:call-template>
+        </xsl:with-param>
+        <xsl:with-param name="dest">
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-sround-info-default"/>
+  </xsl:call-template>
+        </xsl:with-param>
             </xsl:call-template>
           </xsl:if>
         </xsl:if>
@@ -531,15 +530,15 @@
           <xsl:with-param name="raw-num" select="$round-state"/>
           <xsl:with-param name="save" select="$save"/>
           <xsl:with-param name="may-record-default" select="$may-record-default"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
-	  <xsl:with-param name="all-defaults" select="$all-defaults"/>
+    <xsl:with-param name="mp-container"
+    select="$mp-container"/>
+    <xsl:with-param name="all-defaults" select="$all-defaults"/>
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
-  
+
+
   <!--
 
       do-super-round
@@ -560,9 +559,9 @@
         <xsl:call-template name="expression">
           <xsl:with-param name="val" select="$raw-num"/>
           <xsl:with-param name="permitted" select="'1fvn'"/>
-	  <xsl:with-param name="mp-container"
-			  select="$mp-container"/>
-	  <xsl:with-param name="to-stack" select="true()"/>
+    <xsl:with-param name="mp-container"
+    select="$mp-container"/>
+    <xsl:with-param name="to-stack" select="true()"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
@@ -632,28 +631,28 @@
       <xsl:if test="ancestor-or-self::xgf:pre-program and $may-record-default and
                     not($all-defaults[@type='use-truetype-defaults']/@value = 'yes')">
         <xsl:call-template name="storage-to-storage">
-	  <xsl:with-param name="src">
-	    <xsl:call-template name="resolve-std-variable-loc">
-	      <xsl:with-param name="n" select="$var-round-state"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
-	  <xsl:with-param name="dest">
-	    <xsl:call-template name="resolve-std-variable-loc">
-	      <xsl:with-param name="n" select="$var-round-state-default"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
-	</xsl:call-template>
+    <xsl:with-param name="src">
+      <xsl:call-template name="resolve-std-variable-loc">
+        <xsl:with-param name="n" select="$var-round-state"/>
+      </xsl:call-template>
+    </xsl:with-param>
+    <xsl:with-param name="dest">
+      <xsl:call-template name="resolve-std-variable-loc">
+        <xsl:with-param name="n" select="$var-round-state-default"/>
+      </xsl:call-template>
+    </xsl:with-param>
+  </xsl:call-template>
         <xsl:call-template name="storage-to-storage">
-	  <xsl:with-param name="src">
-	    <xsl:call-template name="resolve-std-variable-loc">
-	      <xsl:with-param name="n" select="$var-sround-info"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
-	  <xsl:with-param name="dest">
-	    <xsl:call-template name="resolve-std-variable-loc">
-	      <xsl:with-param name="n" select="$var-sround-info-default"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
+    <xsl:with-param name="src">
+      <xsl:call-template name="resolve-std-variable-loc">
+        <xsl:with-param name="n" select="$var-sround-info"/>
+      </xsl:call-template>
+    </xsl:with-param>
+    <xsl:with-param name="dest">
+      <xsl:call-template name="resolve-std-variable-loc">
+        <xsl:with-param name="n" select="$var-sround-info-default"/>
+      </xsl:call-template>
+    </xsl:with-param>
         </xsl:call-template>
       </xsl:if>
     </xsl:if>
@@ -661,8 +660,8 @@
       <xsl:with-param name="cmd" select="'SROUND'"/>
     </xsl:call-template>
   </xsl:template>
-  
-  
+
+
   <!--
 
       restore-round-state
@@ -674,18 +673,18 @@
     <xsl:param name="from-stack" select="false()"/>
     <xsl:if test="$from-stack">
       <xsl:call-template name="stack-top-to-storage">
-	<xsl:with-param name="loc">
-	  <xsl:call-template name="resolve-std-variable-loc">
-	    <xsl:with-param name="n" select="$var-round-state"/>
-	  </xsl:call-template>
-	</xsl:with-param>
+  <xsl:with-param name="loc">
+    <xsl:call-template name="resolve-std-variable-loc">
+      <xsl:with-param name="n" select="$var-round-state"/>
+    </xsl:call-template>
+  </xsl:with-param>
       </xsl:call-template>
       <xsl:call-template name="stack-top-to-storage">
-	<xsl:with-param name="loc">
-	  <xsl:call-template name="resolve-std-variable-loc">
-	    <xsl:with-param name="n" select="$var-sround-info"/>
-	  </xsl:call-template>
-	</xsl:with-param>
+  <xsl:with-param name="loc">
+    <xsl:call-template name="resolve-std-variable-loc">
+      <xsl:with-param name="n" select="$var-sround-info"/>
+    </xsl:call-template>
+  </xsl:with-param>
       </xsl:call-template>
     </xsl:if>
     <xsl:call-template name="number-command">
@@ -700,14 +699,14 @@
     <xsl:call-template name="push-point">
       <xsl:with-param name="pt" select="xgf:point"/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="concat('SRP', @whichpointer)"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:szp">
     <xsl:call-template name="debug-start"/>
     <xsl:call-template name="set-zone-pointer">
@@ -716,18 +715,18 @@
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:set-round-state">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
     <xsl:call-template name="do-set-round">
       <xsl:with-param name="round-state" select="@round"/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:with-round-state">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
@@ -736,18 +735,18 @@
       <xsl:with-param name="may-record-default" select="false()"/>
       <xsl:with-param name="push-current" select="true()"/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
     <xsl:apply-templates>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:apply-templates>
     <xsl:call-template name="restore-round-state">
       <xsl:with-param name="from-stack" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:set-vectors">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
@@ -758,11 +757,11 @@
       <xsl:with-param name="x-component" select="@x-component"/>
       <xsl:with-param name="y-component" select="@y-component"/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:with-vectors">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
@@ -780,11 +779,11 @@
       <xsl:with-param name="y-component" select="@y-component"/>
       <xsl:with-param name="stack-source-permitted" select="false()"/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
     <xsl:apply-templates>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:apply-templates>
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="'SFVFS'"/>
@@ -799,19 +798,19 @@
     <xsl:param name="local-name"/>
     <xsl:choose>
       <xsl:when test="contains($local-name, 'projection')">
-	<xsl:value-of select="'P'"/>
+  <xsl:value-of select="'P'"/>
       </xsl:when>
       <xsl:when test="contains($local-name, 'freedom')">
-	<xsl:value-of select="'F'"/>
+  <xsl:value-of select="'F'"/>
       </xsl:when>
       <xsl:otherwise>
-	<xsl:call-template name="error-message">
-	  <xsl:with-param name="type" select="'internal'"/>
-	  <xsl:with-param name="msg">
-	    <xsl:text>bad parameter for get-vector-letter: </xsl:text>
-	    <xsl:value-of select="$local-name"/>
-	  </xsl:with-param>
-	</xsl:call-template>
+  <xsl:call-template name="error-message">
+    <xsl:with-param name="type" select="'internal'"/>
+    <xsl:with-param name="msg">
+      <xsl:text>bad parameter for get-vector-letter: </xsl:text>
+      <xsl:value-of select="$local-name"/>
+    </xsl:with-param>
+  </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -820,34 +819,34 @@
     <xsl:param name="s"/>
     <xsl:choose>
       <xsl:when test="$s = 'minimum-distance'">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-minimum-distance"/>
-	</xsl:call-template>
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-minimum-distance"/>
+  </xsl:call-template>
       </xsl:when>
       <xsl:when test="$s = 'control-value-cut-in'">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-minimum-distance"/>
-	</xsl:call-template>
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-minimum-distance"/>
+  </xsl:call-template>
       </xsl:when>
       <xsl:when test="$s = 'single-width-cut-in'">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-single-width-cut-in"/>
-	</xsl:call-template>
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-single-width-cut-in"/>
+  </xsl:call-template>
       </xsl:when>
       <xsl:when test="$s = 'single-width'">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-single-width"/>
-	</xsl:call-template>
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-single-width"/>
+  </xsl:call-template>
       </xsl:when>
       <xsl:when test="$s = 'delta-base'">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-delta-base"/>
-	</xsl:call-template>
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-delta-base"/>
+  </xsl:call-template>
       </xsl:when>
       <xsl:when test="$s = 'delta-shift'">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-delta-shift"/>
-	</xsl:call-template>
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-delta-shift"/>
+  </xsl:call-template>
       </xsl:when>
     </xsl:choose>
   </xsl:template>
@@ -856,34 +855,34 @@
     <xsl:param name="s"/>
     <xsl:choose>
       <xsl:when test="$s = 'minimum-distance'">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-minimum-distance-default"/>
-	</xsl:call-template>
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-minimum-distance-default"/>
+  </xsl:call-template>
       </xsl:when>
       <xsl:when test="$s = 'control-value-cut-in'">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-control-value-cut-in-default"/>
-	</xsl:call-template>
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-control-value-cut-in-default"/>
+  </xsl:call-template>
       </xsl:when>
       <xsl:when test="$s = 'single-width-cut-in'">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-single-width-cut-in-default"/>
-	</xsl:call-template>
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-single-width-cut-in-default"/>
+  </xsl:call-template>
       </xsl:when>
       <xsl:when test="$s = 'single-width'">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-single-width-default"/>
-	</xsl:call-template>
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-single-width-default"/>
+  </xsl:call-template>
       </xsl:when>
       <xsl:when test="$s = 'delta-base'">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-delta-base-default"/>
-	</xsl:call-template>
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-delta-base-default"/>
+  </xsl:call-template>
       </xsl:when>
       <xsl:when test="$s = 'delta-shift'">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-delta-shift-default"/>
-	</xsl:call-template>
+  <xsl:call-template name="resolve-std-variable-loc">
+    <xsl:with-param name="n" select="$var-delta-shift-default"/>
+  </xsl:call-template>
       </xsl:when>
     </xsl:choose>
   </xsl:template>
@@ -893,7 +892,7 @@
     <xsl:call-template name="debug-start"/>
     <xsl:variable name="wv">
       <xsl:call-template name="get-vector-letter">
-	<xsl:with-param name="local-name" select="local-name()"/>
+  <xsl:with-param name="local-name" select="local-name()"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:call-template name="do-set-vector">
@@ -904,7 +903,7 @@
       <xsl:with-param name="x-component" select="@x-component"/>
       <xsl:with-param name="y-component" select="@y-component"/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
@@ -914,7 +913,7 @@
     <xsl:call-template name="debug-start"/>
     <xsl:variable name="wv">
       <xsl:call-template name="get-vector-letter">
-	<xsl:with-param name="local-name" select="local-name()"/>
+  <xsl:with-param name="local-name" select="local-name()"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:call-template name="simple-command">
@@ -929,11 +928,11 @@
       <xsl:with-param name="y-component" select="@y-component"/>
       <xsl:with-param name="stack-source-permitted" select="false()"/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
     <xsl:apply-templates>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:apply-templates>
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="concat('S', $wv, 'VFS')"/>
@@ -949,7 +948,7 @@
     </xsl:call-template>
     <xsl:apply-templates mode="push-it" select="xgf:line">
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:apply-templates>
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="'SDPVTL'"/>
@@ -961,13 +960,13 @@
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:store-projection-vector|xgf:store-freedom-vector">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
     <xsl:variable name="wv">
       <xsl:call-template name="get-vector-letter">
-	<xsl:with-param name="local-name" select="local-name()"/>
+  <xsl:with-param name="local-name" select="local-name()"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:call-template name="do-store-vector">
@@ -975,7 +974,7 @@
       <xsl:with-param name="x-component" select="@x-component"/>
       <xsl:with-param name="y-component" select="@y-component"/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
@@ -985,18 +984,18 @@
     <xsl:call-template name="x-store-control-value">
       <xsl:with-param name="cvtname" select="@name"/>
       <xsl:with-param name="unit">
-	<xsl:choose>
-	  <xsl:when test="@unit = 'pixel'">
-	    <xsl:text>pixel</xsl:text>
-	  </xsl:when>
-	  <xsl:otherwise>
-	    <xsl:text>font</xsl:text>
-	  </xsl:otherwise>
-	</xsl:choose>
+  <xsl:choose>
+    <xsl:when test="@unit = 'pixel'">
+      <xsl:text>pixel</xsl:text>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:text>font</xsl:text>
+    </xsl:otherwise>
+  </xsl:choose>
       </xsl:with-param>
       <xsl:with-param name="val" select="@value"/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
   </xsl:template>
 
@@ -1004,20 +1003,20 @@
     <xsl:param name="mp-container"/>
     <xsl:variable name="cvt-index">
       <xsl:call-template name="expression">
-	<xsl:with-param name="val" select="@name"/>
-	<xsl:with-param name="cvt-mode" select="'index'"/>
-	<xsl:with-param name="permitted" select="'c'"/>
-	<xsl:with-param name="mp-container"
-			select="$mp-container"/>
+  <xsl:with-param name="val" select="@name"/>
+  <xsl:with-param name="cvt-mode" select="'index'"/>
+  <xsl:with-param name="permitted" select="'c'"/>
+  <xsl:with-param name="mp-container"
+  select="$mp-container"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:if test="$cvt-index = 'NaN'">
       <xsl:call-template name="error-message">
-	<xsl:with-param name="msg">
-	  <xsl:text>Can't resolve control-value "</xsl:text>
-	  <xsl:value-of select="@name"/>
-	  <xsl:text>"</xsl:text>
-	</xsl:with-param>
+  <xsl:with-param name="msg">
+    <xsl:text>Can't resolve control-value "</xsl:text>
+    <xsl:value-of select="@name"/>
+    <xsl:text>"</xsl:text>
+  </xsl:with-param>
       </xsl:call-template>
     </xsl:if>
     <xsl:call-template name="push-num">
@@ -1032,22 +1031,22 @@
     <xsl:call-template name="x-store-control-value">
       <xsl:with-param name="cvtname" select="@name"/>
       <xsl:with-param name="unit">
-	<xsl:choose>
-	  <xsl:when test="@unit = 'pixel'">
-	    <xsl:text>pixel</xsl:text>
-	  </xsl:when>
-	  <xsl:otherwise>
-	    <xsl:text>font</xsl:text>
-	  </xsl:otherwise>
-	</xsl:choose>
+  <xsl:choose>
+    <xsl:when test="@unit = 'pixel'">
+      <xsl:text>pixel</xsl:text>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:text>font</xsl:text>
+    </xsl:otherwise>
+  </xsl:choose>
       </xsl:with-param>
       <xsl:with-param name="val" select="@value"/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
     <xsl:apply-templates>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:apply-templates>
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="'WCVTP'"/>
@@ -1055,77 +1054,77 @@
   </xsl:template>
 
   <xsl:template match="xgf:set-minimum-distance | xgf:set-control-value-cut-in |
-		       xgf:set-single-width-cut-in | xgf:set-single-width |
-		       xgf:set-delta-base | xgf:set-delta-shift">
+         xgf:set-single-width-cut-in | xgf:set-single-width |
+         xgf:set-delta-base | xgf:set-delta-shift">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
     <xsl:variable name="ln" select="substring(local-name(),5)"/>
     <xsl:variable name="v">
       <xsl:choose>
-	<xsl:when test="$ln = 'delta-shift'">
-	  <xsl:call-template name="resolve-delta-shift-value">
-	    <xsl:with-param name="v" select="@units-per-pixel"/>
-	  </xsl:call-template>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:value-of select="@value"/>
-	</xsl:otherwise>
+  <xsl:when test="$ln = 'delta-shift'">
+    <xsl:call-template name="resolve-delta-shift-value">
+      <xsl:with-param name="v" select="@units-per-pixel"/>
+    </xsl:call-template>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:value-of select="@value"/>
+  </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:call-template name="set-simple-graphics-var">
       <xsl:with-param name="value" select="$v"/>
       <xsl:with-param name="cmd"
-		      select="document('xgfdata.xml')/*/xgfd:instruction-set/xgfd:inst[@el=$ln]/@val"/>
+        select="document('xgfdata.xml')/*/xgfd:instruction-set/xgfd:inst[@el=$ln]/@val"/>
       <xsl:with-param name="loc">
-	<xsl:call-template name="get-graph-location">
-	  <xsl:with-param name="s" select="$ln"/>
-	</xsl:call-template>
+  <xsl:call-template name="get-graph-location">
+    <xsl:with-param name="s" select="$ln"/>
+  </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="default-loc">
-	<xsl:call-template name="get-graph-default-location">
-	  <xsl:with-param name="s" select="$ln"/>
-	</xsl:call-template>
+  <xsl:call-template name="get-graph-default-location">
+    <xsl:with-param name="s" select="$ln"/>
+  </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:with-minimum-distance | xgf:with-control-value-cut-in |
-		       xgf:with-single-width-cut-in | xgf:with-single-width |
-		       xgf:with-delta-base | xgf:with-delta-shift">
+         xgf:with-single-width-cut-in | xgf:with-single-width |
+         xgf:with-delta-base | xgf:with-delta-shift">
     <xsl:param name="mp-container"/>
     <xsl:call-template name="debug-start"/>
     <xsl:variable name="ln" select="substring(local-name(),6)"/>
     <xsl:variable name="v">
       <xsl:choose>
-	<xsl:when test="$ln = 'delta-shift'">
-	  <xsl:call-template name="resolve-delta-shift-value">
-	    <xsl:with-param name="v" select="@units-per-pixel"/>
-	  </xsl:call-template>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:value-of select="@value"/>
-	</xsl:otherwise>
+  <xsl:when test="$ln = 'delta-shift'">
+    <xsl:call-template name="resolve-delta-shift-value">
+      <xsl:with-param name="v" select="@units-per-pixel"/>
+    </xsl:call-template>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:value-of select="@value"/>
+  </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:call-template name="do-with-block">
       <xsl:with-param name="value" select="$v"/>
       <xsl:with-param name="cmd"
-		      select="document('xgfdata.xml')/*/xgfd:instruction-set/xgfd:inst[@el=$ln]/@val"/>
+        select="document('xgfdata.xml')/*/xgfd:instruction-set/xgfd:inst[@el=$ln]/@val"/>
       <xsl:with-param name="loc">
-	<xsl:call-template name="get-graph-location">
-	  <xsl:with-param name="s" select="$ln"/>
-	</xsl:call-template>
+  <xsl:call-template name="get-graph-location">
+    <xsl:with-param name="s" select="$ln"/>
+  </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="default-loc">
-	<xsl:call-template name="get-graph-default-location">
-	  <xsl:with-param name="s" select="$ln"/>
-	</xsl:call-template>
+  <xsl:call-template name="get-graph-default-location">
+    <xsl:with-param name="s" select="$ln"/>
+  </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
@@ -1135,12 +1134,12 @@
     <xsl:variable name="ln" select="local-name()"/>
     <xsl:variable name="v">
       <xsl:choose>
-	<xsl:when test="contains($ln, 'disable')">
-	  <xsl:value-of select="1"/>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:value-of select="0"/>
-	</xsl:otherwise>
+  <xsl:when test="contains($ln, 'disable')">
+    <xsl:value-of select="1"/>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:value-of select="0"/>
+  </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:call-template name="do-instctrl">
@@ -1158,7 +1157,7 @@
       <xsl:with-param name="val" select="@value"/>
       <xsl:with-param name="permitted" select="'1'"/>
       <xsl:with-param name="mp-container"
-		      select="$mp-container"/>
+        select="$mp-container"/>
       <xsl:with-param name="to-stack" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -1166,7 +1165,7 @@
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:set-dropout-control">
     <xsl:call-template name="debug-start"/>
     <xsl:call-template name="number-command">
@@ -1176,7 +1175,7 @@
     </xsl:call-template>
     <xsl:call-template name="debug-end"/>
   </xsl:template>
-  
+
   <xsl:template match="xgf:set-auto-flip">
     <xsl:call-template name="debug-start"/>
     <xsl:choose>
@@ -1198,61 +1197,61 @@
     <xsl:param name="entry"/>
     <xsl:choose>
       <xsl:when test="$entry/@name = 'round-state'">
-	<xsl:call-template name="storage-to-storage">
-	  <xsl:with-param name="src">
-	    <xsl:call-template name="resolve-std-variable-loc">
-	      <xsl:with-param name="n" select="$var-round-state-default"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
-	  <xsl:with-param name="dest">
-	    <xsl:call-template name="resolve-std-variable-loc">
-	      <xsl:with-param name="n" select="$var-round-state"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
-	</xsl:call-template>
-	<xsl:call-template name="storage-to-storage">
-	  <xsl:with-param name="src">
-	    <xsl:call-template name="resolve-std-variable-loc">
-	      <xsl:with-param name="n" select="$var-sround-info-default"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
-	  <xsl:with-param name="dest">
-	    <xsl:call-template name="resolve-std-variable-loc">
-	      <xsl:with-param name="n" select="$var-sround-info"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
-	</xsl:call-template>
-	<xsl:call-template name="restore-round-state"/>
+  <xsl:call-template name="storage-to-storage">
+    <xsl:with-param name="src">
+      <xsl:call-template name="resolve-std-variable-loc">
+        <xsl:with-param name="n" select="$var-round-state-default"/>
+      </xsl:call-template>
+    </xsl:with-param>
+    <xsl:with-param name="dest">
+      <xsl:call-template name="resolve-std-variable-loc">
+        <xsl:with-param name="n" select="$var-round-state"/>
+      </xsl:call-template>
+    </xsl:with-param>
+  </xsl:call-template>
+  <xsl:call-template name="storage-to-storage">
+    <xsl:with-param name="src">
+      <xsl:call-template name="resolve-std-variable-loc">
+        <xsl:with-param name="n" select="$var-sround-info-default"/>
+      </xsl:call-template>
+    </xsl:with-param>
+    <xsl:with-param name="dest">
+      <xsl:call-template name="resolve-std-variable-loc">
+        <xsl:with-param name="n" select="$var-sround-info"/>
+      </xsl:call-template>
+    </xsl:with-param>
+  </xsl:call-template>
+  <xsl:call-template name="restore-round-state"/>
       </xsl:when>
       <xsl:otherwise>
-	<xsl:call-template name="push-num">
-	  <xsl:with-param name="num">
-	    <xsl:call-template name="resolve-std-variable-loc">
-	      <xsl:with-param name="n" select="$entry/@loc"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
-	  <xsl:with-param name="expect" select="2"/>
-	</xsl:call-template>
-	<xsl:call-template name="push-num">
-	  <xsl:with-param name="num">
-	    <xsl:call-template name="resolve-std-variable-loc">
-	      <xsl:with-param name="n" select="$entry/@def"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
-	  <xsl:with-param name="add-mode" select="true()"/>
-	</xsl:call-template>
-	<xsl:call-template name="simple-command">
-	  <xsl:with-param name="cmd" select="'RS'"/>
-	</xsl:call-template>
-	<xsl:call-template name="simple-command">
-	  <xsl:with-param name="cmd" select="'DUP'"/>
-	</xsl:call-template>
-	<xsl:call-template name="simple-command">
-	  <xsl:with-param name="cmd" select="$entry/@inst"/>
-	</xsl:call-template>
-	<xsl:call-template name="simple-command">
-	  <xsl:with-param name="cmd" select="'WS'"/>
-	</xsl:call-template>
+  <xsl:call-template name="push-num">
+    <xsl:with-param name="num">
+      <xsl:call-template name="resolve-std-variable-loc">
+        <xsl:with-param name="n" select="$entry/@loc"/>
+      </xsl:call-template>
+    </xsl:with-param>
+    <xsl:with-param name="expect" select="2"/>
+  </xsl:call-template>
+  <xsl:call-template name="push-num">
+    <xsl:with-param name="num">
+      <xsl:call-template name="resolve-std-variable-loc">
+        <xsl:with-param name="n" select="$entry/@def"/>
+      </xsl:call-template>
+    </xsl:with-param>
+    <xsl:with-param name="add-mode" select="true()"/>
+  </xsl:call-template>
+  <xsl:call-template name="simple-command">
+    <xsl:with-param name="cmd" select="'RS'"/>
+  </xsl:call-template>
+  <xsl:call-template name="simple-command">
+    <xsl:with-param name="cmd" select="'DUP'"/>
+  </xsl:call-template>
+  <xsl:call-template name="simple-command">
+    <xsl:with-param name="cmd" select="$entry/@inst"/>
+  </xsl:call-template>
+  <xsl:call-template name="simple-command">
+    <xsl:with-param name="cmd" select="'WS'"/>
+  </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -1261,40 +1260,40 @@
     <xsl:variable name="n" select="@name"/>
     <xsl:choose>
       <xsl:when test="$n = 'all'">
-	<xsl:for-each select="document('xgfdata.xml')/*/xgfd:defaults/xgfd:entry">
-	  <xsl:call-template name="restdef">
-	    <xsl:with-param name="entry" select="."/>
-	  </xsl:call-template>
-	</xsl:for-each>
-	<!-- These are graphics variables that Xgridfit doesn't
-	     track. We'll just use the TrueType defaults. -->
-	<xsl:call-template name="simple-command">
-	  <xsl:with-param name="cmd" select="'SVTCA'"/>
-	  <xsl:with-param name="modifier">
-	    <xsl:call-template name="axis-bit">
-	      <xsl:with-param name="axis" select="'x'"/>
-	    </xsl:call-template>
-	  </xsl:with-param>
-	</xsl:call-template>
-	<xsl:call-template name="simple-command">
-	  <xsl:with-param name="cmd" select="'FLIPON'"/>
-	</xsl:call-template>
-	<xsl:call-template name="set-zone-pointers-to-glyph"/>
+  <xsl:for-each select="document('xgfdata.xml')/*/xgfd:defaults/xgfd:entry">
+    <xsl:call-template name="restdef">
+      <xsl:with-param name="entry" select="."/>
+    </xsl:call-template>
+  </xsl:for-each>
+  <!-- These are graphics variables that Xgridfit doesn't
+       track. We'll just use the TrueType defaults. -->
+  <xsl:call-template name="simple-command">
+    <xsl:with-param name="cmd" select="'SVTCA'"/>
+    <xsl:with-param name="modifier">
+      <xsl:call-template name="axis-bit">
+        <xsl:with-param name="axis" select="'x'"/>
+      </xsl:call-template>
+    </xsl:with-param>
+  </xsl:call-template>
+  <xsl:call-template name="simple-command">
+    <xsl:with-param name="cmd" select="'FLIPON'"/>
+  </xsl:call-template>
+  <xsl:call-template name="set-zone-pointers-to-glyph"/>
       </xsl:when>
       <xsl:when test="document('xgfdata.xml')/*/xgfd:defaults/xgfd:entry[@name=$n]">
-	<xsl:call-template name="restdef">
-	  <xsl:with-param name="entry"
-			  select="document('xgfdata.xml')/*/xgfd:defaults/xgfd:entry[@name=$n]"/>
-	</xsl:call-template>
+  <xsl:call-template name="restdef">
+    <xsl:with-param name="entry"
+    select="document('xgfdata.xml')/*/xgfd:defaults/xgfd:entry[@name=$n]"/>
+  </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-	<xsl:call-template name="error-message">
-	  <xsl:with-param name="msg">
-	    <xsl:text>Unknown attribute value name="</xsl:text>
-	    <xsl:value-of select="$n"/>
-	    <xsl:text>" in &lt;restore-default&gt;</xsl:text>
-	  </xsl:with-param>
-	</xsl:call-template>
+  <xsl:call-template name="error-message">
+    <xsl:with-param name="msg">
+      <xsl:text>Unknown attribute value name="</xsl:text>
+      <xsl:value-of select="$n"/>
+      <xsl:text>" in &lt;restore-default&gt;</xsl:text>
+    </xsl:with-param>
+  </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

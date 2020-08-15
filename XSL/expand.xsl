@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
-		exclude-result-prefixes="xgf"
+                xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
+                exclude-result-prefixes="xgf"
                 version="1.0">
 
   <xsl:output method="xml" indent="yes"/>
@@ -49,20 +49,20 @@
       <xsl:value-of select="."/>
    </xsl:attribute>
   </xsl:template>
-  
+
   <xsl:template match="@col">
     <xsl:attribute name="color">
       <xsl:variable name="color" select="."/>
       <xsl:choose>
-	<xsl:when test="$color = 'b'">
-	  <xsl:text>black</xsl:text>
-	</xsl:when>
-	<xsl:when test="$color = 'w'">
-	  <xsl:text>white</xsl:text>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:text>gray</xsl:text>
-	</xsl:otherwise>
+        <xsl:when test="$color = 'b'">
+          <xsl:text>black</xsl:text>
+        </xsl:when>
+        <xsl:when test="$color = 'w'">
+          <xsl:text>white</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>gray</xsl:text>
+        </xsl:otherwise>
       </xsl:choose>
    </xsl:attribute>
   </xsl:template>
@@ -76,17 +76,17 @@
     </xsl:variable>
     <xsl:variable name="remaining">
       <xsl:call-template name="get-remaining-tokens">
-	<xsl:with-param  name="s" select="$s"/>
+        <xsl:with-param  name="s" select="$s"/>
       </xsl:call-template>
     </xsl:variable>
     <xgf:point>
       <xsl:attribute name="num">
-	<xsl:value-of select="$current"/>
+        <xsl:value-of select="$current"/>
       </xsl:attribute>
     </xgf:point>
     <xsl:if test="string-length($remaining) &gt; 0">
       <xsl:call-template name="make-points">
-	<xsl:with-param name="s" select="$remaining"/>
+        <xsl:with-param name="s" select="$remaining"/>
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
@@ -94,7 +94,7 @@
   <xsl:template match="@r">
     <xgf:reference>
       <xsl:call-template name="make-points">
-	<xsl:with-param name="s" select="."/>
+        <xsl:with-param name="s" select="."/>
       </xsl:call-template>
     </xgf:reference>
   </xsl:template>
@@ -110,12 +110,12 @@
     <!-- Isolate the key-value pair; set aside what remains -->
     <xsl:variable name="thispair">
       <xsl:choose>
-	<xsl:when test="contains($s,',')">
-	  <xsl:value-of select="normalize-space(substring-before($s,','))"/>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:value-of select="$s"/>
-	</xsl:otherwise>
+        <xsl:when test="contains($s,',')">
+          <xsl:value-of select="normalize-space(substring-before($s,','))"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$s"/>
+        </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:variable name="remaining">
@@ -124,32 +124,32 @@
     <!-- Divide into key and value -->
     <xsl:variable name="keystr">
       <xsl:value-of
-	  select="normalize-space(substring-before($thispair,':'))"/>
+          select="normalize-space(substring-before($thispair,':'))"/>
     </xsl:variable>
     <xsl:variable name="valstr">
       <xsl:value-of
-	  select="normalize-space(substring-after($thispair,':'))"/>
+          select="normalize-space(substring-after($thispair,':'))"/>
     </xsl:variable>
     <!-- Test validity of key-value pair -->
     <xsl:if test="string-length($keystr) = 0 or
-		  string-length($valstr) = 0">
+                  string-length($valstr) = 0">
       <xsl:message terminate="yes">
-	<xsl:text>Ill-formed key-value pair in &lt;pms&gt;</xsl:text>
+        <xsl:text>Ill-formed key-value pair in &lt;pms&gt;</xsl:text>
       </xsl:message>
     </xsl:if>
     <!-- Output the parameter -->
     <xgf:with-param>
       <xsl:attribute name="name">
-	<xsl:value-of select="$keystr"/>
+        <xsl:value-of select="$keystr"/>
       </xsl:attribute>
       <xsl:attribute name="value">
-	<xsl:value-of select="$valstr"/>
+        <xsl:value-of select="$valstr"/>
       </xsl:attribute>
     </xgf:with-param>
     <!-- Recurs if necessary -->
     <xsl:if test="string-length($remaining) &gt; 0">
       <xsl:call-template name="make-params">
-	<xsl:with-param name="s" select="$remaining"/>
+        <xsl:with-param name="s" select="$remaining"/>
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
@@ -184,30 +184,30 @@
   <xsl:template match="xgf:modifier">
     <xsl:copy>
       <xsl:attribute name="type">
-	<xsl:choose>
-	  <xsl:when test="@type = 'col'">
-	    <xsl:text>color</xsl:text>
-	  </xsl:when>
-	  <xsl:otherwise>
-	    <xsl:value-of select="@type"/>
-	  </xsl:otherwise>
-	</xsl:choose>
+        <xsl:choose>
+          <xsl:when test="@type = 'col'">
+            <xsl:text>color</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="@type"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:attribute>
       <xsl:attribute name="value">
-	<xsl:choose>
-	  <xsl:when test="@val = 'b'">
-	    <xsl:text>black</xsl:text>
-	  </xsl:when>
-	  <xsl:when test="@val = 'w'">
-	    <xsl:text>white</xsl:text>
-	  </xsl:when>
-	  <xsl:when test="@val = 'g'">
-	    <xsl:text>gray</xsl:text>
-	  </xsl:when>
-	  <xsl:otherwise>
-	    <xsl:value-of select="@val"/>
-	  </xsl:otherwise>
-	</xsl:choose>
+        <xsl:choose>
+          <xsl:when test="@val = 'b'">
+            <xsl:text>black</xsl:text>
+          </xsl:when>
+          <xsl:when test="@val = 'w'">
+            <xsl:text>white</xsl:text>
+          </xsl:when>
+          <xsl:when test="@val = 'g'">
+            <xsl:text>gray</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="@val"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:attribute>
     </xsl:copy>
   </xsl:template>
@@ -340,7 +340,7 @@
       <xsl:apply-templates select="@* | node()"/>
     </xgf:interpolate-untouched-points>
   </xsl:template>
-  
+
   <xsl:template match="xgf:mo">
     <xgf:macro>
       <xsl:apply-templates select="@nm"/>
@@ -366,7 +366,7 @@
       <xsl:apply-templates select="@* | node()"/>
     </xgf:reference>
   </xsl:template>
-  
+
   <xsl:template match="xgf:setcv">
     <xgf:set-control-value>
       <xsl:apply-templates select="@* | node()"/>

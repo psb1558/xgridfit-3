@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
+                xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
                 xmlns:xgfd="http://www.engl.virginia.edu/OE/xgridfit-data"
-		xmlns:excom="http://exslt.org/common"
+                xmlns:excom="http://exslt.org/common"
                 version="1.0"
                 exclude-result-prefixes="xgf xgfd excom"
-		extension-element-prefixes="excom">
+                extension-element-prefixes="excom">
 
   <!--
       This file is part of xgridfit, version 3.
@@ -19,7 +19,7 @@
   -->
 
   <xsl:output method="text"/>
-  
+
   <xsl:key name="cvt" match="xgf:control-value" use="@name"/>
 
   <xsl:variable name="newline"><xsl:text>
@@ -50,26 +50,26 @@
     <xsl:for-each select="/xgf:xgridfit/xgf:control-value">
       <xsl:variable name="cvname" select="@name"/>
       <xsl:choose>
-	<xsl:when test="$cvvs[@name = $cvname]">
-	  <xsl:variable name="defcv" select="number(@value)"/>
-	  <xsl:variable name="varcv" select="number($cvvs[@name
-					     = $cvname]/@value)"/>
-	  <xsl:variable name="r" select="$varcv - $defcv"/>
-	  <xsl:choose>
-	    <xsl:when test="$r = 0">
-	      <xsl:text>None</xsl:text>
-	    </xsl:when>
-	    <xsl:otherwise>
-	      <xsl:value-of select="$r"/>
-	    </xsl:otherwise>
-	  </xsl:choose>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:text>None</xsl:text>
-	</xsl:otherwise>
+        <xsl:when test="$cvvs[@name = $cvname]">
+          <xsl:variable name="defcv" select="number(@value)"/>
+          <xsl:variable name="varcv" select="number($cvvs[@name
+                                             = $cvname]/@value)"/>
+          <xsl:variable name="r" select="$varcv - $defcv"/>
+          <xsl:choose>
+            <xsl:when test="$r = 0">
+              <xsl:text>None</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$r"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>None</xsl:text>
+        </xsl:otherwise>
       </xsl:choose>
       <xsl:if test="position() != last()">
-	<xsl:text>, </xsl:text>
+        <xsl:text>, </xsl:text>
       </xsl:if>
     </xsl:for-each>
     <xsl:text>]),</xsl:text>

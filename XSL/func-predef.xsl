@@ -20,15 +20,15 @@
 <!--
     <xsl:choose>
       <xsl:when test="$merge-mode">
-	<xsl:call-template name="push-num">
-	  <xsl:with-param name="num" select="'#fn#'"/>
-	  <xsl:with-param name="size" select="'B'"/>
-	</xsl:call-template>
+        <xsl:call-template name="push-num">
+          <xsl:with-param name="num" select="'#fn#'"/>
+          <xsl:with-param name="size" select="'B'"/>
+        </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-	<xsl:call-template name="push-num">
-	  <xsl:with-param name="num" select="$function-round-restore"/>
-	</xsl:call-template>
+        <xsl:call-template name="push-num">
+          <xsl:with-param name="num" select="$function-round-restore"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
 -->
@@ -43,8 +43,8 @@
       <xsl:with-param name="add-mode" select="true()"/>
       <xsl:with-param name="num">
         <xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-round-state"/>
-	</xsl:call-template>
+          <xsl:with-param name="n" select="$var-round-state"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -77,9 +77,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-round-state"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-round-state"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
@@ -114,8 +114,8 @@
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
         <xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-round-state"/>
-	</xsl:call-template>
+          <xsl:with-param name="n" select="$var-round-state"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
@@ -150,8 +150,8 @@
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
         <xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-round-state"/>
-	</xsl:call-template>
+          <xsl:with-param name="n" select="$var-round-state"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
@@ -186,8 +186,8 @@
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
         <xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-round-state"/>
-	</xsl:call-template>
+          <xsl:with-param name="n" select="$var-round-state"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
@@ -222,8 +222,8 @@
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
         <xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-round-state"/>
-	</xsl:call-template>
+          <xsl:with-param name="n" select="$var-round-state"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
@@ -258,8 +258,8 @@
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
         <xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-round-state"/>
-	</xsl:call-template>
+          <xsl:with-param name="n" select="$var-round-state"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
@@ -274,9 +274,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-sround-info"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-sround-info"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -292,7 +292,7 @@
       <xsl:with-param name="cmd" select="'ENDF'"/>
     </xsl:call-template>
   </xsl:template>
-  
+
   <!-- The function defined here is for initializing the variables that track
        the graphics state. It copies values from locations where this font's
        defaults are stored to the locations used for tracking. It is called
@@ -304,15 +304,15 @@
 <!--
     <xsl:choose>
       <xsl:when test="$merge-mode">
-	<xsl:call-template name="push-num">
-	  <xsl:with-param name="num" select="'#fn#'"/>
-	  <xsl:with-param name="size" select="'B'"/>
-	</xsl:call-template>
+        <xsl:call-template name="push-num">
+          <xsl:with-param name="num" select="'#fn#'"/>
+          <xsl:with-param name="size" select="'B'"/>
+        </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-	<xsl:call-template name="push-num">
-	  <xsl:with-param name="num" select="$function-glyph-prolog"/>
-	</xsl:call-template>
+        <xsl:call-template name="push-num">
+          <xsl:with-param name="num" select="$function-glyph-prolog"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
 -->
@@ -322,128 +322,128 @@
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
         <xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-round-state"/>
-	</xsl:call-template>
+          <xsl:with-param name="n" select="$var-round-state"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="expect" select="16"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
         <xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-round-state-default"/>
-	</xsl:call-template>
+          <xsl:with-param name="n" select="$var-round-state-default"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-sround-info"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-sround-info"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-sround-info-default"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-sround-info-default"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-minimum-distance"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-minimum-distance"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-minimum-distance-default"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-minimum-distance-default"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-control-value-cut-in"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-control-value-cut-in"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-control-value-cut-in-default"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-control-value-cut-in-default"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-single-width-cut-in"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-single-width-cut-in"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-single-width-cut-in-default"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-single-width-cut-in-default"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-single-width"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-single-width"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-single-width-default"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-single-width-default"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-delta-base"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-delta-base"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-delta-base-default"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-delta-base-default"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-delta-shift"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-delta-shift"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-delta-shift-default"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-delta-shift-default"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
@@ -510,15 +510,15 @@
 <!--
     <xsl:choose>
       <xsl:when test="$merge-mode">
-	<xsl:call-template name="push-num">
-	  <xsl:with-param name="num" select="'#fn#'"/>
-	  <xsl:with-param name="size" select="'B'"/>
-	</xsl:call-template>
+        <xsl:call-template name="push-num">
+          <xsl:with-param name="num" select="'#fn#'"/>
+          <xsl:with-param name="size" select="'B'"/>
+        </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-	<xsl:call-template name="push-num">
-	  <xsl:with-param name="num" select="$function-push-range"/>
-	</xsl:call-template>
+        <xsl:call-template name="push-num">
+          <xsl:with-param name="num" select="$function-push-range"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
 -->
@@ -526,45 +526,45 @@
       <xsl:with-param name="cmd" select="'FDEF'"/>
     </xsl:call-template>
     <!--
-	When this is called, the two values on top of the stack should
-	be the two reference pointers (can use a value -1 to take one
-	or both out of play). The next two values should be the two
-	end-points of the range we are pushing.
+        When this is called, the two values on top of the stack should
+        be the two reference pointers (can use a value -1 to take one
+        or both out of play). The next two values should be the two
+        end-points of the range we are pushing.
     -->
     <xsl:call-template name="stack-top-to-storage">
       <xsl:with-param name="loc">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg3"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg3"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="stack-top-to-storage">
       <xsl:with-param name="loc">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg2"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg2"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="stack-top-to-storage">
       <xsl:with-param name="loc">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg1"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg1"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="stack-top-to-storage">
       <xsl:with-param name="loc">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg0"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg0"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <!-- Initialize the return value (which is also our counter) -->
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-return-value"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-return-value"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="expect" select="2"/>
     </xsl:call-template>
@@ -579,9 +579,9 @@
     swap them. -->
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg0"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg0"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -589,9 +589,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg1"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg1"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -605,9 +605,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg0"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg0"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -615,9 +615,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg1"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg1"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -625,27 +625,27 @@
     </xsl:call-template>
     <xsl:call-template name="stack-top-to-storage">
       <xsl:with-param name="loc">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg0"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg0"/>
+        </xsl:call-template>
       </xsl:with-param>
-    </xsl:call-template>    
+    </xsl:call-template>
     <xsl:call-template name="stack-top-to-storage">
       <xsl:with-param name="loc">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg1"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg1"/>
+        </xsl:call-template>
       </xsl:with-param>
-    </xsl:call-template>    
+    </xsl:call-template>
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="'EIF'"/>
     </xsl:call-template>
     <!-- Get reg0 (the lower point) onto the stack -->
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg0"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg0"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -660,9 +660,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg2"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg2"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -676,9 +676,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg3"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg3"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -700,9 +700,9 @@
     <!-- Increment the count we're keeping of points pushed. -->
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-return-value"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-return-value"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -716,9 +716,9 @@
     </xsl:call-template>
     <xsl:call-template name="stack-top-to-storage">
       <xsl:with-param name="loc">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$var-return-value"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$var-return-value"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -738,9 +738,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg1"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg1"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -775,15 +775,15 @@
 <!--
     <xsl:choose>
       <xsl:when test="$merge-mode">
-	<xsl:call-template name="push-num">
-	  <xsl:with-param name="num" select="'#fn#'"/>
-	  <xsl:with-param name="size" select="'B'"/>
-	</xsl:call-template>
+        <xsl:call-template name="push-num">
+          <xsl:with-param name="num" select="'#fn#'"/>
+          <xsl:with-param name="size" select="'B'"/>
+        </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-	<xsl:call-template name="push-num">
-	  <xsl:with-param name="num" select="$function-order-range"/>
-	</xsl:call-template>
+        <xsl:call-template name="push-num">
+          <xsl:with-param name="num" select="$function-order-range"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
 -->
@@ -792,25 +792,25 @@
     </xsl:call-template>
     <xsl:call-template name="stack-top-to-storage">
       <xsl:with-param name="loc">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg0"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg0"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="stack-top-to-storage">
       <xsl:with-param name="loc">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg1"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg1"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <!-- reg0 has got to be the higher of the two endpoints. If it is not,
     swap them. -->
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg0"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg0"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -818,9 +818,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg1"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg1"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -834,9 +834,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg1"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg1"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -844,9 +844,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg0"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg0"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -857,9 +857,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg0"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg0"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
@@ -867,9 +867,9 @@
     </xsl:call-template>
     <xsl:call-template name="push-num">
       <xsl:with-param name="num">
-	<xsl:call-template name="resolve-std-variable-loc">
-	  <xsl:with-param name="n" select="$reg1"/>
-	</xsl:call-template>
+        <xsl:call-template name="resolve-std-variable-loc">
+          <xsl:with-param name="n" select="$reg1"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
