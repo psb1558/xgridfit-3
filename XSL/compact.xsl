@@ -4,6 +4,17 @@
                 exclude-result-prefixes="xgf"
                 version="1.0">
 
+<!--
+  This file is part of xgridfit, version 3.
+  Licensed under the Apache License, Version 2.0.
+  Copyright (c) 2006-20 by Peter S. Baker
+-->
+
+<!--
+  This file converts from old or expanded syntax to the
+  new or compact syntax.
+-->
+
   <xsl:output method="xml" indent="yes"/>
 
   <xsl:include href="expressions.xsl"/>
