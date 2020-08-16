@@ -283,7 +283,7 @@ attlist.default &=
     | "function-base"
     | "compile-globals"
     | "init-graphics"
-    | "col"
+    | "color"
     | "delete-all"
     | "combine-prep"
     | "auto-instr"
