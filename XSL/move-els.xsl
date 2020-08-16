@@ -3,18 +3,30 @@
                 xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"
                 version="1.0">
 
+<!--
+  This file is part of xgridfit, version 3.
+  Licensed under the Apache License, Version 2.0.
+  Copyright (c) 2006-20 by Peter S. Baker
+-->
+
   <!--
     If the color default is "auto," the choice is between black and
     gray. If we have a reference element or the parent of this move
-    element is another move, the color is black. It's not very
-    fancy, but it should serve in the majority of cases.
+    element is another move, the color is black. It's not a great
+    guess, but it should serve in the majority of cases.
   -->
   <xsl:template name="process-color-param">
     <xsl:choose>
       <xsl:when test="$color = 'auto'">
         <xsl:choose>
-          <xsl:when test="(name(.) = 'xgf:move')
-                          and (./xgf:reference or ./parent::xgf:move)">
+<!--
+  At present this template is only called from xgf:move. If it is ever
+  called from elsewhere the test should be
+
+          <xsl:when test="self::xgf:move
+                  and (./xgf:reference or ./parent::xgf:move)">
+-->
+          <xsl:when test="./xgf:reference or ./parent::xgf:move">
             <xsl:text>black</xsl:text>
           </xsl:when>
           <xsl:otherwise>
@@ -27,12 +39,6 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
-  <!--
-      This file is part of xgridfit, version 3.
-      Licensed under the Apache License, Version 2.0.
-      Copyright (c) 2006-20 by Peter S. Baker
-  -->
 
   <xsl:template match="xgf:mirp">
     <xsl:param name="mp-container"/>
