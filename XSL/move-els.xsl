@@ -4,6 +4,31 @@
                 version="1.0">
 
   <!--
+    If the color default is "auto," the choice is between black and
+    gray. If we have a reference element or the parent of this move
+    element is another move, the color is black. It's not very
+    fancy, but it should serve in the majority of cases.
+  -->
+  <xsl:template name="process-color-param">
+    <xsl:choose>
+      <xsl:when test="$color = 'auto'">
+        <xsl:choose>
+          <xsl:when test="(name(.) = 'xgf:move')
+                          and (./xgf:reference or ./parent::xgf:move)">
+            <xsl:text>black</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>gray</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$color"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!--
       This file is part of xgridfit, version 3.
       Licensed under the Apache License, Version 2.0.
       Copyright (c) 2006-20 by Peter S. Baker
@@ -569,6 +594,15 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
+    <!--
+      Here are the priorities: if there is a color attribute
+      on this move element, use that. If not, check for a color
+      attribute on the control-value (dist) for this move, if any.
+      Failing that, use the default, which may be black, white,
+      gray or auto. This default is interpreted by the
+      process-color-param template (the only complication being
+      "auto")
+    -->
     <xsl:variable name="local-color">
       <xsl:choose>
         <xsl:when test="@color">
@@ -576,9 +610,9 @@
         </xsl:when>
         <xsl:when test="$local-dist and key('cvt',$local-dist)/@color">
           <xsl:value-of select="key('cvt',$local-dist)/@color"/>
-          </xsl:when>
+        </xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="$color"/>
+          <xsl:call-template name="process-color-param"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
