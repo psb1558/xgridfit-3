@@ -29,7 +29,7 @@ That syntax still works in Xgridfit 3, but this is quicker to write, and no less
 </mv>
 ```
 
-Because hinting is now done almost exclusively on the y axis, Xgridfit 3 has an "assume-always-y" default setting which allows optimization of some rounding operations, and also relieves you of having to tediously repeat ``<set-vectors> (<setvs>)`` and ``<interpolate-untouched-points> (<iup>)`` at the beginning and end of every glyph program.
+Because hinting is now done almost exclusively on the y axis, Xgridfit 3 has an "assume-always-y" default setting which allows optimization of some rounding operations, and also relieves you of having to tediously repeat ``<set-vectors> (<setvs>)`` and ``<interpolate-untouched-points> (<iup>)`` at the beginning and end of every glyph program. Distance-colors can now be associated with control-values, and a new default setting instructs Xgridfit to guess at the appropriate distance-color where none is given.
 
 Finally Xgridfit 3 can produce a cvar table, and thus can hint variable fonts.
 
