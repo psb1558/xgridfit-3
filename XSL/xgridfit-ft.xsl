@@ -546,6 +546,7 @@
 </xsl:text>
 </xsl:if>
 <xsl:text>
+
 def install_glyph_program(nm, fo, asm):
     global maxInstructions
     g = fo['glyf'][nm]
@@ -554,6 +555,99 @@ def install_glyph_program(nm, fo, asm):
     b = len(g.program.getBytecode())
     if b &gt; maxInstructions:
         maxInstructions = b
+
+neutral_instructions = ['IUP', 'RDTG', 'ROFF', 'RTDG', 'RTG', 'RTHG', 'RUTG',
+'SFVTCA', 'SFVTPV', 'SPVTCA', 'SVTCA']
+
+pop_instructions = { 'ALIGNPTS': 2, 'ALIGNRP': -1, 'IP': -1, 'MDAP': 1,
+'MIAP': 2, 'MIRP': 2, 'MDRP': 1, 'SHP': -1, 'SLOOP': 1, 'SRP0': 1, 'SRP1': 1,
+'SRP2': 1, 'CALL': 1, 'SFVTL': 2, 'SPVTL': 2, 'SDPVTL': 2 }
+
+push_instructions = ['PUSHB', 'NPUSHB']
+
+def is_number(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+def output_current_push(ilist, plist):
+    push_command = "PUSHB[ ]"
+    if len(plist) &gt; 8:
+        push_command = "NPUSHB[ ]"
+    idx = ilist.index("pushmarker")
+    ilist[idx] = push_command
+    idx = idx + 1
+    plist.reverse()
+    ilist[idx:idx] = plist
+    return ilist
+
+def list_to_string(ilist):
+    str = ""
+    for s in ilist:
+        if len(str) &gt; 0:
+            str = str + "\n"
+        str = str + s
+    return str
+
+def compact_instructions(inst):
+    # return inst
+    input_list = inst.splitlines()
+    push_store = []
+    ordered_push_list = []
+    push_initialized = False
+    loop_counter = 1
+    last_num = 'x'
+    instruction_list = []
+    for current_line in input_list:
+        current_line = current_line.strip(" \n")
+        if is_number(current_line):
+            if not push_initialized:
+                return inst
+            else:
+                last_num = current_line
+                push_store.append(current_line)
+        else:
+            if current_line.find("[") &lt; 1:
+                return inst
+            this_instruction = current_line.split("[")[0]
+            if this_instruction in push_instructions:
+                if not push_initialized:
+                    push_initialized = True
+                    instruction_list.append("pushmarker")
+            elif this_instruction in pop_instructions:
+                if this_instruction == 'SLOOP':
+                    loop_counter = int(last_num)
+                    ordered_push_list.append(push_store.pop())
+                elif this_instruction == 'CALL':
+                    ti = push_store.pop()
+                    if ti == "1":
+                        ordered_push_list.append(ti)
+                    else:
+                        return inst
+                elif pop_instructions[this_instruction] == -1:
+                    while loop_counter &gt; 0:
+                        ordered_push_list.append(push_store.pop())
+                        loop_counter = loop_counter - 1
+                    loop_counter = 1
+                else:
+                    iloop = pop_instructions[this_instruction]
+                    while iloop &gt; 0:
+                        ordered_push_list.append(push_store.pop())
+                        iloop = iloop - 1
+                instruction_list.append(current_line)
+            elif this_instruction in neutral_instructions:
+                instruction_list.append(current_line)
+            else:
+                return inst
+    if len(push_store) &gt; 0:
+        return inst
+    if len(ordered_push_list) &gt; 0:
+        output_current_push(instruction_list,ordered_push_list)
+    else:
+        return inst
+    return(list_to_string(instruction_list))
 
 </xsl:text>
     <xsl:if test="$compile_globals='yes'">
@@ -899,7 +993,7 @@ def install_glyph_program(nm, fo, asm):
     <xsl:value-of select="$text-newline"/>
     <xsl:text>install_glyph_program("</xsl:text>
     <xsl:value-of select="@ps-name"/>
-    <xsl:text>", currentFont, "</xsl:text>
+    <xsl:text>", currentFont, compact_instructions("</xsl:text>
     <xsl:variable name="current-inst">
       <xsl:if test="$need-variable-frame">
         <xsl:call-template name="set-up-variable-frame"/>
@@ -927,7 +1021,7 @@ def install_glyph_program(nm, fo, asm):
       </xsl:if>
     </xsl:variable>
     <xsl:value-of select="substring-after($current-inst,$leading-newline)"/>
-    <xsl:text>")</xsl:text>
+    <xsl:text>"))</xsl:text>
     <xsl:value-of select="$text-newline"/>
   </xsl:template>
 
