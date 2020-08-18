@@ -2,8 +2,6 @@ from lxml import etree
 from fontTools import ttLib
 import sys
 import os
-import re
-import tempfile
 import argparse
 
 #      This file is part of xgridfit, version 3.
@@ -43,7 +41,7 @@ if len(xgffile.xpath("/xg:xgridfit/xi:include", namespaces=ns)):
     xgffile.xinclude()
 
 # Test whether we have a cvar element
-    
+
 have_cvar = (len(xgffile.xpath("/xg:xgridfit/xg:cvar", namespaces=ns)) > 0)
 
 # Look for all program files relative to this python file:
@@ -101,7 +99,7 @@ else:
     xmlschema.assertValid(xgffile)
 
 # Now compile.
-    
+
 if skipcomp:
     print("# Skipping compilation")
 else:
