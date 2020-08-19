@@ -546,6 +546,14 @@
 </xsl:text>
 </xsl:if>
 <xsl:text>
+neutral_instructions = ['IUP', 'RDTG', 'ROFF', 'RTDG', 'RTG', 'RTHG', 'RUTG',
+'SFVTCA', 'SFVTPV', 'SPVTCA', 'SVTCA']
+
+pop_instructions = { 'ALIGNPTS': 2, 'ALIGNRP': -1, 'IP': -1, 'MDAP': 1,
+'MIAP': 2, 'MIRP': 2, 'MDRP': 1, 'SHP': -1, 'SLOOP': 1, 'SRP0': 1, 'SRP1': 1,
+'SRP2': 1, 'CALL': 1, 'SFVTL': 2, 'SPVTL': 2, 'SDPVTL': 2 }
+
+push_instructions = ['PUSHB', 'NPUSHB']
 
 def install_glyph_program(nm, fo, asm):
     global maxInstructions
@@ -555,15 +563,6 @@ def install_glyph_program(nm, fo, asm):
     b = len(g.program.getBytecode())
     if b &gt; maxInstructions:
         maxInstructions = b
-
-neutral_instructions = ['IUP', 'RDTG', 'ROFF', 'RTDG', 'RTG', 'RTHG', 'RUTG',
-'SFVTCA', 'SFVTPV', 'SPVTCA', 'SVTCA']
-
-pop_instructions = { 'ALIGNPTS': 2, 'ALIGNRP': -1, 'IP': -1, 'MDAP': 1,
-'MIAP': 2, 'MIRP': 2, 'MDRP': 1, 'SHP': -1, 'SLOOP': 1, 'SRP0': 1, 'SRP1': 1,
-'SRP2': 1, 'CALL': 1, 'SFVTL': 2, 'SPVTL': 2, 'SDPVTL': 2 }
-
-push_instructions = ['PUSHB', 'NPUSHB']
 
 def is_number(s):
     try:
@@ -648,7 +647,6 @@ def compact_instructions(inst):
     else:
         return inst
     return(list_to_string(instruction_list))
-
 </xsl:text>
     <xsl:if test="$compile_globals='yes'">
       <xsl:text>currentFont['cvt '] = ttFont.newTable('cvt ')</xsl:text>
