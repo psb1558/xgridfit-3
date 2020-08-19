@@ -577,7 +577,7 @@ def output_current_push(ilist, plist):
         push_command = "NPUSHB[ ]"
     idx = ilist.index("pushmarker")
     ilist[idx] = push_command
-    idx = idx + 1
+    idx += 1
     plist.reverse()
     ilist[idx:idx] = plist
     return ilist
@@ -586,8 +586,8 @@ def list_to_string(ilist):
     str = ""
     for s in ilist:
         if len(str) &gt; 0:
-            str = str + "\n"
-        str = str + s
+            str += "\n"
+        str += s
     return str
 
 def compact_instructions(inst):
@@ -602,14 +602,12 @@ def compact_instructions(inst):
     for current_line in input_list:
         current_line = current_line.strip(" \n")
         if is_number(current_line):
-            if not push_initialized:
-                return inst
-            else:
+            if push_initialized:
                 last_num = current_line
                 push_store.append(current_line)
-        else:
-            if current_line.find("[") &lt; 1:
+            else:
                 return inst
+        else:
             this_instruction = current_line.split("[")[0]
             if this_instruction in push_instructions:
                 if not push_initialized:
@@ -628,13 +626,13 @@ def compact_instructions(inst):
                 elif pop_instructions[this_instruction] == -1:
                     while loop_counter &gt; 0:
                         ordered_push_list.append(push_store.pop())
-                        loop_counter = loop_counter - 1
+                        loop_counter -= 1
                     loop_counter = 1
                 else:
                     iloop = pop_instructions[this_instruction]
                     while iloop &gt; 0:
                         ordered_push_list.append(push_store.pop())
-                        iloop = iloop - 1
+                        iloop += 1
                 instruction_list.append(current_line)
             elif this_instruction in neutral_instructions:
                 instruction_list.append(current_line)
