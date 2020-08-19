@@ -632,7 +632,7 @@ def compact_instructions(inst):
                     iloop = pop_instructions[this_instruction]
                     while iloop &gt; 0:
                         ordered_push_list.append(push_store.pop())
-                        iloop += 1
+                        iloop -= 1
                 instruction_list.append(current_line)
             elif this_instruction in neutral_instructions:
                 instruction_list.append(current_line)
