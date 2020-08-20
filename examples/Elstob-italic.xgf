@@ -1,0 +1,1053 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-model
+    href="../Schemas/xgridfit-sh.rnc"
+    type="application/relax-ng-compact-syntax"?>
+<xgridfit xmlns="http://xgridfit.sourceforge.net/Xgridfit2"
+	  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <!--
+      This file uses the compact syntax (less transparent than
+      standard syntax but fast to type): use one of the RelaxNG
+      schemas, xgridfit-sh.rnc (as in the xml-model declaration
+      above) or xgridfit-sh.rng, to validate. Best if you edit the
+      file in an editor like oXygen, Emacs with nxml-mode, or Atom
+      with linter-autocomplete-jing. Xgridfit validates the file
+      and then expands to standard syntax before compilation.
+
+      The example font is a variable font; thus this file
+      demonstrates how to hint a variable font.
+  -->
+
+  <!--
+      infile and outfile are the font to hint and the name
+      of the font to write. These should be different
+  -->
+  <infile>Elstob-Italic[GRAD,opsz,wght].ttf</infile>
+
+  <outfile>Elstob-Italic[GRAD,opsz,wght]-hinted.ttf</outfile>
+
+  <!--
+      The amount of storage to reserve for variables. A modern
+      font has little need for variables (Elstob-Italic doesn't
+      use them at all), so this is absurdly generous.
+  -->
+  <default type="max-storage" val="70"/>
+
+  <!--
+      This default should generally be included: it signals
+      to a system that this font is compatible with ClearType.
+  -->
+  <default type="cleartype" val="yes"/>
+
+  <!--
+      This default enables a style of programming that's
+      most suitable for older fonts, one that extensively
+      manipulates the graphics state. This program doesn't
+      do that, so we turn this off.
+  -->
+  <default type="init-graphics" val="no"/>
+
+  <!--
+      In ClearType, the effective resolution in the x
+      direction is much greater than in the y direction,
+      so hinting is usually needed only in the y direction.
+      When the assume-always-y default is true, Xgridfit
+      can use a more efficient kind of rounding than
+      otherwise. It also automatically sets up the vectors
+      for y-direction hinting at the beginning of every
+      glyph program and smooths the outline via an IUP[y]
+      instruction at the end, saving you the labor of doing
+      these things yourself. If you want to take over
+      vector-setting yourself for any reason, include the
+      attribute assume-y="no" on the <gl> element. For an
+      example, see the glyph program for "H."
+  -->
+  <default type="assume-always-y" val="yes"/>
+
+  <!--
+      Xgridfit will assume that the distance for a <move>
+      is black when (1) the <move> is the child of another
+      <move> or (2) the <move> has an r attribute or
+      contains a <ref> element.
+  -->
+  <default type="color" val="auto"/>
+
+  <!--
+      Control values are named rather than numbered in Xgridfit,
+      making them easier to remember. Use an <alias> (see below)
+      to produce abbreviated forms of these names.
+  -->
+  <cv nm="baseline" val="0"/>
+  <!-- caps -->
+  <cv nm="cap-baseline-undershoot" val="-27"/>
+  <cv nm="cap-height" val="1358"/>
+  <cv nm="cap-height-overshoot" val="1385"/>
+  <cv nm="cap-serif" val="52" col="b"/>
+  <cv nm="cap-bar" val="61" col="b"/>
+  <cv nm="cap-round-stem" val="58" col="b"/>
+  <!-- lc -->
+  <cv nm="xheight" val="900"/>
+  <cv nm="xheight-overshoot" val="911"/>
+  <cv nm="lc-round-stem" val="62" col="b"/>
+  <cv nm="lc-baseline-undershoot" val="-23"/>
+  <cv nm="lc-bar" val="54" col="b"/>
+  <cv nm="lc-ascender-top" val="1485"/>
+  <cv nm="lc-ascender-top-alt" val="1451"/>
+  <cv nm="lc-ascender-serif" val="59"/>
+  <cv nm="lc-descender" val="-501"/>
+  <cv nm="lc-descender-alt" val="-466"/>
+  <cv nm="dot-width" val="229" col="b"/>
+  <cv nm="dot-height" val="1128"/>
+  <cv nm="lc-serif" val="52" col="b"/>
+  <cv nm="rune-punct" val="258" col="b"/>
+  <cv nm="euro-bar" val="102" col="b"/>
+  <cv nm="num-top" val="1317"/>
+  <cv nm="num-top-overshoot" val="1333"/>
+  <cv nm="sups-baseline" val="519"/>
+  <cv nm="sups-baseline-undershoot" val="505"/>
+  <cv nm="sups-top-overshoot" val="1319"/>
+  <cv nm="sups-top" val="1306"/>
+  <cv nm="sups-os-top" val="1194"/>
+  <cv nm="sups-os-top-overshoot" val="1209"/>
+  <cv nm="period-height" val="267" col="b"/>
+  <cv nm="period-undershoot" val="-33"/>
+  <cv nm="comma-height" val="251" col="b"/>
+  <cv nm="numbersign-bar" val="96" col="b"/>
+  <cv nm="euro-bar" val="100" col="b"/>
+  <!-- small caps -->
+  <cv nm="sc-height" val="1016"/>
+  <cv nm="sc-height-overshoot" val="1036"/>
+  <cv nm="sc-serif" val="53" col="b"/>
+  <cv nm="sc-bar" val="62" col="b"/>
+  <cv nm="sc-curved-stem" val="58" col="b"/>
+  <!-- marks -->
+  <cv nm="mark-baseline" val="1079"/>
+  <cv nm="mark-baseline-undershoot" val="1079"/>
+  <cv nm="mark-xheight" val="1495"/>
+  <cv nm="mark-xheight-overshoot" val="1500"/>
+  <cv nm="tilde-stem" val="101"/>
+  <!-- modifiers -->
+  <cv nm="mod-baseline" val="567"/>
+  <cv nm="mod-baseline-undershoot" val="554"/>
+  <cv nm="mod-xheight-overshoot" val="1102"/>
+
+  <!--
+      Shorter forms of control values to facilitate
+      rapid typing. But an <alias> can be used for
+      a number of purposes.
+  -->
+  <alias nm="lcas" target="lc-ascender-serif"/>
+  <alias nm="lcat" target="lc-ascender-top"/>
+  <alias nm="xh" target="xheight"/>
+  <alias nm="lcrs" target="lc-round-stem"/>
+  <alias nm="caprs" target="cap-round-stem"/>
+  <alias nm="xho" target="xheight-overshoot"/>
+  <alias nm="lcbu" target="lc-baseline-undershoot"/>
+  <alias nm="capbu" target="cap-baseline-undershoot"/>
+  <alias nm="numbu" target="cap-baseline-undershoot"/>
+  <alias nm="numto" target="num-top-overshoot"/>
+  <alias nm="numt" target="num-top"/>
+  <alias nm="numrs" target="cap-round-stem"/>
+  <alias nm="supsb" target="sups-baseline"/>
+  <alias nm="supsbu" target="sups-baseline-undershoot"/>
+  <alias nm="supst" target="sups-top"/>
+  <alias nm="supsto" target="sups-top-overshoot"/>
+  <alias nm="supsot" target="sups-os-top"/>
+  <alias nm="supsoto" target="sups-os-top-overshoot"/>
+  <alias nm="sc-baseline-undershoot" target="lc-baseline-undershoot"/>
+  <alias nm="scbu" target="lc-baseline-undershoot"/>
+  <alias nm="baseline-undershoot" target="lc-baseline-undershoot"/>
+  <alias nm="sch" target="sc-height"/>
+  <alias nm="scho" target="sc-height-overshoot"/>
+  <alias nm="scrs" target="sc-curved-stem"/>
+  <alias nm="mkb" target="mark-baseline"/>
+  <alias nm="mkbu" target="mark-baseline-undershoot"/>
+  <alias nm="mkx" target="mark-xheight"/>
+  <alias nm="mkxo" target="mark-xheight-overshoot"/>
+  <alias nm="modbu" target="mod-baseline-undershoot"/>
+  <alias nm="modxo" target="mod-xheight-overshoot"/>
+
+  <!--
+      The <cv> elements contain control values for your
+      default master: the <cvar> element contains control
+      values for your other masters. Include only those
+      that are different fron the default; order is not
+      significant.
+  -->
+  <cvar>
+    <region tag="wght" bot="-1.0" peak="-1.0" top="0.0">
+    <!-- <region tag="wght" bot="-0.33" peak="-0.33" top="0.66"> -->
+      <cvv nm="cap-serif" val="40"/>
+      <cvv nm="cap-bar" val="42"/>
+      <cvv nm="cap-round-stem" val="31"/>
+      <cvv nm="lc-bar" val="42"/>
+      <cvv nm="lc-ascender-serif" val="44"/>
+      <cvv nm="dot-width" val="151"/>
+      <cvv nm="lc-serif" val="40"/>
+      <cvv nm="rune-punct" val="225"/>
+      <cvv nm="period-height" val="207"/>
+      <cvv nm="period-undershoot" val="-22"/>
+      <cvv nm="comma-height" val="293"/>
+      <cvv nm="comma-height" val="187"/>
+      <cvv nm="numbersign-bar" val="79"/>
+      <cvv nm="euro-bar" val="82"/>
+      <cvv nm="sc-serif" val="40"/>
+      <cvv nm="sc-bar" val="45"/>
+      <cvv nm="sc-curved-stem" val="31"/>
+      <cvv nm="tilde-stem" val="81"/>
+    </region>
+    <region tag="wght" bot="0.0" peak="1.0" top="1.0">
+    <!-- <region tag="wght" bot="0.33" peak="0.66" top="0.66"> -->
+      <cvv nm="cap-serif" val="60"/>
+      <cvv nm="cap-bar" val="70"/>
+      <cvv nm="cap-round-stem" val="68"/>
+      <cvv nm="lc-ascender-serif" val="81"/>
+      <cvv nm="lc-bar" val="70"/>
+      <cvv nm="dot-width" val="332"/>
+      <cvv nm="lc-serif" val="60"/>
+      <cvv nm="rune-punct" val="313"/>
+      <cvv nm="period-height" val="350"/>
+      <cvv nm="period-undershoot" val="-47"/>
+      <cvv nm="numbersign-bar" val="120"/>
+      <cvv nm="euro-bar" val="105"/>
+      <cvv nm="sc-serif" val="61"/>
+      <cvv nm="sc-bar" val="70"/>
+      <cvv nm="sc-curved-stem" val="68"/>
+      <cvv nm="tilde-stem" val="137"/>
+    </region>
+    <region tag="opsz" bot="-1.0" peak="-1.0" top="0.0">
+      <cvv nm="xheight" val="944"/>
+      <cvv nm="xheight-overshoot" val="952"/>
+      <cvv nm="cap-serif" val="84"/>
+      <cvv nm="cap-bar" val="93"/>
+      <cvv nm="cap-round-stem" val="90"/>
+      <cvv nm="lc-bar" val="96"/>
+      <cvv nm="lc-descender" val="451"/>
+      <cvv nm="lc-descender-alt" val="421"/>
+      <cvv nm="dot-width" val="231"/>
+      <cvv nm="dot-height" val="1170"/>
+      <cvv nm="comma-height" val="250"/>
+      <cvv nm="lc-serif" val="84"/>
+      <cvv nm="rune-punct" val="256"/>
+      <cvv nm="euro-bar" val="111"/>
+      <cvv nm="sc-height" val="1052"/>
+      <cvv nm="sc-height-overshoot" val="1072"/>
+      <cvv nm="sc-serif" val="87"/>
+      <cvv nm="sc-bar" val="94"/>
+      <cvv nm="sc-curved-stem" val="69"/>
+      <cvv nm="mark-baseline" val="1122"/>
+      <cvv nm="mark-baseline-undershoot" val="1111"/>
+      <cvv nm="mark-xheight" val="1576"/>
+      <cvv nm="mark-xheight-overshoot" val="1580"/>
+      <cvv nm="tilde-stem" val="104"/>
+      <cvv nm="mod-baseline" val="611"/>
+      <cvv nm="mod-baseline-undershoot" val="598"/>
+      <cvv nm="mod-xheight-overshoot" val="1170"/>
+      <cvv nm="mod-xheight" val="1065"/>
+    </region>
+    <region tag="opsz" bot="0.0" peak="1.0" top="1.0">
+      <cvv nm="xheight" val="856"/>
+      <cvv nm="xheight-overshoot" val="870"/>
+      <cvv nm="cap-serif" val="50"/>
+      <cvv nm="cap-bar" val="60"/>
+      <cvv nm="cap-round-stem" val="57"/>
+      <cvv nm="lc-bar" val="61"/>
+      <cvv nm="lc-descender" val="551"/>
+      <cvv nm="lc-descender-alt" val="511"/>
+      <cvv nm="dot-width" val="224"/>
+      <cvv nm="dot-height" val="1085"/>
+      <cvv nm="comma-height" val="250"/>
+      <cvv nm="lc-serif" val="50"/>
+      <cvv nm="euro-bar" val="98"/>
+      <cvv nm="sc-height" val="980"/>
+      <cvv nm="sc-height-overshoot" val="1000"/>
+      <cvv nm="sc-serif" val="50"/>
+      <cvv nm="sc-bar" val="60"/>
+      <cvv nm="mark-baseline" val="1035"/>
+      <cvv nm="mark-baseline-undershoot" val="1024"/>
+      <cvv nm="mark-xheight" val="1451"/>
+      <cvv nm="mark-xheight-overshoot" val="1456"/>
+      <cvv nm="tilde-stem" val="103"/>
+      <cvv nm="mod-baseline" val="523"/>
+      <cvv nm="mod-baseline-undershoot" val="510"/>
+      <cvv nm="mod-xheight-overshoot" val="1034"/>
+      <cvv nm="mod-xheight" val="1025"/>
+    </region>
+    <region tag="GRAD" bot="0.0" peak="1.0" top="1.0">
+      <cvv nm="cap-serif" val="60"/>
+      <cvv nm="cap-bar" val="70"/>
+      <cvv nm="cap-round-stem" val="68"/>
+      <cvv nm="lc-ascender-serif" val="81"/>
+      <cvv nm="lc-bar" val="70"/>
+      <cvv nm="dot-width" val="340"/>
+      <cvv nm="lc-serif" val="60"/>
+      <cvv nm="rune-punct" val="328"/>
+      <cvv nm="period-height" val="350"/>
+      <cvv nm="period-undershoot" val="-47"/>
+      <cvv nm="comma-height" val="293"/>
+      <cvv nm="numbersign-bar" val="128"/>
+      <cvv nm="euro-bar" val="105"/>
+      <cvv nm="sc-serif" val="62"/>
+      <cvv nm="sc-bar" val="70"/>
+      <cvv nm="sc-curved-stem" val="68"/>
+      <cvv nm="tilde-stem" val="81"/>
+      <cvv nm="tilde-stem" val="151"/>
+    </region>
+  </cvar>
+
+  <!--
+    The prep program is run whenever a new instance of the
+    font needs to be initialized (e.g. at a new size or
+    resolution). This is the place to make size-specific
+    adjustments to control values or other graphics
+    variables.
+  -->
+  <prep>
+    <!--
+      Instructions will be on for most screens, off for most printers.
+    -->
+    <if test="pixels-per-em &gt; 200">
+      <disable-instructions/>
+    </if>
+    <!--
+      Example of how to round control values. You can round
+      any number with the <round> command: Xgridfit detects
+      that these refer to control values and generates the
+      appropriate code.
+    -->
+    <round val="lc-baseline-undershoot"/>
+    <round val="xheight"/>
+    <round val="xheight-overshoot"/>
+    <!--
+      At low resolutions, it is a good idea to set some control
+      values equal to each other. Use programs like FontForge,
+      OTMaster, or VTT to figure out what should be done at
+      various resolutions.
+    -->
+    <if test="pixels-per-em &lt; 53">
+      <setcv nm="cap-serif" unit="pixel"
+	     val="control-value(cap-bar)"/>
+      <setcv nm="sc-bar" unit="pixel"
+	     val="control-value(sc-serif)"/>
+    </if>
+    <if test="pixels-per-em &lt; 39">
+      <setcv nm="xheight" unit="pixel" val="control-value(xheight-overshoot)"/>
+      <setcv nm="baseline-undershoot" unit="pixel" val="control-value(baseline)"/>
+      <else>
+        <round val="xheight"/>
+        <round val="baseline-undershoot"/>
+      </else>
+    </if>
+    <if test="pixels-per-em &lt; 37">
+      <setcv nm="cap-bar" unit="pixel" val="control-value(cap-serif)"/>
+    </if>
+  </prep>
+
+  <!--
+    This file uses macros rather than functions for often-repeated
+    features of glyphs because macros make the final file significantly
+    smaller, even though these code fragments are repeatedly inserted
+    into the program code. The reason is that function calls in glyph
+    programs block a key method of code optimization (the consolidation
+    of push instructions) because they introduce uncertainty about the
+    state of the stack.
+
+    Macros also save the overhead of calling functions and referring to
+    parameters passed on the stack.
+
+    These macros are mostly written with low-level instructions, so
+    as to make sure they are as compact as possible. Glyph programs, on
+    the other hand, are mostly written in high-level Xgridfit code.
+  -->
+
+  <!-- As on b, d -->
+  <mo nm="lc-ascender">
+    <pm nm="top"/>
+    <!--
+      In a push instruction, any expression containing spaces must be
+      enclosed in parentheses. The expression (top - 1) will be
+      resolved at compile time, keeping the code compact. However,
+      variables and expressions to be resolved at runtime are also
+      permitted.
+    -->
+    <push>(top - 1) lc-ascender-serif (top - 2) top lc-ascender-top</push>
+    <!--
+      The modifier attribute of a <command> element contains a binary
+      number to be inserted literally into the assembly-style TrueType
+      instruction: MIAP[1].
+
+      A more intelligible way of doing this would be to use a <modifier>
+      element:
+
+          <command nm="MIAP">
+            <modifier type="round" val="yes"/>
+          </command>
+    -->
+    <command nm="MIAP" modifier="1"/>
+    <command nm="SHP" modifier="1"/>
+    <command nm="MIRP" modifier="11101"/>
+  </mo>
+
+  <mo nm="cap-dbl-serif">
+    <pm nm="first-left"/>
+    <pm nm="second-left"/>
+    <pm nm="first-right"/>
+    <pm nm="second-right"/>
+    <pm nm="stem1"/>
+    <pm nm="stem2"/>
+    <pm nm="cv" val="baseline"/>
+    <push>
+      second-right
+      second-left
+      cap-serif
+      first-right
+      stem1
+      stem2
+      first-left
+      cv
+    </push>
+    <command nm="MIAP" modifier="1"/>
+    <command nm="SHP" modifier="1"/>
+    <command nm="SHP" modifier="1"/>
+    <command nm="SHP" modifier="1"/>
+    <command nm="MIRP" modifier="11101"/>
+    <command nm="SHP" modifier="0"/>
+  </mo>
+
+  <!--
+    Some macros are for a particular class of glyphs,
+    or only a few glyphs. Since macros take up no
+    room in the font except when they are used, this
+    is not a problem.
+
+    It's not a bad idea to make a note of how the
+    macro leaves the reference pointers or other
+    graphics variables.
+  -->
+  <!-- RP1 = serif-bot; RP2 = serif-bot + 1 -->
+  <mo nm="rune-vert">
+    <pm nm="serif-top"/>
+    <pm nm="serif-bot"/>
+    <pm nm="stem-top"/>
+    <pm nm="stem-bot"/>
+    <push>
+      (serif-bot + 1)
+      cap-serif
+      stem-bot
+      serif-bot
+      baseline
+      (serif-top - 1)
+      cap-serif
+      stem-top
+      serif-top
+      cap-height
+    </push>
+    <command nm="MIAP" modifier="1"/>
+    <command nm="SHP" modifier="1"/>
+    <command nm="MIRP">
+      <modifier type="col" val="b"/>
+    </command>
+    <command nm="MIAP" modifier="1"/>
+    <command nm="SHP" modifier="1"/>
+    <command nm="MIRP">
+      <modifier type="col" val="b"/>
+    </command>
+  </mo>
+
+  <mo nm="plain-stem">
+    <pm nm="pt1"/>
+    <pm nm="pt2"/>
+    <push>pt2 pt1</push>
+    <command nm="MDAP" modifier="1"/>
+    <command nm="MDRP">
+      <modifier type="col" val="b"/>
+    </command>
+  </mo>
+
+  <!-- Mainly for IPA characters -->
+  <mo nm="hook">
+    <pm nm="pt1"/>
+    <pm nm="cv" val="-1"/>
+    <pm nm="pt2"/>
+    <pm nm="pt3"/>
+    <compile-if test="cv &gt;= 0">
+      <push>pt3 pt2 pt1 cv</push>
+      <command nm="MIAP" modifier="1"/>
+      <command nm="MDRP">
+        <modifier type="col" val="b"/>
+      </command>
+      <command nm="MDRP">
+        <modifier type="col" val="b"/>
+      </command>
+      <else>
+        <push>pt3 pt2 pt1</push>
+        <command nm="MDAP" modifier="1"/>
+        <command nm="MDRP">
+          <modifier type="col" val="b"/>
+        </command>
+        <command nm="MDRP">
+          <modifier type="col" val="b"/>
+        </command>
+      </else>
+    </compile-if>
+  </mo>
+
+  <!-- for f-ligatures: fl, ff, etc. -->
+  <mo nm="f_longs_lig">
+    <pm nm="top"/>
+    <pm nm="top-a"/>
+    <pm nm="bot"/>
+    <pm nm="bot-a"/>
+    <pm nm="bot-b" val="-1"/>
+    <pm nm="cvt" val="lc-ascender-top"/>
+    <pm nm="cvb" val="lc-descender"/>
+    <compile-if test="bot-b &gt;= 0">
+      <push>top-a top cvt bot-b bot-a bot cvb</push>
+      <command nm="MIAP" modifier="1"/>
+      <command nm="MDRP" modifier="01101"/>
+      <command nm="MDRP" modifier="01101"/>
+      <command nm="MIAP" modifier="1"/>
+      <command nm="MDRP" modifier="01101"/>
+      <else>
+        <push>top-a top cvt bot-a bot cvb</push>
+        <command nm="MIAP" modifier="1"/>
+        <command nm="MDRP" modifier="01101"/>
+        <command nm="MIAP" modifier="1"/>
+        <command nm="MDRP" modifier="01101"/>
+      </else>
+    </compile-if>
+  </mo>
+
+  <!--
+      This macro regulates a serif and shifts points that
+      have to be shifted along with it. It has the flexibility
+      to regulate any number of aligned serifs, and serifs of
+      various sizes (e.g, those for caps, lc, small caps).
+  -->
+  <mo nm="serif-sh">
+    <pm nm="pt-a"/>
+    <pm nm="pt-b"/>
+    <!--
+      Make params optional by making the default Value
+      -1 (or any impossible value), then testing for
+      that number in a compile-if element or attribute
+    -->
+    <pm nm="sh-a" val="-1"/>
+    <pm nm="sh-b" val="-1"/>
+    <pm nm="cv" val="baseline"/>
+    <pm nm="cv-h" val="cap-serif"/>
+    <!-- for sh-b, we have a choice of using an align or a shift element. -->
+    <pm nm="align-b" val="-1"/>
+    <compile-if test="align-b = 0">
+      <mv di="cv" p="pt-1">
+        <!--
+          If sh-a resolves to a number zero or greater, it is a point
+          number. Otherwise, we assume it it the name of a set,
+          declared in the glyph program calling this macro.
+        -->
+        <sh compile-if="not( nan(sh-a) ) and sh-a &gt;= 0" p="sh-a"/>
+        <sh compile-if="nan(sh-a)">
+          <set ref="sh-a"/>
+        </sh>
+        <mv di="cv-h" col="b" p="pt-b">
+          <al compile-if="not( nan(sh-b) ) and sh-b &gt;= 0" p="sh-b"/>
+          <al compile-if="nan(sh-b)">
+            <set ref="sh-b"/>
+          </al>
+        </mv>
+      </mv>
+      <else>
+        <mv di="cv" p="pt-a">
+          <sh compile-if="not( nan(sh-a) ) and sh-a &gt;= 0" p="sh-a"/>
+          <sh compile-if="nan(sh-a)">
+            <set ref="sh-a"/>
+          </sh>
+          <mv di="cv-h" col="b" p="pt-b">
+            <sh compile-if="not( nan(sh-b) ) and sh-b &gt;= 0" p="sh-b"/>
+            <sh compile-if="nan(sh-b)">
+              <set ref="sh-b"/>
+            </sh>
+        </mv></mv>
+      </else>
+    </compile-if>
+  </mo>
+
+  <!--
+      Interpolates pt1 between two references points, then
+      rounds pt1 and makes a horizontal stem by positioning pt2
+      relative to it (using a control-value, if cv has been
+      passed to the macro). After this macro has run, RP0 and
+      RP2 are equal to pt2, and RP1 is equal to pt1.
+  -->
+  <mo nm="mid-stem">
+    <pm nm="ref1"/>
+    <pm nm="ref2"/>
+    <pm nm="pt1"/>
+    <pm nm="pt2"/>
+    <pm nm="cv" val="-1"/>
+    <push>pt1 pt1 ref2 ref1</push>
+    <command nm="SRP1"/>
+    <command nm="SRP2"/>
+    <command nm="IP"/>
+    <command nm="MDAP" modifier="1"/>
+    <compile-if test="cv &gt;= 0">
+      <push>pt2 cv</push>
+      <command nm="MIRP" modifier="11101"/>
+      <else>
+        <push>pt2</push>
+        <command nm="MDRP" modifier="11101"/>
+      </else>
+    </compile-if>
+  </mo>
+
+  <mo nm="mid-stem-serif">
+    <pm nm="ref1"/>
+    <pm nm="ref2"/>
+    <pm nm="pt1"/>
+    <pm nm="pt2"/>
+    <pm nm="sh1"/>
+    <pm nm="sh2"/>
+    <pm nm="cv" val="-1"/>
+    <push>sh1 pt1 pt1 ref2 ref1</push>
+    <command nm="SRP1"/>
+    <command nm="SRP2"/>
+    <command nm="IP"/>
+    <command nm="MDAP" modifier="1"/>
+    <command nm="SHP" modifier="1"/>
+    <compile-if test="cv &gt;= 0">
+      <push>sh2 pt2 cv</push>
+      <command nm="MIRP" modifier="11101"/>
+      <command nm="SHP" modifier="0"/>
+      <else>
+        <push>sh2 pt2</push>
+        <command nm="MDRP" modifier="11101"/>
+	<command nm="SHP" modifier="0"/>
+      </else>
+    </compile-if>
+  </mo>
+
+  <!--
+      At end, RP0 = p and RP1 = p.
+  -->
+  <mo nm="round-point">
+    <pm nm="p"/>
+    <push>p</push>
+    <command nm="MDAP" modifier="1"/>
+  </mo>
+
+  <mo nm="lc-serif-sh">
+    <pm nm="pt"/>
+    <pm nm="sh"/>
+    <pm nm="cv" val="lc-descender"/>
+    <mv di="cv" p="pt">
+      <sh p="sh"/>
+      <mv di="lc-serif" p="(pt + 1)"/>
+    </mv>
+  </mo>
+
+  <!-- Section: Basic alphabet -->
+
+  <gl pnm="A">
+    <!--
+      A <set> packages a collection of points. It's good for passing
+      to macro or glyph programs. This shift command:
+
+          <sh p="1 2 3 4"/>
+
+      is equivalent to:
+
+          <set nm="myset" p="1 2 3 4"/>
+          <sh>
+            <set ref="myset"/>
+          </sh>
+    -->
+    <set nm="bot-a" p="0 22 4"/>
+    <mv di="cap-height-overshoot" p="11">
+      <!--
+        When a command element is nested in a <mv>, the point or
+        points it affects are moved relative to the point controlled
+        by that <mv>. Thus, the <sh> (shift) element here is
+        equivalent to <sh r="11" p="1"/>.
+      -->
+      <sh p="1"/>
+    </mv>
+    <!--
+      The parameters to a function, macro, or glyph call are like a
+      Python dictionary (the great difference being that quotation
+      marks are never necessary). The values may be number literals,
+      identifiers, or expressions. Alternatively, include a <wpm>
+      (= <with-param) element for each parameter:
+
+          <callm nm="anymacro">
+            <wpm nm="pt-a" val="12"/>
+            <wpm nm="pt-b" val="13"/>
+          </callm>
+    -->
+    <callm nm="serif-sh">
+      <pms>pt-a: 18, pt-b: 19, sh-a: bot-a, sh-b: 23, cv-h: cap-serif</pms>
+    </callm>
+    <callm nm="mid-stem">
+      <pms>ref1: 18, ref2: 11, pt1: 26, pt2: 27</pms>
+    </callm>
+  </gl>
+
+  <gl pnm="uniA732"> <!-- AA -->
+    <set nm="bot-a" p="0 48 4 18 52 22"/>
+    <set nm="bot-b" p="49 53"/>
+    <mv di="cap-height-overshoot" p="11">
+      <sh p="1 20 29"/>
+    </mv>
+    <callm nm="serif-sh">
+      <pms>pt-a: 44, pt-b: 45, sh-a: bot-a, sh-b: bot-b, cv-h: cap-serif</pms>
+    </callm>
+    <callm nm="mid-stem">
+      <pms>ref1: 44, ref2: 11, pt1: 37, pt2: 38</pms>
+    </callm>
+  </gl>
+
+  <gl pnm="uniA734"> <!-- AO -->
+    <set nm="bot-a" p="66 58 0 18"/>
+    <mv di="cap-height-overshoot" p="11">
+      <sh p="67 27"/>
+    </mv>
+    <callm nm="round-point">
+      <pms>p: 27</pms>
+    </callm>
+    <mv di="caprs" r="27" p="45"/>
+    <callm nm="serif-sh">
+      <pms>pt-a: 54, pt-b: 55, sh-a: bot-a, sh-b: 59, cv-h: cap-serif</pms>
+    </callm>
+    <callm nm="round-point">
+      <pms>p: 18</pms>
+    </callm>
+    <mv di="caprs" r="18" p="36"/>
+    <callm nm="mid-stem">
+      <pms>ref1: 54, ref2: 11, pt1: 62, pt2: 63</pms>
+    </callm>
+  </gl>
+
+  <gl pnm="uniA736"> <!-- AU -->
+    <set nm="top-a" p="8 30 38 22"/>
+    <set nm="bot-a" p="29 0"/>
+    <callm nm="serif-sh">
+      <pms>pt-a: 34, pt-b: 33, sh-a: top-a, sh-b: 37, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 41, pt-b: 42, sh-a: bot-a</pms>
+    </callm>
+    <callm nm="round-point">
+      <pms>p: 0</pms>
+    </callm>
+    <mv di="cap-round-stem" r="0" p="17"/>
+    <callm nm="mid-stem">
+      <pms>ref1: 41, ref2: 34, pt1: 45, pt2: 46</pms>
+    </callm>
+  </gl>
+
+  <gl pnm="uniA738"> <!-- AV -->
+    <set nm="top-a" p="7 15 31"/>
+    <set nm="bot-a" p="30 0 14"/>
+    <callm nm="serif-sh">
+      <pms>pt-a: 19, pt-b: 18, sh-a: top-a, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 22, pt-b: 23, sh-a: bot-a, cv: baseline</pms>
+    </callm>
+    <callm nm="mid-stem">
+      <pms>ref1: 22, ref2: 19, pt1: 26, pt2: 27</pms>
+    </callm>
+  </gl>
+
+  <gl pnm="uniA73A"> <!-- AV with bar -->
+    <set nm="top-a" p="11 23 31 19"/>
+    <set nm="bot-a" p="30 4 18"/>
+    <callm nm="serif-sh">
+      <pms>pt-a: 23, pt-b: 22, sh-a: top-a, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 26, pt-b: 27, sh-a: bot-a, cv: baseline</pms>
+    </callm>
+    <callm nm="mid-stem">
+      <pms>ref1: 23, ref2: 26, pt1: 0, pt2: 1</pms>
+    </callm>
+  </gl>
+
+  <gl pnm="uniA73C"> <!-- AV with bar -->
+    <set nm="top-a" p="15 38 50"/>
+    <callm nm="serif-sh">
+      <pms>pt-a: 46, pt-b: 45, sh-a: top-a, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 23, pt-b: 24, sh-a: 49, cv: baseline</pms>
+    </callm>
+    <callm nm="mid-stem">
+      <pms>ref1: 46, ref2: 23, pt1: 28, pt2: 29</pms>
+    </callm>
+    <mv p="0"/>
+    <ip r="23 0" p="31"/>
+  </gl>
+
+  <gl pnm="Aring">
+    <set nm="bot-a" p="0 40 4"/>
+    <callm nm="serif-sh">
+      <pms>pt-a: 36, pt-b: 37, sh-a: bot-a, sh-b: 41, cv: baseline</pms>
+    </callm>
+    <mv p="15">
+      <mv p="8">
+        <!--
+          When an <ip> element is nested inside a <mv> element, its
+          two reference points can be (1) the point moved by the <mv>
+          and the reference point (r attribute or <ref> element) for
+          that move, or (2) as here, the points controlled by the
+          parent <mv> and the grandparent <mv>. It's as if the
+          interpolate element were <ip r="15 8" p="30 23"/>. That is,
+          points 30 and 23 are interpolated between points 15 and 8.
+        -->
+        <ip p="30 23"/>
+        <!--
+          Points 5 and 2, on the other hand, are shifted relative to
+          point 8 only.
+        -->
+        <sh p="5 2"/>
+      </mv>
+    </mv>
+    <callm nm="mid-stem">
+      <pms>ref1: 15, ref2: 36, pt1: 44, pt2: 45</pms>
+    </callm>
+  </gl>
+
+  <gl pnm="AE">
+    <set nm="top-a" p="22 15"/>
+    <set nm="bot-a" p="21 25 0"/>
+    <callm nm="serif-sh">
+      <pms>pt-a: 6, pt-b: 5, sh-a: top-a, sh-b: 14, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 17, pt-b: 18, sh-a: bot-a, sh-b: 26, cv: baseline</pms>
+    </callm>
+    <callm nm="mid-stem">
+      <pms>ref1: 6, ref2: 17, pt1: 34, pt2: 35, cv: cap-bar</pms>
+    </callm>
+    <sh r="35" p="39"/>
+    <sh r="34" p="38"/>
+  </gl>
+
+  <gl pnm="B">
+    <callm nm="serif-sh">
+      <pms>pt-a: 26, pt-b: 25, sh-a: 1, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 4, pt-b: 5, sh-a: 0, cv: baseline</pms>
+    </callm>
+    <callm nm="mid-stem">
+      <pms>ref1: 26, ref2: 4, pt1: 15, pt2: 16, cv: cap-bar</pms>
+    </callm>
+  </gl>
+
+  <gl pnm="C">
+    <mv di="cap-baseline-undershoot" p="0">
+      <sh p="39"/>
+      <mv di="cap-round-stem" p="33"/>
+    </mv>
+    <mv di="cap-height-overshoot" p="9">
+      <sh p="15"/>
+      <mv di="cap-round-stem" p="23"/>
+    </mv>
+  </gl>
+
+  <gl pnm="D">
+    <mv di="cap-height-overshoot" p="23">
+      <mv di="cap-round-stem" p="16">
+        <sh p="38"/>
+      </mv>
+    </mv>
+    <callm nm="serif-sh">
+      <pms>pt-a: 0, pt-b: 1, sh-a: 37, cv: baseline</pms>
+    </callm>
+  </gl>
+
+  <gl pnm="uniA779"> <!-- insular D -->
+    <mv di="cap-height" p="37">
+      <mv p="28">
+	<ip p="10"/>
+      </mv>
+    </mv>
+    <mv di="cap-baseline-undershoot" p="0">
+      <mv p="18"/>
+    </mv>
+  </gl>
+
+  <gl pnm="E">
+    <callm nm="serif-sh">
+      <pms>pt-a: 25, pt-b: 24, sh-a: 1, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 4, pt-b: 5, sh-a: 0, cv: baseline</pms>
+    </callm>
+    <callm nm="mid-stem">
+      <pms>ref1: 25, ref2: 4, pt1: 12, pt2: 13, cv: cap-bar</pms>
+    </callm>
+    <sh r="13" p="17"/>
+    <sh r="12" p="16"/>
+  </gl>
+
+  <gl pnm="F">
+    <callm nm="serif-sh">
+      <pms>pt-a: 10, pt-b: 9, sh-a: 1, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 13, pt-b: 14, sh-a: 0, cv: baseline</pms>
+    </callm>
+    <callm nm="mid-stem">
+      <pms>ref1: 10, ref2: 13, pt1: 17, pt2: 18, cv: cap-bar</pms>
+    </callm>
+    <sh r="18" p="22"/>
+    <sh r="17" p="21"/>
+  </gl>
+
+  <gl pnm="uniA784"> <!-- Insular F -->
+    <mv di="cap-height-overshoot" p="8">
+      <mv min-distance="no" col="g" p="24">
+	<mv p="35"/>
+      </mv>
+    </mv>
+    <mv p="0"/>
+    <callm nm="mid-stem">
+      <pms>ref1: 8, ref2: 0, pt1: 15, pt2: 16, cv: cap-bar</pms>
+    </callm>
+  </gl>
+
+
+  <gl pnm="G">
+    <mv di="cap-baseline-undershoot" p="0">
+      <mv p="32"/>
+    </mv>
+    <mv di="cap-height-overshoot" p="9">
+      <sh p="14"/>
+      <mv di="cap-round-stem" p="21"/>
+    </mv>
+    <ip r="9 0" p="45"/>
+    <mv p="45">
+      <mv di="cap-serif" p="46">
+        <sh p="36"/>
+      </mv>
+    </mv>
+  </gl>
+
+  <gl pnm="uniA77D"> <!-- insular G -->
+    <mv p="0">
+      <mv di="caprs" p="53"/>
+    </mv>
+    <mv di="cap-height" p="34">
+      <mv p="35">
+        <ip p="20 37"/>
+        <sh p="21"/>
+      </mv>
+    </mv>
+    <ip r="34 0" p="62"/>
+    <mv p="62">
+      <mv p="10">
+        <ip p="11"/>
+    </mv></mv>
+  </gl>
+
+  <gl pnm="uni021C"> <!-- Yogh -->
+    <mv di="cap-height-overshoot" p="29">
+      <mv di="cap-round-stem" p="20">
+        <sh p="24 48"/>
+      </mv>
+    </mv>
+    <mv di="cap-baseline-undershoot" p="0">
+      <mv p="1"/>
+    </mv>
+    <ip r="0 29" p="9 36 37"/>
+  </gl>
+
+  <!--
+     The glyph program for "H" can be called by another glyph
+     program (for example, uni0216, H with bar). To set this
+     up, include the assume-y="n" attribute so we can take over
+     the vectors ourselves, and make smoothing (the <iup> element
+     at the end) optional. Make sure the point numbers in the
+     other glyph are the same as here, and start the other glyph
+     program with this:
+     <callg pnm="H">
+       <pms>include-iup: no</pms>
+     </callg>
+     The other glyph should also have the assume-y="no" attribute.
+     It can omit <setvs axis="y"/> at the beginning but must
+     include <iup axis="y"/> at the end.
+  -->
+  <gl pnm="H" assume-y="no">
+    <pm nm="include-iup" val="0"/>
+    <set nm="top-a" p="5 17 9"/>
+    <set nm="bot-a" p="4 24 8"/>
+    <setvs axis="y"/>
+    <callm nm="serif-sh">
+      <pms>pt-a: 13, pt-b: 12, sh-a: top-a, sh-b: 16, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 20, pt-b: 21, sh-a: bot-a, sh-b: 25, cv: baseline</pms>
+    </callm>
+    <callm nm="mid-stem">
+      <pms>ref1: 13, ref2: 20, pt1: 0, pt2: 1, cv: cap-bar</pms>
+    </callm>
+    <compile-if test="include-iup = 0">
+      <iup axis="y"/>
+    </compile-if>
+  </gl>
+
+  <gl pnm="I">
+    <callm nm="serif-sh">
+      <pms>pt-a: 5, pt-b: 4, sh-a: 1, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 8, pt-b: 9, sh-a: 0, cv: baseline</pms>
+    </callm>
+  </gl>
+
+  <gl pnm="J">
+    <callm nm="serif-sh">
+      <pms>pt-a: 31, pt-b: 30, sh-a: 18, cv: cap-height</pms>
+    </callm>
+    <mv p="0">
+      <sh p="11"/>
+      <mv p="6"/>
+    </mv>
+  </gl>
+
+  <gl pnm="K">
+    <set nm="top-a" p="1 33 15"/>
+    <set nm="bot-a" p="0 24 4"/>
+    <callm nm="serif-sh">
+      <pms>pt-a: 29, pt-b: 28, sh-a: top-a, sh-b: 32, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 20, pt-b: 21, sh-a: bot-a, sh-b: 25, cv: baseline</pms>
+    </callm>
+    <callm nm="mid-stem">
+      <pms>ref1: 29, ref2: 20, pt1: 9, pt2: 10, cv: cap-bar</pms>
+    </callm>
+  </gl>
+
+  <gl pnm="L">
+    <callm nm="serif-sh">
+      <pms>pt-a: 14, pt-b: 13, sh-a: 10, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 0, pt-b: 1, sh-a: 9, cv: baseline</pms>
+    </callm>
+  </gl>
+
+  <gl pnm="M">
+    <set nm="top-a" p="1 21 14 18 26"/>
+    <set nm="bot-a" p="20 0 32 24"/>
+    <callm nm="serif-sh">
+      <pms>pt-a: 4, pt-b: 3, sh-a: top-a, sh-b: 16, cv: cap-height</pms>
+    </callm>
+    <callm nm="serif-sh">
+      <pms>pt-a: 28, pt-b: 29, sh-a: bot-a, sh-b: 33, cv: baseline</pms>
+    </callm>
+  </gl>
+
+</xgridfit>
