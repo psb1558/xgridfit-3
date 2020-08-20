@@ -26,6 +26,21 @@ skipcomp    = args.nocompilation
 expandonly  = args.expand
 compactonly = args.compact
 
+# Look for all program files relative to this python file:
+# xsl files in ../XSL/, schemas in ../Schemas.
+
+progpath = os.path.split(os.path.dirname(__file__))[0]
+
+def validate(f, syntax, noval):
+    schemafile = "xgridfit.rng"
+    if syntax == "compact":
+        schemafile = "xgridfit-sh.rng"
+    if noval:
+        print("Skipping validation")
+    else:
+        schema = etree.RelaxNG(etree.parse(progpath + "/Schemas/" + schemafile))
+        schema.assertValid(f)
+
 # Get the xgridfit file.
 
 xgffile = etree.parse(inputfile)
@@ -44,17 +59,14 @@ if len(xgffile.xpath("/xg:xgridfit/xi:include", namespaces=ns)):
 
 have_cvar = (len(xgffile.xpath("/xg:xgridfit/xg:cvar", namespaces=ns)) > 0)
 
-# Look for all program files relative to this python file:
-# xsl files in ../XSL/, schemas in ../Schemas.
-
-progpath = os.path.split(os.path.dirname(__file__))[0]
-
 # Next determine whether we are using long tagnames or short. Best way
 # is to find out which tag is used for the required <pre-program> (<prep>)
 # element. If we don't find it, print an error message and exit.
 
-# If the file uses compact syntax, always expand it.
 if len(xgffile.xpath("/xg:xgridfit/xg:prep", namespaces=ns)):
+    # first validate
+    validate(xgffile, "compact", skipval)
+    # as we can't use the compact syntax, always expand
     etransform = etree.XSLT(etree.parse(progpath + "/XSL/expand.xsl"))
     xgffile = etransform(xgffile)
     if expandonly:
@@ -87,16 +99,6 @@ else:
     print("The xgridfit program must contain a pre-program (prep) element,")
     print("even if it's empty.")
     sys.exit(1)
-
-# Validate the xgridfit program. We're using the XML Schema rather
-# than the RelaxNG here, because most of the messages seem more
-# intelligible.
-
-if skipval:
-    print("# Skipping validation")
-else:
-    xmlschema = etree.XMLSchema(etree.parse(progpath + "/Schemas/xgridfit.xsd"))
-    xmlschema.assertValid(xgffile)
 
 # Now compile.
 
