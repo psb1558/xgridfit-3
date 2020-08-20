@@ -511,8 +511,10 @@
     <xsl:text>from fontTools.ttLib import ttFont, tables</xsl:text>
     <xsl:value-of select="$text-newline"/>
     <xsl:text>from fontTools.ttLib.tables.TupleVariation import TupleVariation</xsl:text>
+    <!--
     <xsl:value-of select="$text-newline"/>
     <xsl:text>from lxml import etree</xsl:text>
+  -->
     <xsl:value-of select="$text-newline"/>
     <xsl:text>import array</xsl:text>
     <xsl:value-of select="$text-newline"/>
@@ -547,11 +549,14 @@
 </xsl:if>
 <xsl:text>
 neutral_instructions = ['IUP', 'RDTG', 'ROFF', 'RTDG', 'RTG', 'RTHG', 'RUTG',
-'SFVTCA', 'SFVTPV', 'SPVTCA', 'SVTCA']
+'SFVTCA', 'SFVTPV', 'SPVTCA', 'SVTCA', 'FLIPOFF', 'FLIPON']
 
 pop_instructions = { 'ALIGNPTS': 2, 'ALIGNRP': -1, 'IP': -1, 'MDAP': 1,
 'MIAP': 2, 'MIRP': 2, 'MDRP': 1, 'SHP': -1, 'SLOOP': 1, 'SRP0': 1, 'SRP1': 1,
-'SRP2': 1, 'CALL': 1, 'SFVTL': 2, 'SPVTL': 2, 'SDPVTL': 2 }
+'SRP2': 1, 'CALL': 1, 'SFVTL': 2, 'SPVTL': 2, 'SDPVTL': 2, 'ISECT': 5,
+'MSIRP': 2, 'SCFS': 2, 'SCVTCI': 1, 'SFVFS': 2, 'SHC': 1, 'SHZ': 1, 'SMD': 1,
+'SPVFS': 2, 'SROUND': 1, 'SSW': 1, 'SSWCI': 1, 'SZP0': 1, 'SZP1': 1,
+'SZP2': 1, 'SZPS': 1, 'UTP': 1, 'WCVTF': 2, 'WCVTP': 2, 'WS': 2 }
 
 push_instructions = ['PUSHB', 'NPUSHB']
 
@@ -650,20 +655,15 @@ def compact_instructions(inst):
       <xsl:text>currentFont['cvt '] = ttFont.newTable('cvt ')</xsl:text>
       <xsl:value-of select="$text-newline"/>
       <xsl:text>setattr(currentFont['cvt '],'values',</xsl:text>
-      <xsl:text>array.array('h', [0] * </xsl:text>
-      <xsl:value-of select="count(xgf:control-value)"/>
-      <xsl:text>))</xsl:text>
-      <xsl:value-of select="$text-newline"/>
-      <xsl:text>counter = 0</xsl:text>
-      <xsl:value-of select="$text-newline"/>
-      <xsl:for-each select="xgf:control-value">
-        <xsl:text>currentFont['cvt '][counter] = </xsl:text>
-        <xsl:value-of select="@value"/>
-        <xsl:value-of select="$text-newline"/>
-        <xsl:text>counter += 1</xsl:text>
-        <xsl:value-of select="$text-newline"/>
-      </xsl:for-each>
-      <xsl:value-of select="$text-newline"/>
+    <xsl:text>array.array('h', [ </xsl:text>
+    <xsl:for-each select="xgf:control-value">
+      <xsl:value-of select="@value"/>
+      <xsl:if test="position() != last()">
+        <xsl:text>, </xsl:text>
+      </xsl:if>
+    </xsl:for-each>
+    <xsl:text> ]))</xsl:text>
+    <xsl:value-of select="$text-newline"/>
 
       <xsl:variable name="new-fpgm">
         <xsl:choose>
