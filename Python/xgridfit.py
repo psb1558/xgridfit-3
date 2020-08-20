@@ -81,6 +81,7 @@ if len(xgffile.xpath("/xg:xgridfit/xg:prep", namespaces=ns)):
             print(tstr)
         sys.exit(0)
 elif len(xgffile.xpath("/xg:xgridfit/xg:pre-program", namespaces=ns)):
+    validate(xgffile, "normal", skipval)
     if compactonly:
         etransform = etree.XSLT(etree.parse(progpath + "/XSL/compact.xsl"))
         xgffile = etransform(xgffile)
