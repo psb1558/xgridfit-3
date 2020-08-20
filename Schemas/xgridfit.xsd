@@ -321,9 +321,9 @@
     </xs:attribute>
   </xs:complexType>
   <!--
-    
+
     Top level
-    
+
   -->
   <xs:element name="xgridfit">
     <xs:complexType>
@@ -353,9 +353,9 @@
     </xs:complexType>
   </xs:element>
   <!--
-    
+
     Value declarations
-    
+
   -->
   <xs:element name="constant">
     <xs:complexType>
@@ -381,9 +381,9 @@
     <xs:attributeGroup ref="xgridfit2:att.target"/>
   </xs:attributeGroup>
   <!--
-    
+
     Controlling compilation of glyph programs
-    
+
   -->
   <xs:element name="glyph-select">
     <xs:simpleType>
@@ -399,18 +399,18 @@
     </xs:complexType>
   </xs:element>
   <!--
-    
+
     Script I/O
-    
+
   -->
   <xs:element name="infile" type="xs:string"/>
   <xs:element name="outfile" type="xs:string"/>
   <xs:element name="outfile-base" type="xs:string"/>
   <xs:element name="outfile-script-name" type="xs:string"/>
   <!--
-    
+
     Top-level declarations
-    
+
   -->
   <xs:element name="round-state">
     <xs:complexType>
@@ -585,6 +585,7 @@
     <xs:attribute ref="xml:id"/>
     <xs:attribute name="num" type="xs:nonNegativeInteger"/>
     <xs:attribute name="return" type="xgridfit2:YESNO"/>
+    <xs:attribute name="stack-safe" type="xgridfit2:YESNO"/>
   </xs:attributeGroup>
   <xs:element name="variant">
     <xs:complexType>
@@ -681,15 +682,15 @@
     <xs:attribute name="assume-y" type="xgridfit2:YESNO"/>
   </xs:attributeGroup>
   <!--
-    
+
     Miscellaneous / Oddball
-    
+
   -->
   <xs:element name="message" substitutionGroup="xgridfit2:various" type="xs:string"/>
   <!--
-    
+
     Points and point structures
-    
+
   -->
   <xs:element name="point">
     <xs:complexType>
@@ -814,9 +815,9 @@
     </xs:complexType>
   </xs:element>
   <!--
-    
+
     Point-moving instructions
-    
+
   -->
   <xs:element name="mirp">
     <xs:complexType>
@@ -1206,9 +1207,9 @@
     </xs:sequence>
   </xs:group>
   <!--
-    
+
     Enable/disable instructions
-    
+
   -->
   <xs:element name="disable-instructions" substitutionGroup="xgridfit2:graphics">
     <xs:complexType/>
@@ -1217,9 +1218,9 @@
     <xs:complexType/>
   </xs:element>
   <!--
-    
+
     Graphics state
-    
+
   -->
   <xs:element name="set-vectors" substitutionGroup="xgridfit2:graphics" type="xgridfit2:model.set-vector"/>
   <xs:element name="with-vectors" substitutionGroup="xgridfit2:graphics" type="xgridfit2:model.with-vector"/>
@@ -1437,9 +1438,9 @@
     </xs:attribute>
   </xs:attributeGroup>
   <!--
-    
+
     Arithmetic elements
-    
+
   -->
   <xs:element name="set-equal">
     <xs:complexType>
@@ -1738,9 +1739,9 @@
     </xs:complexType>
   </xs:element>
   <!--
-    
+
     Function and macro calls
-    
+
   -->
   <xs:element name="call-function" substitutionGroup="xgridfit2:flow">
     <xs:complexType>
@@ -1823,9 +1824,9 @@
     </xs:sequence>
   </xs:group>
   <!--
-    
+
     Conditionals
-    
+
   -->
   <xs:element name="if" substitutionGroup="xgridfit2:flow">
     <xs:complexType>
@@ -1856,9 +1857,9 @@
     </xs:complexType>
   </xs:element>
   <!--
-    
+
     Getting info
-    
+
   -->
   <xs:element name="measure-distance" substitutionGroup="xgridfit2:measure">
     <xs:complexType>
@@ -1887,9 +1888,9 @@
     <xs:attribute name="result-to" type="xs:NCName"/>
   </xs:attributeGroup>
   <!--
-    
+
     Primitives
-    
+
   -->
   <xs:element name="command" substitutionGroup="xgridfit2:primitive">
     <xs:complexType>
@@ -1931,9 +1932,9 @@
   <xs:element name="push" substitutionGroup="xgridfit2:primitive" type="xs:string"/>
   <xs:element name="to-stack" substitutionGroup="xgridfit2:primitive" type="xs:string"/>
   <!--
-    
+
     XInclude
-    
+
   -->
   <xs:attributeGroup name="xg.xi.include.attlist">
     <xs:attribute name="href" type="xs:anyURI"/>

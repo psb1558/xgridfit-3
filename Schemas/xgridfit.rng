@@ -395,9 +395,9 @@
     </choice>
   </define>
   <!--
-    
+
     Top level
-    
+
   -->
   <define name="xgridfit">
     <element name="xgridfit">
@@ -469,9 +469,9 @@
     </element>
   </define>
   <!--
-    
+
     Value declarations
-    
+
   -->
   <define name="constant">
     <element name="constant">
@@ -502,9 +502,9 @@
     <ref name="att.target"/>
   </define>
   <!--
-    
+
     Controlling compilation of glyph programs
-    
+
   -->
   <define name="glyph-select">
     <element name="glyph-select">
@@ -526,9 +526,9 @@
     </element>
   </define>
   <!--
-    
+
     Script I/O
-    
+
   -->
   <define name="infile">
     <element name="infile">
@@ -551,9 +551,9 @@
     </element>
   </define>
   <!--
-    
+
     Top-level declarations
-    
+
   -->
   <define name="round-state">
     <element name="round-state">
@@ -743,6 +743,11 @@
         <ref name="YESNO"/>
       </attribute>
     </optional>
+    <optional>
+      <attribute name="stack-safe">
+        <ref name="YESNO"/>
+      </attribute>
+    </optional>
   </define>
   <define name="variant">
     <element name="variant">
@@ -865,9 +870,9 @@
     </optional>
   </define>
   <!--
-    
+
     Miscellaneous / Oddball
-    
+
   -->
   <define name="message">
     <element name="message">
@@ -875,9 +880,9 @@
     </element>
   </define>
   <!--
-    
+
     Points and point structures
-    
+
   -->
   <define name="point">
     <element name="point">
@@ -980,9 +985,9 @@
     </element>
   </define>
   <!--
-    
+
     Point-moving instructions
-    
+
   -->
   <define name="mirp">
     <element name="mirp">
@@ -1418,9 +1423,9 @@
     </element>
   </define>
   <!--
-    
+
     Enable/disable instructions
-    
+
   -->
   <define name="disable-instructions">
     <element name="disable-instructions">
@@ -1433,9 +1438,9 @@
     </element>
   </define>
   <!--
-    
+
     Graphics state
-    
+
   -->
   <define name="set-vectors">
     <element name="set-vectors">
@@ -1684,9 +1689,9 @@
     </attribute>
   </define>
   <!--
-    
+
     Arithmetic elements
-    
+
   -->
   <define name="set-equal">
     <element name="set-equal">
@@ -1916,9 +1921,9 @@
     </element>
   </define>
   <!--
-    
+
     Function and macro calls
-    
+
   -->
   <define name="call-function">
     <element name="call-function">
@@ -2016,9 +2021,9 @@
     </element>
   </define>
   <!--
-    
+
     Conditionals
-    
+
   -->
   <define name="if">
     <element name="if">
@@ -2057,9 +2062,9 @@
     </element>
   </define>
   <!--
-    
+
     Getting info
-    
+
   -->
   <define name="measure-distance">
     <element name="measure-distance">
@@ -2087,9 +2092,9 @@
     </optional>
   </define>
   <!--
-    
+
     Primitives
-    
+
   -->
   <define name="command">
     <element name="command">
@@ -2140,9 +2145,9 @@
     </element>
   </define>
   <!--
-    
+
     XInclude
-    
+
   -->
   <define name="xg.xi.include.attlist">
     <optional>

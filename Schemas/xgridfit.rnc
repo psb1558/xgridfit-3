@@ -177,12 +177,12 @@ xgridfit =
         pre-program?&
         ps-private?&
         constant*&
-	alias*&
+        alias*&
         variable*&
         round-state*&
         \default*&
         control-value*&
-	cvar?&
+        cvar?&
         function*&
         macro*&
         glyph*&
@@ -328,7 +328,8 @@ attlist.function &=
   att.name,
   att.id?,
   attribute num { xsd:nonNegativeInteger }?,
-  attribute return { YESNO }?
+  attribute return { YESNO }?,
+  attribute stack-safe { YESNO }
 variant =
   element variant { att.test, programming* }
 macro =
