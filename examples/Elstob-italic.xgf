@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-model
-    href="../Schemas/xgridfit-sh.rnc"
-    type="application/relax-ng-compact-syntax"?>
-<xgridfit xmlns="http://xgridfit.sourceforge.net/Xgridfit2"
-	  xmlns:xi="http://www.w3.org/2001/XInclude">
+<?xml-model href="../Schemas/xgridfit-sh.rnc"
+            type="application/relax-ng-compact-syntax"?>
+<xgridfit   xmlns="http://xgridfit.sourceforge.net/Xgridfit2"
+	          xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <!--
       This file uses the compact syntax (less transparent than
@@ -176,7 +175,6 @@
   -->
   <cvar>
     <region tag="wght" bot="-1.0" peak="-1.0" top="0.0">
-    <!-- <region tag="wght" bot="-0.33" peak="-0.33" top="0.66"> -->
       <cvv nm="cap-serif" val="40"/>
       <cvv nm="cap-bar" val="42"/>
       <cvv nm="cap-round-stem" val="31"/>
@@ -197,7 +195,6 @@
       <cvv nm="tilde-stem" val="81"/>
     </region>
     <region tag="wght" bot="0.0" peak="1.0" top="1.0">
-    <!-- <region tag="wght" bot="0.33" peak="0.66" top="0.66"> -->
       <cvv nm="cap-serif" val="60"/>
       <cvv nm="cap-bar" val="70"/>
       <cvv nm="cap-round-stem" val="68"/>
@@ -347,17 +344,13 @@
     This file uses macros rather than functions for often-repeated
     features of glyphs because macros make the final file significantly
     smaller, even though these code fragments are repeatedly inserted
-    into the program code. The reason is that function calls in glyph
-    programs block a key method of code optimization (the consolidation
-    of push instructions) because they introduce uncertainty about the
-    state of the stack.
+    into the program code. Macros also save the overhead of calling
+    functions and referring to parameters passed on the stack.
 
-    Macros also save the overhead of calling functions and referring to
-    parameters passed on the stack.
-
-    These macros are mostly written with low-level instructions, so
+    These macros are mostly written with low-level instructions so
     as to make sure they are as compact as possible. Glyph programs, on
-    the other hand, are mostly written in high-level Xgridfit code.
+    the other hand, should generally be written in high-level Xgridfit
+    code.
   -->
 
   <!-- As on b, d -->
@@ -450,16 +443,6 @@
     <command nm="MIAP" modifier="1"/>
     <command nm="SHP" modifier="1"/>
     <command nm="MIRP">
-      <modifier type="col" val="b"/>
-    </command>
-  </mo>
-
-  <mo nm="plain-stem">
-    <pm nm="pt1"/>
-    <pm nm="pt2"/>
-    <push>pt2 pt1</push>
-    <command nm="MDAP" modifier="1"/>
-    <command nm="MDRP">
       <modifier type="col" val="b"/>
     </command>
   </mo>
@@ -645,6 +628,33 @@
     </mv>
   </mo>
 
+  <!--
+    A single function, to show how functions work. This could
+    just as well have been a macro, since it doesn't take sets
+    or ranges as parameters and it doesn't contain compile-if
+    elements that depend on parameters. The stack-safe
+    parameter is only for functions: it signals to the compiler
+    that this function doesn't leave anything on the stack and
+    doesn't alter the stack except to pop its parameters. If
+    you stick to high-level elements (not <push> or <command>)
+    in your functions, these things will always be true, and
+    the stack-safe attribute will enable some significant
+    optimizations in glyph programs that call the functions.
+
+    In general, you should use macros for the kind of code
+    fragment that does the routine work of a glyph program
+    and use functions for more complicated tasks, for example
+    tasks that differ depending on the current resolution.
+    (This function really ought to be a macro.)
+  -->
+  <fn nm="plain-stem" stack-safe="yes">
+    <pm nm="pt1"/>
+    <pm nm="pt2"/>
+    <mv p="pt1">
+      <mv p="pt2"/>
+    </mv>
+  </fn>
+
   <!-- Section: Basic alphabet -->
 
   <gl pnm="A">
@@ -802,6 +812,10 @@
           parent <mv> and the grandparent <mv>. It's as if the
           interpolate element were <ip r="15 8" p="30 23"/>. That is,
           points 30 and 23 are interpolated between points 15 and 8.
+
+          If an <ip> element is nested inside one <mv> that lacks
+          an r attribute or a <ref>, one reference pointer will have
+          a random value.
         -->
         <ip p="30 23"/>
         <!--
@@ -1049,5 +1063,10 @@
       <pms>pt-a: 28, pt-b: 29, sh-a: bot-a, sh-b: 33, cv: baseline</pms>
     </callm>
   </gl>
+
+  <!--
+    See the sources of the Elstob font for the rest of this file:
+    https://github.com/psb1558/Elstob-font
+  -->
 
 </xgridfit>
