@@ -329,7 +329,7 @@ attlist.function &=
   att.id?,
   attribute num { xsd:nonNegativeInteger }?,
   attribute return { YESNO }?,
-  attribute stack-safe { YESNO }
+  attribute stack-safe { YESNO }?
 variant =
   element variant { att.test, programming* }
 macro =
