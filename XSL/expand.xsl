@@ -334,6 +334,7 @@
       <xsl:apply-templates select="@xml:id"/>
       <xsl:apply-templates select="@nm"/>
       <xsl:apply-templates select="@n"/>
+      <xsl:apply-templates select="@stack-safe"/>
       <xsl:apply-templates select="node()"/>
     </xgf:function>
   </xsl:template>

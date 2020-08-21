@@ -547,9 +547,19 @@
         glyph.program.fromAssembly("")
 </xsl:text>
 </xsl:if>
+<xsl:text>safe_calls = { 1: 1</xsl:text>
+<xsl:for-each select="xgf:function[@stack-safe='yes']">
+  <xsl:text>, </xsl:text>
+  <xsl:call-template name="get-function-number">
+    <xsl:with-param name="function-name" select="./@name"/>
+  </xsl:call-template>
+  <xsl:text>: </xsl:text>
+  <xsl:value-of select="count(./xgf:param) + 1"/>
+</xsl:for-each>
+<xsl:text> }</xsl:text>
 <xsl:text>
-neutral_instructions = ['IUP', 'RDTG', 'ROFF', 'RTDG', 'RTG', 'RTHG', 'RUTG',
-'SFVTCA', 'SFVTPV', 'SPVTCA', 'SVTCA', 'FLIPOFF', 'FLIPON']
+neutral_instructions = [ 'IUP', 'RDTG', 'ROFF', 'RTDG', 'RTG', 'RTHG', 'RUTG',
+'SFVTCA', 'SFVTPV', 'SPVTCA', 'SVTCA', 'FLIPOFF', 'FLIPON' ]
 
 pop_instructions = { 'ALIGNPTS': 2, 'ALIGNRP': -1, 'IP': -1, 'MDAP': 1,
 'MIAP': 2, 'MIRP': 2, 'MDRP': 1, 'SHP': -1, 'SLOOP': 1, 'SRP0': 1, 'SRP1': 1,
@@ -558,7 +568,7 @@ pop_instructions = { 'ALIGNPTS': 2, 'ALIGNRP': -1, 'IP': -1, 'MDAP': 1,
 'SPVFS': 2, 'SROUND': 1, 'SSW': 1, 'SSWCI': 1, 'SZP0': 1, 'SZP1': 1,
 'SZP2': 1, 'SZPS': 1, 'UTP': 1, 'WCVTF': 2, 'WCVTP': 2, 'WS': 2 }
 
-push_instructions = ['PUSHB', 'NPUSHB']
+push_instructions = [ 'PUSHB', 'NPUSHB' ]
 
 def install_glyph_program(nm, fo, asm):
     global maxInstructions
@@ -623,9 +633,12 @@ def compact_instructions(inst):
                     loop_counter = int(last_num)
                     ordered_push_list.append(push_store.pop())
                 elif this_instruction == 'CALL':
-                    ti = push_store.pop()
-                    if ti == "1":
-                        ordered_push_list.append(ti)
+                    ti = int(push_store[-1])
+                    if ti in safe_calls:
+                        iloop = safe_calls[ti]
+                        while iloop &gt; 0:
+                            ordered_push_list.append(push_store.pop())
+                            iloop -= 1
                     else:
                         return inst
                 elif pop_instructions[this_instruction] == -1:
