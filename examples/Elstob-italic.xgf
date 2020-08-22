@@ -629,13 +629,11 @@
   </mo>
 
   <!--
-    A single function, to show how functions work. This could
-    just as well have been a macro, since it doesn't take sets
-    or ranges as parameters and it doesn't contain compile-if
-    elements that depend on parameters. The stack-safe
+    A single function (which does a thing scarcely worth doing),
+    to show how functions work. The stack-safe
     parameter is only for functions: it signals to the compiler
-    that this function doesn't leave anything on the stack and
-    doesn't alter the stack except to pop its parameters. If
+    that this function doesn't leave anything on the stack or
+    otherwise alter the stack except to pop its parameters. If
     you stick to high-level elements (not <push> or <command>)
     in your functions, these things will always be true, and
     the stack-safe attribute will enable some significant
