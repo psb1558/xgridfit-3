@@ -568,7 +568,7 @@ pop_instructions = { 'ALIGNPTS': 2, 'ALIGNRP': -1, 'IP': -1, 'MDAP': 1,
 'SPVFS': 2, 'SROUND': 1, 'SSW': 1, 'SSWCI': 1, 'SZP0': 1, 'SZP1': 1,
 'SZP2': 1, 'SZPS': 1, 'UTP': 1, 'WCVTF': 2, 'WCVTP': 2, 'WS': 2 }
 
-push_instructions = [ 'PUSHB', 'NPUSHB' ]
+byte_push_instructions = [ 'PUSHB', 'NPUSHB' ]
 
 def install_glyph_program(nm, fo, asm):
     global maxInstructions
@@ -624,7 +624,7 @@ def compact_instructions(inst):
                 return inst
         else:
             this_instruction = current_line.split("[")[0]
-            if this_instruction in push_instructions:
+            if this_instruction in byte_push_instructions:
                 if not push_initialized:
                     push_initialized = True
                     instruction_list.append("pushmarker")
