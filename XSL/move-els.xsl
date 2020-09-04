@@ -172,8 +172,8 @@
     </xsl:variable>
     <xsl:variable name="assume-y">
       <xsl:choose>
-        <xsl:when test="ancestor::glyph/@assume-y">
-          <xsl:value-of select="ancestor::glyph/@assume-y"/>
+        <xsl:when test="ancestor::xgf:glyph/@assume-y">
+          <xsl:value-of select="ancestor::xgf:glyph/@assume-y"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$assume-always-y"/>
@@ -354,8 +354,8 @@
     </xsl:variable>
     <xsl:variable name="assume-y">
       <xsl:choose>
-        <xsl:when test="ancestor::glyph/@assume-y">
-          <xsl:value-of select="ancestor::glyph/@assume-y"/>
+        <xsl:when test="ancestor::xgf:glyph/@assume-y">
+          <xsl:value-of select="ancestor::xgf:glyph/@assume-y"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$assume-always-y"/>
