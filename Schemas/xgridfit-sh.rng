@@ -404,9 +404,9 @@
     </choice>
   </define>
   <!--
-
+    
     Top level
-
+    
   -->
   <define name="xgridfit">
     <element name="xgridfit">
@@ -478,9 +478,9 @@
     </element>
   </define>
   <!--
-
+    
     Value declarations
-
+    
   -->
   <define name="cn">
     <element name="cn">
@@ -511,9 +511,9 @@
     <ref name="att.target"/>
   </define>
   <!--
-
+    
     Controlling compilation of glyph programs
-
+    
   -->
   <define name="glyph-select">
     <element name="glyph-select">
@@ -535,9 +535,9 @@
     </element>
   </define>
   <!--
-
+    
     Script I/O
-
+    
   -->
   <define name="infile">
     <element name="infile">
@@ -563,9 +563,9 @@
     </element>
   </define>
   <!--
-
+    
     Top-level declarations
-
+    
   -->
   <define name="round-state">
     <element name="round-state">
@@ -882,9 +882,9 @@
     </optional>
   </define>
   <!--
-
+    
     Miscellaneous / Oddball
-
+    
   -->
   <define name="message">
     <element name="message">
@@ -892,9 +892,9 @@
     </element>
   </define>
   <!--
-
+    
     Points and point structures
-
+    
   -->
   <define name="pt">
     <element name="pt">
@@ -1006,9 +1006,9 @@
     </element>
   </define>
   <!--
-
+    
     Point-moving instructions
-
+    
   -->
   <define name="mirp">
     <element name="mirp">
@@ -1485,9 +1485,9 @@
     </element>
   </define>
   <!--
-
+    
     Enable/disable instructions
-
+    
   -->
   <define name="disable-instructions">
     <element name="disable-instructions">
@@ -1500,9 +1500,9 @@
     </element>
   </define>
   <!--
-
+    
     Graphics state
-
+    
   -->
   <define name="setvs">
     <element name="setvs">
@@ -1751,9 +1751,9 @@
     </attribute>
   </define>
   <!--
-
+    
     Arithmetic elements
-
+    
   -->
   <define name="set-equal">
     <element name="set-equal">
@@ -1983,21 +1983,16 @@
     </element>
   </define>
   <!--
-
+    
     Function and macro calls
-
+    
   -->
-  <define name="pms">
-    <element name="pms">
-      <text/>
-    </element>
-  </define>
   <define name="callf">
     <element name="callf">
       <ref name="attlist.callf"/>
       <choice>
         <optional>
-          <ref name="pms"/>
+          <text/>
         </optional>
         <zeroOrMore>
           <ref name="fn.pmset"/>
@@ -2019,7 +2014,7 @@
       <ref name="att.nm"/>
       <choice>
         <optional>
-          <ref name="pms"/>
+          <text/>
         </optional>
         <zeroOrMore>
           <ref name="pmset"/>
@@ -2041,7 +2036,7 @@
       <ref name="att.pnm"/>
       <choice>
         <optional>
-          <ref name="pms"/>
+          <text/>
         </optional>
         <zeroOrMore>
           <ref name="wpm"/>
@@ -2056,16 +2051,22 @@
           <ref name="YESNO"/>
         </attribute>
       </optional>
-      <oneOrMore>
-        <ref name="fn.wpm"/>
-      </oneOrMore>
+      <choice>
+        <text/>
+        <oneOrMore>
+          <ref name="fn.wpm"/>
+        </oneOrMore>
+      </choice>
     </element>
   </define>
   <define name="pmset">
     <element name="pmset">
-      <oneOrMore>
-        <ref name="wpm"/>
-      </oneOrMore>
+      <choice>
+        <text/>
+        <oneOrMore>
+          <ref name="wpm"/>
+        </oneOrMore>
+      </choice>
     </element>
   </define>
   <define name="fn.wpm">
@@ -2099,9 +2100,9 @@
     </element>
   </define>
   <!--
-
+    
     Conditionals
-
+    
   -->
   <define name="if">
     <element name="if">
@@ -2140,9 +2141,9 @@
     </element>
   </define>
   <!--
-
+    
     Getting info
-
+    
   -->
   <define name="measure-distance">
     <element name="measure-distance">
@@ -2170,9 +2171,9 @@
     </optional>
   </define>
   <!--
-
+    
     Primitives
-
+    
   -->
   <define name="command">
     <element name="command">
@@ -2223,9 +2224,9 @@
     </element>
   </define>
   <!--
-
+    
     XInclude
-
+    
   -->
   <define name="xg.xi.include.attlist">
     <optional>

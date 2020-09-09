@@ -718,26 +718,24 @@ formula =
 #
 # Function and macro calls
 #
-pms =
-  element pms { text }
 callf =
   element callf {
     attlist.callf,
-    (pms? | fn.pmset* | fn.wpm*)
+    (text? | fn.pmset* | fn.wpm*)
   }
 attlist.callf &=
   att.nm,
   att.result-to?
 callm =
-  element callm { att.nm, (pms? | pmset* | wpm*) }
+  element callm { att.nm, (text? | pmset* | wpm*) }
 callp =
   element callp { att.nm, empty }
 callg =
-  element callg { att.pnm, (pms? | wpm*) }
+  element callg { att.pnm, (text? | wpm*) }
 fn.pmset =
-  element pmset { attribute opt { YESNO }?, fn.wpm+ }
+  element pmset { attribute opt { YESNO }?, ( text | fn.wpm+ ) }
 pmset =
-  element pmset { wpm+ }
+  element pmset { ( text | wpm+ ) }
 fn.wpm =
   element wpm { att.nm, att.val, empty }
 wpm =

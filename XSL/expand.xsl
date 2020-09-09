@@ -120,6 +120,11 @@
 
   <xsl:template name="make-params">
     <xsl:param name="s"/>
+    <xsl:message terminate="no">
+      <xsl:text>Called make-params with "</xsl:text>
+      <xsl:value-of select="$s"/>
+      <xsl:text>"</xsl:text>
+    </xsl:message>
     <!-- Isolate the key-value pair; set aside what remains -->
     <xsl:variable name="thispair">
       <xsl:choose>
@@ -147,7 +152,9 @@
     <xsl:if test="string-length($keystr) = 0 or
                   string-length($valstr) = 0">
       <xsl:message terminate="yes">
-        <xsl:text>Ill-formed key-value pair in &lt;pms&gt;</xsl:text>
+        <xsl:text>Ill-formed key-value pair in param string "</xsl:text>
+        <xsl:value-of select='$s'/>
+        <xsl:text>"</xsl:text>
       </xsl:message>
     </xsl:if>
     <!-- Output the parameter -->
@@ -165,12 +172,6 @@
         <xsl:with-param name="s" select="$remaining"/>
       </xsl:call-template>
     </xsl:if>
-  </xsl:template>
-
-  <xsl:template match="xgf:pms">
-    <xsl:call-template name="make-params">
-      <xsl:with-param name="s" select="text()"/>
-    </xsl:call-template>
   </xsl:template>
 
   <xsl:template match="xgf:pt">
@@ -296,6 +297,16 @@
     </xgf:call-glyph>
   </xsl:template>
 
+  <xsl:template match="xgf:callm/text() | xgf:callf/text()
+    | xgf:callg/text() | xgf:pmset/text()">
+    <xsl:variable name="s" select="normalize-space(.)"/>
+    <xsl:if test="string-length($s) &gt; 0">
+      <xsl:call-template name="make-params">
+        <xsl:with-param name="s" select="$s"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:template>
+
   <xsl:template match="xgf:callm">
     <xgf:call-macro>
       <xsl:apply-templates select="@nm"/>
@@ -365,7 +376,8 @@
 
   <xsl:template match="xgf:pmset">
     <xgf:param-set>
-      <xsl:apply-templates select="@* | node()"/>
+      <xsl:apply-templates select="@*"/>
+      <xsl:apply-templates select="node()"/>
     </xgf:param-set>
   </xsl:template>
 

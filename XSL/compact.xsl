@@ -255,11 +255,9 @@
       <xsl:choose>
         <xsl:when test="xgf:with-param and (count(xgf:with-param) =
                         count(xgf:with-param/@value))">
-          <xgf:pms>
-            <xsl:call-template name="make-param-list">
-              <xsl:with-param name="pset" select="xgf:with-param"/>
-            </xsl:call-template>
-            </xgf:pms>
+          <xsl:call-template name="make-param-list">
+            <xsl:with-param name="pset" select="xgf:with-param"/>
+          </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="xgf:with-param | xgf:param-set"/>
@@ -297,11 +295,9 @@
       <xsl:choose>
         <xsl:when test="xgf:with-param and (count(xgf:with-param) =
                         count(xgf:with-param/@value))">
-          <xgf:pms>
-            <xsl:call-template name="make-param-list">
-              <xsl:with-param name="pset" select="xgf:with-param"/>
-            </xsl:call-template>
-            </xgf:pms>
+          <xsl:call-template name="make-param-list">
+            <xsl:with-param name="pset" select="xgf:with-param"/>
+          </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="xgf:with-param | xgf:param-set"/>
@@ -316,11 +312,9 @@
       <xsl:choose>
         <xsl:when test="xgf:with-param and (count(xgf:with-param) =
                         count(xgf:with-param/@value))">
-          <xgf:pms>
-            <xsl:call-template name="make-param-list">
-              <xsl:with-param name="pset" select="xgf:with-param"/>
-            </xsl:call-template>
-            </xgf:pms>
+          <xsl:call-template name="make-param-list">
+            <xsl:with-param name="pset" select="xgf:with-param"/>
+          </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="xgf:with-param | xgf:param-set"/>
@@ -335,11 +329,9 @@
       <xsl:choose>
         <xsl:when test="xgf:with-param and (count(xgf:with-param) =
                         count(xgf:with-param/@value))">
-          <xgf:pms>
-            <xsl:call-template name="make-param-list">
-              <xsl:with-param name="pset" select="xgf:with-param"/>
-            </xsl:call-template>
-            </xgf:pms>
+          <xsl:call-template name="make-param-list">
+            <xsl:with-param name="pset" select="xgf:with-param"/>
+          </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="xgf:with-param"/>
