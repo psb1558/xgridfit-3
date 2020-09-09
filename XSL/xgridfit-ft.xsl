@@ -14,6 +14,21 @@
       Copyright (c) 2006-20 by Peter S. Baker
   -->
 
+  <!--
+    New merge-mode needs to worry about these things:
+    - Storage. Read max-storage from maxp. The number becomes
+      the new storage-base.
+    - CVT. The old Xgridfit employed a scheme whereby old cvs
+      were re-used where possible. This may interfere with
+      the color attribute on the cv. Find out if it does, and
+      if so drop the old scheme and just add all new cvs to the
+      old.
+    - Functions. Read the number of functions from maxp. But
+      this is not reliable, since the series of functions
+      indices may contain gaps. So provide an override via a
+      default element.
+  -->
+
   <xsl:output method="text" encoding="UTF-8"/>
 
   <xsl:param name="cvartable">
@@ -27,6 +42,28 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="''"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:param>
+
+  <xsl:param name="delete_all">
+    <xsl:choose>
+      <xsl:when test="/xgf:xgridfit/xgf:default[@type='delete-all']">
+	<xsl:value-of select="/xgf:xgridfit/xgf:default[@type='delete-all']/@value"/>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:value-of select="'no'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:param>
+
+  <xsl:param name="combine_prep">
+    <xsl:choose>
+      <xsl:when test="/xgf:xgridfit/xgf:default[@type='combine-prep']">
+	<xsl:value-of select="/xgf:xgridfit/xgf:default[@type='combine-prep']/@value"/>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:value-of select="'yes'"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:param>
@@ -123,6 +160,15 @@
     </xsl:choose>
   </xsl:param>
 
+  <xsl:param name="function-base" select="0"/>
+
+  <xsl:param name="storage-base" select="0"/>
+
+  <xsl:param name="cvt-base" select="0"/>
+
+  <xsl:variable name="merge-mode" select="$function-base &gt; 0 or
+    $storage-base &gt; 0 or $cvt-base &gt; 0"/>
+
   <xsl:param name="infile">
     <xsl:choose>
       <xsl:when test="/xgf:xgridfit/xgf:infile">
@@ -169,8 +215,6 @@
     </xsl:choose>
   </xsl:param>
 
-  <xsl:variable name="merge-mode" select="false()"/>
-
   <xsl:key name="cvt" match="xgf:control-value" use="@name"/>
   <xsl:key name="function-index" match="xgf:function" use="@name"/>
   <xsl:key name="macro-index" match="xgf:macro" use="@name"/>
@@ -213,39 +257,11 @@
   <xsl:variable name="predefined-functions" select="4"/>
 
   <xsl:variable name="auto-function-base">
-    <xsl:choose>
-      <xsl:when test="/xgf:xgridfit/xgf:default[@type = 'function-base']">
-        <xsl:value-of select="/xgf:xgridfit/xgf:default[@type =
-                              'function-base-num']/@value"/>
-      </xsl:when>
-      <xsl:when test="/xgf:xgridfit/xgf:function[@num]">
-        <xsl:variable name="n">
-          <xsl:call-template name="get-highest-function-number">
-            <xsl:with-param name="current-function"
-                            select="/xgf:xgridfit/xgf:function[@num][1]"/>
-          </xsl:call-template>
-        </xsl:variable>
-        <xsl:value-of select="number($n) + 1"/>
-      </xsl:when>
-      <xsl:when test="/xgf:xgridfit/xgf:legacy-functions/@max-function-defs">
-        <xsl:value-of select="/xgf:xgridfit/xgf:legacy-functions/@max-function-defs"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="0"/>
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:value-of select="$function-base"/>
   </xsl:variable>
 
   <xsl:variable name="var-legacy-storage">
-    <xsl:choose>
-      <xsl:when test="/xgf:xgridfit/xgf:default[@type = 'legacy-storage']">
-        <xsl:value-of select="/xgf:xgridfit/xgf:default[@type =
-                              'legacy-storage']/@value"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:text>0</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:value-of select="$storage-base"/>
   </xsl:variable>
 
   <xsl:variable name="function-round-restore"
@@ -306,19 +322,19 @@
   <xsl:template name="push-command">
     <xsl:param name="size" select="'B'"/>
     <xsl:param name="count" select="1"/>
+    <xsl:if test="number($count) &gt; 255">
+      <xsl:call-template name="error-message">
+        <xsl:with-param name="msg">
+          <xsl:text>You may not push more than 255 numbers at one time.</xsl:text>
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:if>
     <xsl:variable name="cmd">
       <xsl:choose>
         <xsl:when test="number($count) &lt;= 8">
           <xsl:value-of select="concat('PUSH',$size)"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:if test="number($count) &gt; 255">
-            <xsl:call-template name="error-message">
-              <xsl:with-param name="msg">
-                <xsl:text>You may not push more than 255 numbers at one time.</xsl:text>
-              </xsl:with-param>
-            </xsl:call-template>
-          </xsl:if>
           <xsl:value-of select="concat('NPUSH',$size)"/>
         </xsl:otherwise>
       </xsl:choose>
@@ -326,12 +342,6 @@
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="$cmd"/>
     </xsl:call-template>
-<!--
-    <xsl:if test="number($count) &gt; 8">
-      <xsl:value-of select="$inst-newline"/>
-      <xsl:value-of select="$count"/>
-    </xsl:if>
--->
   </xsl:template>
 
   <!-- The following templates are for the bit-flags that accompany
@@ -473,8 +483,8 @@
   <xsl:template name="get-cvt-index">
     <xsl:param name="name"/>
     <xsl:param name="need-number-now"/>
-    <xsl:value-of
-        select="count(key('cvt',$name)/preceding-sibling::xgf:control-value)"/>
+    <xsl:value-of select="count(key('cvt',$name)/preceding-sibling::xgf:control-value) +
+      number($cvt-base)"/>
   </xsl:template>
 
   <xsl:template name="debug-start"></xsl:template>
@@ -679,14 +689,6 @@ def compact_instructions(inst):
     <xsl:value-of select="$text-newline"/>
 
       <xsl:variable name="new-fpgm">
-        <xsl:choose>
-          <xsl:when test="$all-functions[@num]">
-            <xsl:apply-templates select="$all-functions[@num]"/>
-          </xsl:when>
-          <xsl:when test="$leg[@max-function-defs]">
-            <xsl:apply-templates select="$leg"/>
-          </xsl:when>
-        </xsl:choose>
         <xsl:call-template name="function-zero"/>
         <xsl:call-template name="function-one"/>
         <xsl:call-template name="function-two"/>

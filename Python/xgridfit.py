@@ -1,5 +1,6 @@
-from lxml import etree
 from fontTools import ttLib
+from fontTools.ttLib import ttFont, tables
+from lxml import etree
 import sys
 import os
 import argparse
@@ -17,6 +18,7 @@ argparser.add_argument('--novalidation', action="store_true", help="Skip validat
 argparser.add_argument('--nocompilation', action="store_true", help="Skip compilation of the input file")
 argparser.add_argument('--expand', action="store_true", help="Convert file to expanded syntax, save, and exit")
 argparser.add_argument('--compact', action="store_true", help="Convert file to compact syntax, save, and exit")
+argparser.add_argument('--merge', action="store_true", help="Merge Xgridfit with existing instructions")
 args = argparser.parse_args()
 
 inputfile   = args.inputfile
@@ -25,6 +27,7 @@ skipval     = args.novalidation
 skipcomp    = args.nocompilation
 expandonly  = args.expand
 compactonly = args.compact
+mergemode   = args.merge
 
 # Look for all program files relative to this python file:
 # xsl files in ../XSL/, schemas in ../Schemas.
@@ -54,6 +57,29 @@ ns = {"xg": "http://xgridfit.sourceforge.net/Xgridfit2",
 
 if len(xgffile.xpath("/xg:xgridfit/xi:include", namespaces=ns)):
     xgffile.xinclude()
+
+functionBase = 0
+cvtBase      = 0
+storageBase  = 0
+maxStack     = 256
+if mergemode:
+    inputfont = xgffile.xpath("/xg:xgridfit/xg:infile/text()", namespaces=ns)[0]
+    thisFont = ttLib.TTFont(inputfont)
+    maxInstructions = thisFont['maxp'].maxSizeOfInstructions
+    storageBase = thisFont['maxp'].maxStorage
+    st = thisFont['maxp'].maxStackElements
+    if st > 256:
+        maxStack = st
+    functionBase = thisFont['maxp'].maxFunctionDefs
+    try:
+        cvtBase = len(getattr(thisFont['cvt '], 'values'))
+    except:
+        cvtBase = 0
+    # print('functionBase: ' + str(functionBase))
+    # print('cvtBase: ' + str(cvtBase))
+    # print('storageBase: ' + str(storageBase))
+    # print('maxStack: ' + str(maxStack))
+    del thisFont
 
 # Test whether we have a cvar element
 
