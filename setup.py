@@ -8,7 +8,7 @@ setup (
     entry_points={
         "console_scripts": ["xgridfit = xgridfit:main"]
     },
-    install_requires = ["fonttools", "lxml"],
+    install_requires = ["fonttools", "lxml", "setuptools"],
     include_package_data=True,
     package_data={"": ["XSL/*.xsl", "XSL/*.xml", "Schemas/*.rnc", "Schemas/*.rng",
                        "Schemas/*.xsd"]}
