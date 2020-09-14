@@ -17,16 +17,18 @@
   <!--
     New merge-mode needs to worry about these things:
     - Storage. Read max-storage from maxp. The number becomes
-      the new storage-base.
+      the new storage-base. DONE BUT NOT TESTED.
     - CVT. The old Xgridfit employed a scheme whereby old cvs
       were re-used where possible. This may interfere with
       the color attribute on the cv. Find out if it does, and
       if so drop the old scheme and just add all new cvs to the
-      old.
+      old. NOT WORTH IT. WE PUT THE NEW CVT ON TOP OF THE OLD
     - Functions. Read the number of functions from maxp. But
       this is not reliable, since the series of functions
       indices may contain gaps. So provide an override via a
-      default element.
+      default element. NOT YET IMPLEMENTED.
+    - There are lots of params and variables. Make sure they're
+      all needed: delete any that aren't.
   -->
 
   <xsl:output method="text" encoding="UTF-8"/>
@@ -187,33 +189,10 @@
     </xsl:choose>
   </xsl:param>
 
-  <xsl:param name="outfile_base">
-    <xsl:choose>
-      <xsl:when test="/xgf:xgridfit/xgf:outfile-base">
-        <xsl:value-of select="/xgf:xgridfit/xgf:outfile-base"/>
-      </xsl:when>
-      <xsl:otherwise>!!nofile!!</xsl:otherwise>
-    </xsl:choose>
-  </xsl:param>
-
   <xsl:param name="mp-containers"
              select="//xgf:call-macro[not(param-set)]|
                      //xgf:call-macro/xgf:param-set|
                      //xgf:call-glyph"/>
-
-  <!-- <xsl:variable name="outfile_base" select="'!!nofile!!'"/> -->
-
-  <xsl:param name="outfile_script_name">
-    <xsl:choose>
-      <xsl:when test="/xgf:xgridfit/xgf:outfile-script-name">
-        <xsl:value-of select="/xgf:xgridfit/xgf:outfile-script-name"/>
-      </xsl:when>
-      <xsl:when test="$outfile_base != '!!nofile!!'">
-        <xsl:value-of select="concat($outfile_base,'_outfile.py')"/>
-      </xsl:when>
-      <xsl:otherwise>!!nofile!!</xsl:otherwise>
-    </xsl:choose>
-  </xsl:param>
 
   <xsl:key name="cvt" match="xgf:control-value" use="@name"/>
   <xsl:key name="function-index" match="xgf:function" use="@name"/>
@@ -228,11 +207,14 @@
   <xsl:strip-space elements="*"/>
 
   <xsl:variable name="newline">
-    <xsl:text>\n</xsl:text>
+    <!-- <xsl:text>\n</xsl:text> -->
+    <xsl:text></xsl:text>
   </xsl:variable>
 
   <xsl:variable name="inst-newline">
-    <xsl:text>\n\
+    <!-- <xsl:text>\n\
+</xsl:text> -->
+    <xsl:text>
 </xsl:text>
   </xsl:variable>
 
@@ -243,10 +225,6 @@
 </xsl:text>
   </xsl:variable>
 
-<!--
-  <xsl:variable name="leading-newline"
-                select="concat($inst-newline,'&#34;+\',$text-newline)"/>
--->
   <xsl:variable name="leading-newline" select="$inst-newline"/>
 
   <xsl:variable name="cv-num-in-compile-if" select="'yes'"/>
@@ -293,7 +271,6 @@
   <xsl:include href="move-els.xsl"/>
   <xsl:include href="messages.xsl"/>
   <xsl:include href="misc.xsl"/>
-
 
   <!--
 
@@ -495,6 +472,19 @@
 <!-- ============== TOP-LEVEL ELEMENTS OF THE INSTRUCTION FILE =============== -->
 <!-- ========================================================================= -->
 
+<!--
+  Instead of one big template, we break the process up into chunks which
+  can be called individually via the following params.
+-->
+  <xsl:param name="singleGlyphId" select="'A'"/>
+  <xsl:param name="prep-only" select="'no'"/>
+  <xsl:param name="fpgm-only" select="'no'"/>
+  <xsl:param name="function-count" select="'no'"/>
+  <xsl:param name="stack-safe-list" select="'no'"/>
+  <xsl:param name="get-cvt-list" select="'no'"/>
+  <xsl:param name="get-glyph-list" select="'no'"/>
+  <xsl:param name="get-cvar" select="'no'"/>
+  <xsl:param name="another-test" select="'no'"/>
 
   <xsl:template match="/">
     <xsl:if test="not(xgf:xgridfit)">
@@ -506,361 +496,141 @@
   </xsl:template>
 
   <xsl:template match="xgf:xgridfit">
-    <xsl:param name="all-functions" select="/xgf:xgridfit/xgf:function"/>
-    <xsl:param name="leg"
-               select="/xgf:xgridfit/xgf:legacy-functions"/>
-    <xsl:if test="not(xgf:pre-program) and $compile_globals='yes'">
-      <xsl:call-template name="error-message">
-        <xsl:with-param name="msg">
-          <xsl:text>A &lt;pre-program&gt; (&lt;prep&gt;) element must be present, even if empty.</xsl:text>
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:if>
-    <xsl:text>from fontTools import ttLib</xsl:text>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:text>from fontTools.ttLib import ttFont, tables</xsl:text>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:text>from fontTools.ttLib.tables.TupleVariation import TupleVariation</xsl:text>
-    <!--
-    <xsl:value-of select="$text-newline"/>
-    <xsl:text>from lxml import etree</xsl:text>
-  -->
-    <xsl:value-of select="$text-newline"/>
-    <xsl:text>import array</xsl:text>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:value-of select="$py-start-message"/>
-    <xsl:value-of select="$text-newline"/>
     <xsl:choose>
-      <xsl:when test="$infile != '!!nofile!!'">
-        <xsl:text>currentFont = ttLib.TTFont("</xsl:text>
-        <xsl:value-of select="$infile"/>
-        <xsl:text>")</xsl:text>
-        <xsl:value-of select="$text-newline"/>
+      <xsl:when test="$prep-only='yes'">
+        <xsl:apply-templates select="xgf:pre-program"/>
+      </xsl:when>
+      <xsl:when test="$fpgm-only='yes'">
+        <xsl:call-template name="make-new-functions"/>
+      </xsl:when>
+      <xsl:when test="$function-count='yes'">
+        <xsl:value-of select="count(/xgf:xgridfit/xgf:function)"/>
+      </xsl:when>
+      <xsl:when test="$stack-safe-list='yes'">
+        <xsl:call-template name="make-stack-safe-list"/>
+      </xsl:when>
+      <xsl:when test="$get-cvt-list='yes'">
+        <xsl:call-template name="make-cvt-list"/>
+      </xsl:when>
+      <xsl:when test="$get-glyph-list='yes'">
+        <xsl:call-template name="make-glyph-list"/>
+      </xsl:when>
+      <xsl:when test="$get-cvar='yes'">
+        <xsl:call-template name="get-cvar-tuples"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:call-template name="warning">
-          <xsl:with-param name="msg">
-            <xsl:text>No font file specified. Use an infile element to identify</xsl:text>
-            <xsl:text> a TrueType font to add instructions to.</xsl:text>
-          </xsl:with-param>
-        </xsl:call-template>
+        <xsl:message terminate="no">
+          <xsl:text>In otherwise clause. ID is </xsl:text>
+          <xsl:value-of select="$singleGlyphId"/>
+        </xsl:message>
+        <xsl:apply-templates select="xgf:glyph[@ps-name=$singleGlyphId]"/>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:text>maxInstructions = 200</xsl:text>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:if test="$compile_globals='yes'">
-      <xsl:text>for g_name in currentFont['glyf'].glyphs:
-    glyph = currentFont['glyf'][g_name]
-    if hasattr(glyph, 'program'):
-        # print(glyph.program)
-        glyph.program.fromAssembly("")
-</xsl:text>
-</xsl:if>
-<xsl:text>safe_calls = { 1: 1</xsl:text>
-<xsl:for-each select="xgf:function[@stack-safe='yes']">
-  <xsl:text>, </xsl:text>
-  <xsl:call-template name="get-function-number">
-    <xsl:with-param name="function-name" select="./@name"/>
-  </xsl:call-template>
-  <xsl:text>: </xsl:text>
-  <xsl:value-of select="count(./xgf:param) + 1"/>
-</xsl:for-each>
-<xsl:text> }</xsl:text>
-<xsl:text>
-neutral_instructions = [ 'IUP', 'RDTG', 'ROFF', 'RTDG', 'RTG', 'RTHG', 'RUTG',
-'SFVTCA', 'SFVTPV', 'SPVTCA', 'SVTCA', 'FLIPOFF', 'FLIPON' ]
+  </xsl:template>
 
-pop_instructions = { 'ALIGNPTS': 2, 'ALIGNRP': -1, 'IP': -1, 'MDAP': 1,
-'MIAP': 2, 'MIRP': 2, 'MDRP': 1, 'SHP': -1, 'SLOOP': 1, 'SRP0': 1, 'SRP1': 1,
-'SRP2': 1, 'CALL': 1, 'SFVTL': 2, 'SPVTL': 2, 'SDPVTL': 2, 'ISECT': 5,
-'MSIRP': 2, 'SCFS': 2, 'SCVTCI': 1, 'SFVFS': 2, 'SHC': 1, 'SHZ': 1, 'SMD': 1,
-'SPVFS': 2, 'SROUND': 1, 'SSW': 1, 'SSWCI': 1, 'SZP0': 1, 'SZP1': 1,
-'SZP2': 1, 'SZPS': 1, 'UTP': 1, 'WCVTF': 2, 'WCVTP': 2, 'WS': 2 }
+  <xsl:template name="get-cvar-tuples">
+    <xsl:message>
+      <xsl:text>Generating cvar tuples</xsl:text>
+    </xsl:message>
+    <xsl:text>[</xsl:text>
+    <xsl:for-each select="/xgf:xgridfit/xgf:cvar/xgf:region">
+      <xsl:text>[{"</xsl:text>
+      <xsl:value-of select="@tag"/>
+      <xsl:text>": (</xsl:text>
+      <xsl:value-of select="@bot"/>
+      <xsl:text>, </xsl:text>
+      <xsl:value-of select="@peak"/>
+      <xsl:text>, </xsl:text>
+      <xsl:value-of select="@top"/>
+      <xsl:text>)}, </xsl:text>
+      <xsl:call-template name="get-region-coordinates">
+        <xsl:with-param name="region" select="."/>
+      </xsl:call-template>
+      <xsl:text>]</xsl:text>
+      <xsl:if test="position() != last()">
+        <xsl:text>, </xsl:text>
+      </xsl:if>
+    </xsl:for-each>
+    <xsl:text>]</xsl:text>
+  </xsl:template>
 
-byte_push_instructions = [ 'PUSHB', 'NPUSHB' ]
+  <xsl:template name="get-region-coordinates">
+    <xsl:param name="region"/>
+    <xsl:variable name="cvvs" select="$region/xgf:cvv"/>
+    <xsl:text>[</xsl:text>
+    <xsl:for-each select="/xgf:xgridfit/xgf:control-value">
+      <xsl:variable name="cvname" select="@name"/>
+      <xsl:choose>
+        <xsl:when test="$cvvs[@name = $cvname]">
+          <xsl:variable name="defcv" select="number(@value)"/>
+          <xsl:variable name="varcv"
+            select="number($cvvs[@name = $cvname]/@value)"/>
+          <xsl:variable name="r" select="$varcv - $defcv"/>
+          <xsl:choose>
+            <xsl:when test="$r = 0">
+              <xsl:text>None</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$r"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="0"/>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:if test="position() != last()">
+        <xsl:text>, </xsl:text>
+      </xsl:if>
+    </xsl:for-each>
+    <xsl:text>]</xsl:text>
+  </xsl:template>
 
-def install_glyph_program(nm, fo, asm):
-    global maxInstructions
-    g = fo['glyf'][nm]
-    g.program = tables.ttProgram.Program()
-    g.program.fromAssembly(asm)
-    b = len(g.program.getBytecode())
-    if b &gt; maxInstructions:
-        maxInstructions = b
 
-def is_number(s):
-    try:
-        int(s)
-        return True
-    except ValueError:
-        return False
-
-def output_current_push(ilist, plist):
-    push_command = "PUSHB[ ]"
-    if len(plist) &gt; 8:
-        push_command = "NPUSHB[ ]"
-    idx = ilist.index("pushmarker")
-    ilist[idx] = push_command
-    idx += 1
-    plist.reverse()
-    ilist[idx:idx] = plist
-    return ilist
-
-def list_to_string(ilist):
-    str = ""
-    for s in ilist:
-        if len(str) &gt; 0:
-            str += "\n"
-        str += s
-    return str
-
-def compact_instructions(inst):
-    # return inst
-    input_list = inst.splitlines()
-    push_store = []
-    ordered_push_list = []
-    push_initialized = False
-    loop_counter = 1
-    last_num = 'x'
-    instruction_list = []
-    for current_line in input_list:
-        current_line = current_line.strip(" \n")
-        if is_number(current_line):
-            if push_initialized:
-                last_num = current_line
-                push_store.append(current_line)
-            else:
-                return inst
-        else:
-            this_instruction = current_line.split("[")[0]
-            if this_instruction in byte_push_instructions:
-                if not push_initialized:
-                    push_initialized = True
-                    instruction_list.append("pushmarker")
-            elif this_instruction in pop_instructions:
-                if this_instruction == 'SLOOP':
-                    loop_counter = int(last_num)
-                    ordered_push_list.append(push_store.pop())
-                elif this_instruction == 'CALL':
-                    ti = int(push_store[-1])
-                    if ti in safe_calls:
-                        iloop = safe_calls[ti]
-                        while iloop &gt; 0:
-                            ordered_push_list.append(push_store.pop())
-                            iloop -= 1
-                    else:
-                        return inst
-                elif pop_instructions[this_instruction] == -1:
-                    while loop_counter &gt; 0:
-                        ordered_push_list.append(push_store.pop())
-                        loop_counter -= 1
-                    loop_counter = 1
-                else:
-                    iloop = pop_instructions[this_instruction]
-                    while iloop &gt; 0:
-                        ordered_push_list.append(push_store.pop())
-                        iloop -= 1
-                instruction_list.append(current_line)
-            elif this_instruction in neutral_instructions:
-                instruction_list.append(current_line)
-            else:
-                return inst
-    if len(push_store) &gt; 0:
-        return inst
-    if len(ordered_push_list) &gt; 0:
-        output_current_push(instruction_list,ordered_push_list)
-    else:
-        return inst
-    return(list_to_string(instruction_list))
-</xsl:text>
-    <xsl:if test="$compile_globals='yes'">
-      <xsl:text>currentFont['cvt '] = ttFont.newTable('cvt ')</xsl:text>
-      <xsl:value-of select="$text-newline"/>
-      <xsl:text>setattr(currentFont['cvt '],'values',</xsl:text>
-    <xsl:text>array.array('h', [ </xsl:text>
-    <xsl:for-each select="xgf:control-value">
+  <xsl:template name="make-cvt-list">
+    <xsl:for-each select="/xgf:xgridfit/xgf:control-value">
       <xsl:value-of select="@value"/>
       <xsl:if test="position() != last()">
         <xsl:text>, </xsl:text>
       </xsl:if>
     </xsl:for-each>
-    <xsl:text> ]))</xsl:text>
-    <xsl:value-of select="$text-newline"/>
+  </xsl:template>
 
-      <xsl:variable name="new-fpgm">
-        <xsl:call-template name="function-zero"/>
-        <xsl:call-template name="function-one"/>
-        <xsl:call-template name="function-two"/>
-        <xsl:call-template name="function-three"/>
-        <xsl:apply-templates select="$all-functions[not(@num) and
-                                     not(xgf:variant)]"/>
-      </xsl:variable>
-      <xsl:text>currentFont['fpgm'] = ttFont.newTable('fpgm')</xsl:text>
-      <xsl:value-of select="$text-newline"/>
-      <xsl:text>currentFont['fpgm'].program = tables.ttProgram.Program()</xsl:text>
-      <xsl:value-of select="$text-newline"/>
-      <xsl:text>currentFont['fpgm'].program.fromAssembly('</xsl:text>
-      <xsl:value-of select="substring-after($new-fpgm,$leading-newline)"/>
-      <xsl:text>')</xsl:text>
-      <xsl:value-of select="$text-newline"/>
-      <xsl:text>b = len(currentFont['fpgm'].program.getBytecode())</xsl:text>
-      <xsl:value-of select="$text-newline"/>
-      <xsl:text>if b &gt; maxInstructions:</xsl:text>
-      <xsl:value-of select="$text-newline"/>
-      <xsl:text>    maxInstructions = b</xsl:text>
-      <xsl:value-of select="$text-newline"/>
-
-      <xsl:apply-templates select="xgf:pre-program"/>
-
-      <xsl:if test="$cvartable != 'none'">
-        <xsl:value-of select="$cvartable"/>
-        <xsl:value-of select="$text-newline"/>
-        <xsl:text>currentFont['cvar'] = ttFont.newTable('cvar')</xsl:text>
-        <xsl:value-of select="$text-newline"/>
-        <xsl:text>currentFont['cvar'].variations = CVAR_VARIATIONS</xsl:text>
+  <xsl:template name="make-glyph-list">
+    <xsl:for-each select="/xgf:xgridfit/xgf:glyph">
+      <xsl:value-of select="@ps-name"/>
+      <xsl:if test="position() != last()">
+        <xsl:text> </xsl:text>
       </xsl:if>
+    </xsl:for-each>
+  </xsl:template>
 
+  <xsl:template name="make-stack-safe-list">
+    <xsl:text>{1: 1</xsl:text>
+    <xsl:for-each select="/xgf:xgridfit/xgf:function">
+      <xsl:if test="@stack-safe = 'yes'">
+      <xsl:text>, </xsl:text>
+      <xsl:call-template name="get-function-number">
+        <xsl:with-param name="function-name" select="./@name"/>
+      </xsl:call-template>
+      <xsl:text>: </xsl:text>
+      <xsl:value-of select="count(./xgf:param) + 1"/>
     </xsl:if>
+    </xsl:for-each>
+    <xsl:text>}</xsl:text>
+  </xsl:template>
 
-    <xsl:choose>
-      <xsl:when test="string-length($glyph_select)">
-        <xsl:call-template name="glyph-list">
-          <xsl:with-param name="list" select="$glyph_select"/>
-          <xsl:with-param name="separator">
-            <xsl:choose>
-              <xsl:when test="contains($glyph_select,'+')">
-                <xsl:value-of select="'+'"/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="' '"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:with-param>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:choose>
-          <xsl:when test="$outfile_base = '!!nofile!!'">
-            <xsl:apply-templates select="xgf:glyph"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:choose>
-              <xsl:when test="element-available('excom:document')">
-                <xsl:for-each select="xgf:glyph">
-                  <xsl:variable name="new-filename"
-                                select="concat($outfile_base,'_',@ps-name,$file-extension)"/>
-                  <xsl:call-template name="display-message">
-                    <xsl:with-param name="msg">
-                      <xsl:text>Saving to file </xsl:text>
-                      <xsl:value-of select="$new-filename"/>
-                    </xsl:with-param>
-                  </xsl:call-template>
-                  <excom:document href="{$new-filename}"
-                                  method="text">
-                    <xsl:apply-templates select="."/>
-                  </excom:document>
-                </xsl:for-each>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:call-template name="error-message">
-                  <xsl:with-param name="msg">
-                    <xsl:text>Your XSLT engine does not support -S (outfile_base)</xsl:text>
-                  </xsl:with-param>
-                </xsl:call-template>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:otherwise>
-    </xsl:choose>
-    <xsl:text>currentFont['maxp'].maxSizeOfInstructions = </xsl:text>
-    <!-- <xsl:value-of select="$maxInstructions"/> -->
-    <xsl:text> maxInstructions + 50</xsl:text>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:if test="$compile_globals='yes'">
-      <!-- maxTwilightPoints -->
-      <xsl:text>currentFont['maxp'].maxTwilightPoints = </xsl:text>
-      <xsl:value-of select="$max_twilight_points"/>
-      <xsl:value-of select="$text-newline"/>
-      <!-- maxStorage -->
-      <xsl:text>currentFont['maxp'].maxStorage = </xsl:text>
-      <xsl:variable name="gvb">
-        <xsl:call-template name="resolve-std-variable-loc">
-          <xsl:with-param name="n" select="$global-variable-base"/>
-          <xsl:with-param name="add" select="1"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <xsl:choose>
-        <xsl:when test="number($max_storage) &gt;= number($gvb)">
-          <xsl:value-of select="$max_storage"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="$gvb"/>
-        </xsl:otherwise>
-      </xsl:choose>
-      <xsl:value-of select="$text-newline"/>
-      <!-- depth of stack -->
-      <xsl:text>currentFont['maxp'].maxStackElements = </xsl:text>
-      <xsl:value-of select="$max_stack"/>
-      <xsl:value-of select="$text-newline"/>
-      <!-- maxFunctionDefs -->
-      <xsl:variable name="v-legacy-functions">
-        <xsl:choose>
-          <xsl:when test="xgf:legacy-functions">
-            <xsl:value-of select="xgf:legacy-functions/@max-function-defs"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:text>0</xsl:text>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-      <xsl:text>currentFont['maxp'].maxFunctionDefs = </xsl:text>
-      <xsl:value-of select="number($v-legacy-functions) +
-                            number($predefined-functions) +
-                            count(/xgf:xgridfit/xgf:function)"/>
-      <xsl:value-of select="$text-newline"/>
-    </xsl:if>
-    <!-- fix flags in head table per GF guidelines -->
-    <xsl:text>currentFont['head'].flags |= 0b0000000000001000</xsl:text>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:if test="$outfile != '!!nofile!!'">
-      <xsl:variable name="o" select="normalize-space($outfile)"/>
-      <xsl:variable name="ext" select="substring($o,string-length($o)-3)"/>
-      <xsl:choose>
-        <xsl:when test="$outfile_base = '!!nofile!!'">
-          <xsl:call-template name="do-outfile">
-            <xsl:with-param name="o" select="$o"/>
-            <xsl:with-param name="ext" select="$ext"/>
-          </xsl:call-template>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:choose>
-            <xsl:when test="element-available('excom:document')">
-              <xsl:call-template name="display-message">
-                <xsl:with-param name="msg">
-                  <xsl:text>Saving to file </xsl:text>
-                  <xsl:value-of select="$outfile_script_name"/>
-                </xsl:with-param>
-              </xsl:call-template>
-              <excom:document href="{$outfile_script_name}" method="text">
-                <xsl:call-template name="do-outfile">
-                  <xsl:with-param name="o" select="$o"/>
-                  <xsl:with-param name="ext" select="$ext"/>
-                </xsl:call-template>
-              </excom:document>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:call-template name="error-message">
-                <xsl:with-param name="msg">
-                  <xsl:text>Your XSLT engine does not support -S (outfile_base)</xsl:text>
-                </xsl:with-param>
-              </xsl:call-template>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:if>
+  <xsl:template name="make-new-functions">
+    <xsl:param name="all-functions" select="/xgf:xgridfit/xgf:function"/>
+    <xsl:variable name="new-fpgm">
+      <xsl:call-template name="function-zero"/>
+      <xsl:call-template name="function-one"/>
+      <xsl:call-template name="function-two"/>
+      <xsl:call-template name="function-three"/>
+      <xsl:apply-templates select="$all-functions[not(@num) and
+                                   not(xgf:variant)]"/>
+    </xsl:variable>
+    <xsl:value-of select="$new-fpgm"/>
   </xsl:template>
 
   <xsl:template name="make-flags-tuple">
@@ -913,54 +683,16 @@ def compact_instructions(inst):
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template name="do-outfile">
-    <xsl:param name="o"/>
-    <xsl:param name="ext"/>
-    <xsl:choose>
-      <xsl:when test="not(string-length($o))">
-        <xsl:text>currentFont.save('xgfout.ttf')</xsl:text>
-      </xsl:when>
-      <xsl:when test="$ext = '.ttf'">
-        <xsl:text>currentFont.save("</xsl:text>
-        <xsl:value-of select="$o"/>
-        <xsl:text>", 1)</xsl:text>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="warning">
-          <xsl:with-param name="msg">
-            <xsl:text>Unrecognized file extension </xsl:text>
-            <xsl:value-of select="$ext"/>
-            <xsl:text>. No file will be saved.</xsl:text>
-          </xsl:with-param>
-        </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
-    <xsl:value-of select="$text-newline"/>
-  </xsl:template>
-
   <xsl:template match="xgf:pre-program">
     <xsl:variable name="all-defaults" select="/xgf:xgridfit/xgf:default"/>
     <xsl:variable name="use-tt-defaults"
                   select="boolean($all-defaults[@type =
                           'use-truetype-defaults']/@value = 'yes')"/>
-    <xsl:text>currentFont['prep'] = ttFont.newTable('prep')</xsl:text>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:text>currentFont['prep'].program = tables.ttProgram.Program()</xsl:text>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:text>currentFont['prep'].program.fromAssembly('</xsl:text>
     <xsl:variable name="current-inst">
       <xsl:call-template name="pre-program-instructions"/>
       </xsl:variable>
     <xsl:value-of select="substring-after($current-inst,$leading-newline)"/>
     <xsl:apply-templates/>
-    <xsl:text>')</xsl:text>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:text>b = len(currentFont['prep'].program.getBytecode())</xsl:text>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:text>if b &gt; maxInstructions:</xsl:text>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:text>    maxInstructions = b</xsl:text>
-    <xsl:value-of select="$text-newline"/>
   </xsl:template>
 
   <!--
@@ -995,16 +727,6 @@ def compact_instructions(inst):
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:call-template name="display-message">
-      <xsl:with-param name="msg">
-        <xsl:text>Compiling glyph </xsl:text>
-        <xsl:value-of select="@ps-name"/>
-      </xsl:with-param>
-    </xsl:call-template>
-    <xsl:value-of select="$text-newline"/>
-    <xsl:text>install_glyph_program("</xsl:text>
-    <xsl:value-of select="@ps-name"/>
-    <xsl:text>", currentFont, compact_instructions("</xsl:text>
     <xsl:variable name="current-inst">
       <xsl:if test="$need-variable-frame">
         <xsl:call-template name="set-up-variable-frame"/>
@@ -1032,8 +754,6 @@ def compact_instructions(inst):
       </xsl:if>
     </xsl:variable>
     <xsl:value-of select="substring-after($current-inst,$leading-newline)"/>
-    <xsl:text>"))</xsl:text>
-    <xsl:value-of select="$text-newline"/>
   </xsl:template>
 
   <!-- The following elements are declarations, read only
