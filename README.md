@@ -44,7 +44,7 @@ To run Xgridfit 3 from within the virtual environment, make sure the ``<infile>`
 $ xgridfit MyFontInstructions.xgf
 ```
 
-That's all! Xgridfit will compile the instructions in your ``.xgf`` file. open the font, merge in the new instructions, and save the font under a new name.
+That's all! Xgridfit will compile the instructions in your ``.xgf`` file, open the font, merge in the new instructions, and save the font under a new name.
 
 The original documentation is [here](http://xgridfit.sourceforge.net/). It is mostly still valid, but the many command-line options are largely gone: use `<default>` elements in your Xgridfit program file instead. An updated element reference is in the doc folder.
 
