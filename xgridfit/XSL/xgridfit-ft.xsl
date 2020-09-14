@@ -27,7 +27,8 @@
       this is not reliable, since the series of functions
       indices may contain gaps. So provide an override via a
       default element. NOT YET IMPLEMENTED.
-    - There are lots of params and variables. Make sure they're
+    To do:
+      There are lots of params and variables. Make sure they're
       all needed: delete any that aren't.
   -->
 
@@ -528,6 +529,8 @@
     </xsl:choose>
   </xsl:template>
 
+  <!-- Two templates for producing data for cvar templates. -->
+
   <xsl:template name="get-cvar-tuples">
     <xsl:message>
       <xsl:text>Generating cvar tuples</xsl:text>
@@ -586,7 +589,6 @@
     <xsl:text>]</xsl:text>
   </xsl:template>
 
-
   <xsl:template name="make-cvt-list">
     <xsl:for-each select="/xgf:xgridfit/xgf:control-value">
       <xsl:value-of select="@value"/>
@@ -605,6 +607,11 @@
     </xsl:for-each>
   </xsl:template>
 
+  <!--
+      The Python proggie nees to know which functions promise to leave
+      a clean stack behind them.
+  -->
+
   <xsl:template name="make-stack-safe-list">
     <xsl:text>{1: 1</xsl:text>
     <xsl:for-each select="/xgf:xgridfit/xgf:function">
@@ -620,6 +627,9 @@
     <xsl:text>}</xsl:text>
   </xsl:template>
 
+  <!--
+      Add user functions to the predefined ones.
+  -->
   <xsl:template name="make-new-functions">
     <xsl:param name="all-functions" select="/xgf:xgridfit/xgf:function"/>
     <xsl:variable name="new-fpgm">
@@ -631,56 +641,6 @@
                                    not(xgf:variant)]"/>
     </xsl:variable>
     <xsl:value-of select="$new-fpgm"/>
-  </xsl:template>
-
-  <xsl:template name="make-flags-tuple">
-    <xsl:param name="f"/>
-    <xsl:param name="count" select="0"/>
-    <xsl:variable name="current-flag">
-      <xsl:choose>
-        <xsl:when test="contains($f,' ')">
-          <xsl:value-of select="substring-before($f,' ')"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="$f"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    <xsl:variable name="remaining-flags">
-      <xsl:choose>
-        <xsl:when test="contains($f,' ')">
-          <xsl:value-of select="substring-after($f,' ')"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="''"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    <xsl:choose>
-      <xsl:when test="$count = 0">
-        <xsl:text>(</xsl:text>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:text>, </xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
-    <xsl:text>'</xsl:text>
-    <xsl:value-of select="$current-flag"/>
-    <xsl:text>'</xsl:text>
-    <xsl:choose>
-      <xsl:when test="string-length($remaining-flags) = 0">
-        <xsl:if test="$count = 0">
-          <xsl:text>,</xsl:text>
-        </xsl:if>
-        <xsl:text>)</xsl:text>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="make-flags-tuple">
-          <xsl:with-param name="f" select="$remaining-flags"/>
-          <xsl:with-param name="count" select="$count + 1"/>
-        </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="xgf:pre-program">
@@ -696,17 +656,16 @@
   </xsl:template>
 
   <!--
-      N.B. template "glyph" with mode "called" will be in
-      function.xsl.  There will be nothing non-portable in it, and we
-      don't want to write it twice.
+      N.B. template "glyph" with mode "called" is in function.xsl.
+      There is nothing non-portable in it, and there's no sense in
+      writing it twice.
   -->
   <xsl:template match="xgf:glyph">
     <xsl:variable name="var-string">
       <xsl:text>x</xsl:text>
       <xsl:apply-templates select="." mode="survey-vars"/>
     </xsl:variable>
-    <xsl:variable name="need-variable-frame"
-                  select="contains($var-string,'v')"/>
+    <xsl:variable name="need-variable-frame" select="contains($var-string,'v')"/>
     <xsl:variable name="assume-y">
       <xsl:choose>
         <xsl:when test="@assume-y">
