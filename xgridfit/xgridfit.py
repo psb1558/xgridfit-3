@@ -174,8 +174,14 @@ def install_functions(fo, fns, base):
     """If base greater than zero, we append our own functions to those already
     in the font. If not, generate a new fpgm table."""
     if base > 0:
-        newasm = fo['fpgm'].program.getAssembly() + "\n" + fns
-        fo['fpgm'].program.fromAssembly(newasm)
+        oldfpgm = "\n".join(fo['fpgm'].program.getAssembly())
+        newfpgm = oldfpgm + "\n" + str(fns)
+        # print(newfpgm)
+        # newasm = fo['fpgm'].program.getAssembly().extend(str(fns).split("\n"))
+        fo['fpgm'].program.fromAssembly(newfpgm)
+        # print(fo['fpgm'].program.getAssembly())
+        # as a test
+        fo['fpgm'].program.getBytecode()
     else:
         fo['fpgm'] = ttFont.newTable('fpgm')
         fo['fpgm'].program = tables.ttProgram.Program()
@@ -190,8 +196,12 @@ def install_prep(fo, pr, keepold):
     at a different ppem in the new code than in the old, the new code will
     take precedence.)"""
     if keepold:
-        newprep = fo['prep'].program.getAssembly() + "\n" + pr
+        oldprep = "\n".join(fo['prep'].program.getAssembly())
+        newprep = oldprep + "\n" + str(pr)
+        # print(newprep)
         fo['prep'].program.fromAssembly(newprep)
+        # as a test
+        # fo['prep'].program.getBytecode()
     else:
         fo['prep'] = ttFont.newTable('prep')
         fo['prep'].program = tables.ttProgram.Program()
@@ -199,32 +209,64 @@ def install_prep(fo, pr, keepold):
         # as a test
         # fo['prep'].program.getBytecode()
 
-def install_cvar(fo, cvstore, keepold):
+def install_cvar(fo, cvarstore, keepold):
     """If keepold is True, we append our own cvar data to the existing
     TupleVariation objects. If False, generate our own cvar table.
     The cvar element in the Xgridfit code must reproduce the structure of the
     cvar element in the existing font. So the number of regions must be the
     same, and in the same order."""
     if keepold:
+        complications = False
         try:
-            oldcvstore = fo['cvar'].variations
-            assert len(cvstore) == len(oldcvstore)
+            oldcvarstore = fo['cvar'].variations
         except:
             print("No cvar table in existing font")
-            print("or count of regions in existing font does not match count")
-            print("of regions in Xgridfit programming.")
             sys.exit(1)
-        for oldv, newv in [(oldv,newv) for oldv in oldcvstore for newv in cvstore]:
-            newaxes = newv[0]
-            newcoordinates = newv[1]
+        oldcoordlen = len(oldcvarstore[0].coordinates)
+        newcoordlen = len(cvarstore[0][1])
+        new_tuple_found = [0] * len(cvarstore)
+        for oldc in oldcvarstore:
             try:
-                assert oldv.axes == newaxes
-            except:
-                print("Regions must match and be in the same order in the old")
-                print("and new cvar.")
-                print("existing: " + str(oldv.axes) + "new: " + newaxes)
+                newc = None
+                new_tuple_counter = 0
+                for tc in cvarstore:
+                    if oldc.axes == tc[0]:
+                        newc = tc
+                        break
+                    new_tuple_counter += 1
+                if newc:
+                    new_tuple_found[new_tuple_counter] = 1
+                    oldc.coordinates.extend(newc[1])
+                else:
+                    # we've failed to find a match for one of the TupleVariations
+                    # in the existing font. We'll just pad it with Nones
+                    oldc.coordinates.extend([None] * newcoordlen)
+                    complications = True
+            except Exception as err:
+                print(err)
+                print("Here are the regions in the existing font:")
+                for tup in oldcvarstore:
+                    print(str(tup.axes))
                 sys.exit(1)
-            oldv.coordinates.extend(newcoordinates)
+        # If there are new TupleVariations unaccounted for:
+        tt_index = 0
+        for tt in new_tuple_found:
+            if tt == 0:
+                # In the absence of an old coordinate list, we'll pad
+                # the beginning of the new list.
+                newcoordlist = [None] * oldcoordlen
+                newcoordlist.extend(cvarstore[tt_index][1])
+                thistuple = TupleVariation(cvarstore[tt_index][0], newcoordlist)
+                oldcvarstore = fo['cvar'].variations.append(thistuple)
+            tt_index += 1
+            complications = True
+        if complications:
+            print("Warning: The cvar table in the existing font and the one")
+            print("in the Xgridfit program were not a perfect match. I have")
+            print("done my best to combine them, but you should check over it")
+            print("and edit it, if necessary, in a program like ttx. Here is")
+            print("the new cvar table:")
+            print(fo['cvar'].variations)
     else:
         ts = []
         for s in cvstore:
@@ -348,17 +390,23 @@ def main():
 
     inputfont = xgffile.xpath("/xgf:xgridfit/xgf:infile/text()", namespaces=ns)[0]
     thisFont = ttLib.TTFont(inputfont)
-    functionBase = 0
-    cvtBase      = 0
-    storageBase  = 0
-    maxStack     = 256
+    functionBase = 0     # Offset to account for functions in existing font
+    cvtBase      = 0     # Offset to account for cvs in existing font
+    storageBase  = 0     # Offset to account for storage in existing font
+    maxStack     = 256   # Our (generous) default stack size
+    twilightBase = 0     # Offset to account for twilight space in existing font
     if mergemode:
-        maxInstructions = thisFont['maxp'].maxSizeOfInstructions
+        maxInstructions = max(maxInstructions, thisFont['maxp'].maxSizeOfInstructions)
+        # mi = thisFont['maxp'].maxSizeOfInstructions
+        # if mi > maxInstructions:
+        #    maxInstructions = mi
         storageBase = thisFont['maxp'].maxStorage
-        st = thisFont['maxp'].maxStackElements
-        if st > 256:
-            maxStack = st
+        # st = thisFont['maxp'].maxStackElements
+        maxStack = max(maxStack, thisFont['maxp'].maxStackElements)
+        # if st > maxStack:
+        #    maxStack = st
         functionBase = thisFont['maxp'].maxFunctionDefs
+        twilightBase = thisFont['maxp'].maxTwilightPoints
         try:
             cvtBase = len(getattr(thisFont['cvt '], 'values'))
         except:
@@ -414,13 +462,17 @@ def main():
     if not quietmode:
         print("Getting fpgm table ...")
 
+    predef_functions = int(xslfile.xpath("/xsl:stylesheet/xsl:variable[@name='predefined-functions']",
+                                         namespaces=ns)[0].attrib['select'])
     maxFunction = etransform(xgffile, **{"function-count": "'yes'"})
-    maxFunction = int(maxFunction) + functionBase
+    maxFunction = int(maxFunction) + predef_functions + functionBase
 
     fpgm_code = etransform(xgffile, **{"fpgm-only": "'yes'",
                            "function-base": str(functionBase),
                            "storage-base": str(storageBase),
                            "cvt-base": str(cvtBase)})
+    for entry in etransform.error_log:
+        print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
     install_functions(thisFont, fpgm_code, functionBase)
 
     if not quietmode:
@@ -450,9 +502,9 @@ def main():
     if not quietmode:
         print("Cleaning up and writing the new font")
     thisFont['maxp'].maxSizeOfInstructions = maxInstructions + 50
-    thisFont['maxp'].maxTwilightPoints = 25
-    thisFont['maxp'].maxStorage = 64
-    thisFont['maxp'].maxStackElements = 256
+    thisFont['maxp'].maxTwilightPoints = twilightBase + 25
+    thisFont['maxp'].maxStorage = storageBase + 64
+    thisFont['maxp'].maxStackElements = maxStack
     thisFont['maxp'].maxFunctionDefs = maxFunction
     thisFont['head'].flags |= 0b0000000000001000
     outputfont = str(xgffile.xpath("/xgf:xgridfit/xgf:outfile/text()", namespaces=ns)[0])

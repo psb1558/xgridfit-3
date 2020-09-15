@@ -15,13 +15,12 @@
     <xsl:param name="caller"/>
     <xsl:choose>
       <xsl:when test="ancestor::xgf:pre-program">
-        <xsl:call-template name="push-num">
-          <xsl:with-param name="num" select="$val"/>
-          <xsl:with-param name="expect" select="2"/>
-        </xsl:call-template>
-        <xsl:call-template name="push-num">
-          <xsl:with-param name="num" select="$selector"/>
-          <xsl:with-param name="add-mode" select="true()"/>
+        <xsl:call-template name="push-list">
+          <xsl:with-param name="list">
+            <xsl:value-of select="$val"/>
+            <xsl:value-of select="$semicolon"/>
+            <xsl:value-of select="$selector"/>
+          </xsl:with-param>
         </xsl:call-template>
         <xsl:call-template name="simple-command">
           <xsl:with-param name="cmd" select="'INSTCTRL'"/>

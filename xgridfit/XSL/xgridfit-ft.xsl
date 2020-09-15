@@ -34,54 +34,21 @@
 
   <xsl:output method="text" encoding="UTF-8"/>
 
-  <xsl:param name="cvartable">
-    <xsl:value-of select="'none'"/>
-  </xsl:param>
+  <!--
+    glyph-select, which let you select just one glyph to compile, is obsolete
+    as formerly implemented, but still very much worth doing. Best done in the
+    Python programming, though.
+  -->
 
-  <xsl:param name="glyph_select">
-    <xsl:choose>
-      <xsl:when test="/xgf:xgridfit/xgf:glyph-select">
-        <xsl:value-of select="/xgf:xgridfit/xgf:glyph-select"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="''"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:param>
+  <!--
+    combine-prep, which let you choose whether to retain the prep table from
+    the existing font, should be implemented in the Python programming.
+  -->
 
-  <xsl:param name="delete_all">
-    <xsl:choose>
-      <xsl:when test="/xgf:xgridfit/xgf:default[@type='delete-all']">
-	<xsl:value-of select="/xgf:xgridfit/xgf:default[@type='delete-all']/@value"/>
-      </xsl:when>
-      <xsl:otherwise>
-	<xsl:value-of select="'no'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:param>
-
-  <xsl:param name="combine_prep">
-    <xsl:choose>
-      <xsl:when test="/xgf:xgridfit/xgf:default[@type='combine-prep']">
-	<xsl:value-of select="/xgf:xgridfit/xgf:default[@type='combine-prep']/@value"/>
-      </xsl:when>
-      <xsl:otherwise>
-	<xsl:value-of select="'yes'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:param>
-
-  <xsl:param name="compile_globals">
-    <xsl:choose>
-      <xsl:when test="/xgf:xgridfit/xgf:default[@type='compile-globals']">
-        <xsl:value-of select="/xgf:xgridfit/xgf:default[@type='compile-globals']/@value"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="'yes'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:param>
-
+  <!--
+    Check to make sure this is still functional, and make it accessible from
+    the Python script.
+  -->
   <xsl:param name="init_graphics">
     <xsl:choose>
       <xsl:when test="/xgf:xgridfit/xgf:default[@type='init-graphics']">
@@ -93,6 +60,9 @@
     </xsl:choose>
   </xsl:param>
 
+  <!--
+    There should be a command-line argument. Not sure I like the current name.
+  -->
   <xsl:param name="assume-always-y">
     <xsl:choose>
       <xsl:when
@@ -105,8 +75,10 @@
     </xsl:choose>
   </xsl:param>
 
-  <!-- How many points permitted in the twilight zone. This is
-       generous, I think. -->
+  <!--
+    There needs to be a command-line parameter. This will be added to the
+    twilightBase derived from the merged font.
+  -->
   <xsl:param name="max_twilight_points">
     <xsl:choose>
       <xsl:when test="/xgf:xgridfit/xgf:default[@type='max-twilight-points']">
@@ -117,8 +89,14 @@
     </xsl:choose>
   </xsl:param>
 
-  <!-- How many storage spaces to allocate. These are used for variables.
-       Increase the number if you use variables a lot. -->
+  <!--
+    How many storage spaces to allocate. These are used for variables.
+    Increase the number if you use variables a lot. Check to make sure
+    you understand how this works (does it include the storage spaces
+    used internally for graphics variables and such?), then supply a
+    command-line option. It probably should be implemented only in the
+    Python.
+  -->
   <xsl:param name="max_storage">
     <xsl:choose>
       <xsl:when test="/xgf:xgridfit/xgf:default[@type='max-storage']">
@@ -129,16 +107,10 @@
     </xsl:choose>
   </xsl:param>
 
-  <xsl:param name="max_stack">
-    <xsl:choose>
-      <xsl:when test="/xgf:xgridfit/xgf:default[@type='max-stack']">
-        <xsl:value-of select="/xgf:xgridfit/xgf:default[@type=
-                              'max-stack']/@value"/>
-      </xsl:when>
-      <xsl:otherwise>256</xsl:otherwise>
-    </xsl:choose>
-  </xsl:param>
-
+  <!--
+    keeps the number of pushes from exceeding capacity. Why does this
+    need to b3 here again?
+  -->
   <xsl:param name="push_break">
     <xsl:choose>
       <xsl:when test="/xgf:xgridfit/xgf:default[@type='push-break']">
@@ -151,6 +123,10 @@
     </xsl:choose>
   </xsl:param>
 
+  <!--
+    A default color. This doesn't need miuch use, but prolly ought to
+    hook it up.
+  -->
   <xsl:param name="color">
     <xsl:choose>
       <xsl:when test="/xgf:xgridfit/xgf:default[@type='color']">
@@ -163,6 +139,12 @@
     </xsl:choose>
   </xsl:param>
 
+  <!--
+      function-base is where you start numbering Xgridfit's functions:
+      first four pre-defined functions, then the user's functions, for
+      which the calcuation is simply function-base + count(pre-defined-functions) +
+      count(preceding-sibling::xgf:function)
+  -->
   <xsl:param name="function-base" select="0"/>
 
   <xsl:param name="storage-base" select="0"/>
@@ -172,6 +154,10 @@
   <xsl:variable name="merge-mode" select="$function-base &gt; 0 or
     $storage-base &gt; 0 or $cvt-base &gt; 0"/>
 
+  <!--
+    Should probably have a more font-specific name, since we also
+    have the script and an outfilename when some text output is needed.
+  -->
   <xsl:param name="infile">
     <xsl:choose>
       <xsl:when test="/xgf:xgridfit/xgf:infile">
@@ -190,6 +176,10 @@
     </xsl:choose>
   </xsl:param>
 
+  <!--
+    Don't know why this should be a parameter. I don't know that it's ever
+    been hooked up.
+  -->
   <xsl:param name="mp-containers"
              select="//xgf:call-macro[not(param-set)]|
                      //xgf:call-macro/xgf:param-set|
@@ -206,6 +196,8 @@
        line breaks and spacing. So no space or line breaks kept from source
        file. -->
   <xsl:strip-space elements="*"/>
+
+  <xsl:variable name="semicolon" select="';'"/>
 
   <xsl:variable name="newline">
     <!-- <xsl:text>\n</xsl:text> -->
@@ -235,25 +227,21 @@
   <!-- These will be found in func-predef.xsl. -->
   <xsl:variable name="predefined-functions" select="4"/>
 
-  <xsl:variable name="auto-function-base">
-    <xsl:value-of select="$function-base"/>
-  </xsl:variable>
-
   <xsl:variable name="var-legacy-storage">
     <xsl:value-of select="$storage-base"/>
   </xsl:variable>
 
   <xsl:variable name="function-round-restore"
-                select="$auto-function-base"/>
+                select="$function-base"/>
 
   <xsl:variable name="function-glyph-prolog"
-                select="number($auto-function-base) + 1"/>
+                select="number($function-base) + 1"/>
 
   <xsl:variable name="function-push-range"
-                select="number($auto-function-base) + 2"/>
+                select="number($function-base) + 2"/>
 
   <xsl:variable name="function-order-range"
-                select="number($auto-function-base) + 3"/>
+                select="number($function-base) + 3"/>
 
   <xsl:include href="std-vars.xsl"/>
   <xsl:include href="numbers.xsl"/>
@@ -502,6 +490,16 @@
         <xsl:apply-templates select="xgf:pre-program"/>
       </xsl:when>
       <xsl:when test="$fpgm-only='yes'">
+        <!--
+        <xsl:message terminate="yes">
+          <xsl:text>function-base: </xsl:text>
+          <xsl:value-of select="$function-base"/>
+          <xsl:text>storage-base: </xsl:text>
+          <xsl:value-of select="$storage-base"/>
+          <xsl:text>cvt-base: </xsl:text>
+          <xsl:value-of select="$cvt-base"/>
+        </xsl:message>
+      -->
         <xsl:call-template name="make-new-functions"/>
       </xsl:when>
       <xsl:when test="$function-count='yes'">
@@ -579,7 +577,8 @@
           </xsl:choose>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="0"/>
+          <xsl:text>None</xsl:text>
+          <!-- <xsl:value-of select="0"/> -->
         </xsl:otherwise>
       </xsl:choose>
       <xsl:if test="position() != last()">

@@ -64,17 +64,14 @@
   <xsl:template name="gfn-helper">
     <xsl:param name="f"/>
     <xsl:choose>
-      <xsl:when test="$f/@num">
-        <xsl:value-of select="$f/@num"/>
-      </xsl:when>
       <xsl:when test="$f[not(xgf:variant)]">
-        <xsl:value-of select="number($auto-function-base) +
+        <xsl:value-of select="number($function-base) +
                               number($predefined-functions) +
                               count($f/preceding-sibling::xgf:function[not(@num) and
                               not(xgf:variant)])"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="number($auto-function-base) +
+        <xsl:value-of select="number($function-base) +
                               number($predefined-functions) +
                               count(/xgf:xgridfit/xgf:function[not(@num) and
                               not(xgf:variant)]) +
@@ -94,16 +91,9 @@
         </xsl:with-param>
       </xsl:call-template>
     </xsl:if>
-    <xsl:choose>
-      <xsl:when test="$merge-mode">
-        <xsl:value-of select="concat('%',$function-name,'%')"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="gfn-helper">
-          <xsl:with-param name="f" select="key('function-index',$function-name)"/>
-        </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:call-template name="gfn-helper">
+      <xsl:with-param name="f" select="key('function-index',$function-name)"/>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template name="get-function-param-names">
@@ -299,21 +289,16 @@
     </xsl:choose>
     <!-- continue saving variable frame. -->
     <xsl:if test="$function-has-variables">
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num">
+      <xsl:call-template name="push-list">
+        <xsl:with-param name="list">
           <xsl:call-template name="resolve-std-variable-loc">
             <xsl:with-param name="n" select="$var-frame-bottom"/>
           </xsl:call-template>
-        </xsl:with-param>
-        <xsl:with-param name="expect" select="2"/>
-      </xsl:call-template>
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num">
+          <xsl:value-of select="$semicolon"/>
           <xsl:call-template name="resolve-std-variable-loc">
             <xsl:with-param name="n" select="$var-frame-top"/>
           </xsl:call-template>
         </xsl:with-param>
-        <xsl:with-param name="add-mode" select="true()"/>
       </xsl:call-template>
       <xsl:call-template name="simple-command">
         <xsl:with-param name="cmd" select="'RS'"/>
@@ -355,21 +340,16 @@
          and then copy the number we saved to the stack before the call into
          var-frame-bottom. -->
     <xsl:if test="$function-has-variables">
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num">
+      <xsl:call-template name="push-list">
+        <xsl:with-param name="list">
           <xsl:call-template name="resolve-std-variable-loc">
             <xsl:with-param name="n" select="$var-frame-top"/>
           </xsl:call-template>
-        </xsl:with-param>
-        <xsl:with-param name="expect" select="2"/>
-      </xsl:call-template>
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num">
+          <xsl:value-of select="$semicolon"/>
           <xsl:call-template name="resolve-std-variable-loc">
             <xsl:with-param name="n" select="$var-frame-bottom"/>
           </xsl:call-template>
         </xsl:with-param>
-        <xsl:with-param name="add-mode" select="true()"/>
       </xsl:call-template>
       <xsl:call-template name="simple-command">
         <xsl:with-param name="cmd" select="'RS'"/>
@@ -595,17 +575,14 @@ contain param or variable elements.</xsl:text>
          impractical (right now at least) to check that the function contains
          an instruction that writes to that location. -->
     <xsl:if test="@return = 'yes'">
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num">
+      <xsl:call-template name="push-list">
+        <xsl:with-param name="list">
           <xsl:call-template name="resolve-std-variable-loc">
             <xsl:with-param name="n" select="$var-return-value"/>
           </xsl:call-template>
+          <xsl:value-of select="$semicolon"/>
+          <xsl:value-of select="0"/>
         </xsl:with-param>
-        <xsl:with-param name="expect" select="2"/>
-      </xsl:call-template>
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num" select="0"/>
-        <xsl:with-param name="add-mode" select="true()"/>
       </xsl:call-template>
       <xsl:call-template name="simple-command">
         <xsl:with-param name="cmd" select="'WS'"/>
@@ -760,21 +737,16 @@ contain param or variable elements.</xsl:text>
                   select="key('glyph-index',$n)/xgf:variable"/>
     <!-- Save the variable frame -->
     <xsl:if test="$save-variable-frame">
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num">
+      <xsl:call-template name="push-list">
+        <xsl:with-param name="list">
+          <xsl:call-template name="resolve-std-variable-loc">
+            <xsl:with-param name="n" select="$var-frame-bottom"/>
+          </xsl:call-template>
+          <xsl:value-of select="$semicolon"/>
           <xsl:call-template name="resolve-std-variable-loc">
             <xsl:with-param name="n" select="$var-frame-bottom"/>
           </xsl:call-template>
         </xsl:with-param>
-        <xsl:with-param name="expect" select="2"/>
-      </xsl:call-template>
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num">
-          <xsl:call-template name="resolve-std-variable-loc">
-            <xsl:with-param name="n" select="$var-frame-bottom"/>
-          </xsl:call-template>
-        </xsl:with-param>
-        <xsl:with-param name="add-mode" select="true()"/>
       </xsl:call-template>
       <xsl:call-template name="simple-command">
         <xsl:with-param name="cmd" select="'RS'"/>
@@ -820,21 +792,16 @@ contain param or variable elements.</xsl:text>
 -->
     <!-- Restore the variable frame -->
     <xsl:if test="$save-variable-frame">
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num">
+      <xsl:call-template name="push-list">
+        <xsl:with-param name="list">
           <xsl:call-template name="resolve-std-variable-loc">
             <xsl:with-param name="n" select="$var-frame-top"/>
           </xsl:call-template>
-        </xsl:with-param>
-        <xsl:with-param name="expect" select="2"/>
-      </xsl:call-template>
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num">
+          <xsl:value-of select="$semicolon"/>
           <xsl:call-template name="resolve-std-variable-loc">
             <xsl:with-param name="n" select="$var-frame-bottom"/>
           </xsl:call-template>
         </xsl:with-param>
-        <xsl:with-param name="add-mode" select="true()"/>
       </xsl:call-template>
       <xsl:call-template name="simple-command">
         <xsl:with-param name="cmd" select="'RS'"/>
@@ -856,21 +823,16 @@ contain param or variable elements.</xsl:text>
   <xsl:template match="xgf:glyph" mode="called">
     <xsl:param name="mp-container"/>
     <xsl:if test="xgf:variable">
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num">
+      <xsl:call-template name="push-list">
+        <xsl:with-param name="list">
           <xsl:call-template name="resolve-std-variable-loc">
             <xsl:with-param name="n" select="$var-frame-top"/>
           </xsl:call-template>
-        </xsl:with-param>
-        <xsl:with-param name="expect" select="2"/>
-      </xsl:call-template>
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num">
+          <xsl:value-of select="$semicolon"/>
           <xsl:call-template name="resolve-std-variable-loc">
             <xsl:with-param name="n" select="$var-frame-bottom"/>
           </xsl:call-template>
         </xsl:with-param>
-        <xsl:with-param name="add-mode" select="true()"/>
       </xsl:call-template>
       <xsl:call-template name="simple-command">
         <xsl:with-param name="cmd" select="'RS'"/>

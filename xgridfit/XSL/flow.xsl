@@ -9,6 +9,8 @@
       Copyright (c) 2006-20 by Peter S. Baker
   -->
 
+  <!-- Is this needed anymore? Check to see if it's called from anywhere. -->
+
   <xsl:template name="glyph-list" xmlns:excom="http://exslt.org/common">
     <xsl:param name="separator" select="' '"/>
     <xsl:param name="list"/>

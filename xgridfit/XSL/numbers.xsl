@@ -31,9 +31,11 @@
         <xsl:when test="$size">
           <xsl:value-of select="$size"/>
         </xsl:when>
+        <!--
         <xsl:when test="$merge-mode">
           <xsl:text>M</xsl:text>
         </xsl:when>
+        -->
         <xsl:when test="number($num) &gt;= 0 and number($num) &lt; 256">
           <xsl:text>B</xsl:text>
         </xsl:when>
@@ -588,9 +590,11 @@
               <xsl:value-of select="document('xgfdata.xml')/*/xgfd:engine-versions/xgfd:entry[@name =
                                     $valn]/@num"/>
             </xsl:when>
+            <!--
             <xsl:when test="not($is-common) and $valn = 'merge-mode'">
               <xsl:value-of select="number($merge-mode)"/>
             </xsl:when>
+            -->
             <!--
                 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
                 *
@@ -760,7 +764,7 @@
             </xsl:when>
             <!-- It's the name of a function, and we want the index -->
             <xsl:when test="not($is-common) and
-                            (not($merge-mode) or $to-stack) and key('function-index',$valn)">
+                            $to-stack and key('function-index',$valn)">
               <xsl:call-template name="get-function-number">
                 <xsl:with-param name="function-name" select="$valn"/>
               </xsl:call-template>
@@ -1723,21 +1727,16 @@
        program contains variables or calls a function (we don't try to
        predict whether the function will contain variables). -->
   <xsl:template name="set-up-variable-frame">
-    <xsl:call-template name="push-num">
-      <xsl:with-param name="num">
+    <xsl:call-template name="push-list">
+      <xsl:with-param name="list">
         <xsl:call-template name="resolve-std-variable-loc">
           <xsl:with-param name="n" select="$var-frame-bottom"/>
         </xsl:call-template>
-      </xsl:with-param>
-      <xsl:with-param name="expect" select="2"/>
-    </xsl:call-template>
-    <xsl:call-template name="push-num">
-      <xsl:with-param name="num">
+        <xsl:value-of select="$semicolon"/>
         <xsl:call-template name="resolve-std-variable-loc">
           <xsl:with-param name="n" select="$variable-frame-base"/>
         </xsl:call-template>
       </xsl:with-param>
-      <xsl:with-param name="add-mode" select="true()"/>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="'WS'"/>
@@ -1912,13 +1911,12 @@
   <xsl:template name="storage-to-storage">
     <xsl:param name="src"/>
     <xsl:param name="dest"/>
-    <xsl:call-template name="push-num">
-      <xsl:with-param name="num" select="$dest"/>
-      <xsl:with-param name="expect" select="2"/>
-    </xsl:call-template>
-    <xsl:call-template name="push-num">
-      <xsl:with-param name="num" select="$src"/>
-      <xsl:with-param name="add-mode" select="true()"/>
+    <xsl:call-template name="push-list">
+      <xsl:with-param name="list">
+        <xsl:value-of select="$dest"/>
+        <xsl:value-of select="$semicolon"/>
+        <xsl:value-of select="$src"/>
+      </xsl:with-param>
     </xsl:call-template>
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="'RS'"/>
@@ -2119,6 +2117,12 @@
     <xsl:param name="permitted" select="'12xmplrfvncg'"/>
     <xsl:param name="mp-container"/>
     <xsl:param name="debug" select="false()"/>
+    <xsl:if test="$debug">
+      <xsl:message terminate="no">
+        <xsl:text>list: </xsl:text>
+        <xsl:value-of select="$list"/>
+      </xsl:message>
+    </xsl:if>
     <xsl:if test="not(string-length($list)) and not(string-length($queue))">
       <xsl:call-template name="error-message">
         <xsl:with-param name="type" select="'internal'"/>
@@ -2209,9 +2213,11 @@
         <xsl:when test="string-length($current) = 0">
           <xsl:text>Z</xsl:text>
         </xsl:when>
+        <!--
         <xsl:when test="$merge-mode and $current-intermediate != 'NaN'">
           <xsl:value-of select="'M'"/>
         </xsl:when>
+        -->
         <xsl:when test="number($current) &gt;= 0 and number($current) &lt; 256">
           <xsl:text>B</xsl:text>
         </xsl:when>
