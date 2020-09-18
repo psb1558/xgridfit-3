@@ -321,22 +321,17 @@
     </xs:attribute>
   </xs:complexType>
   <!--
-
+    
     Top level
-
+    
   -->
   <xs:element name="xgridfit">
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element ref="xgridfit2:glyph-select"/>
-        <xs:element ref="xgridfit2:infile"/>
-        <xs:element ref="xgridfit2:outfile"/>
-        <xs:element ref="xgridfit2:outfile-base"/>
-        <xs:element ref="xgridfit2:outfile-script-name"/>
+        <xs:element ref="xgridfit2:inputfont"/>
+        <xs:element ref="xgridfit2:outputfont"/>
         <xs:element ref="xgridfit2:no-compile"/>
-        <xs:element ref="xgridfit2:legacy-functions"/>
         <xs:element ref="xgridfit2:pre-program"/>
-        <xs:element ref="xgridfit2:ps-private"/>
         <xs:element ref="xgridfit2:constant"/>
         <xs:element ref="xgridfit2:alias"/>
         <xs:element ref="xgridfit2:variable"/>
@@ -353,9 +348,9 @@
     </xs:complexType>
   </xs:element>
   <!--
-
+    
     Value declarations
-
+    
   -->
   <xs:element name="constant">
     <xs:complexType>
@@ -381,9 +376,9 @@
     <xs:attributeGroup ref="xgridfit2:att.target"/>
   </xs:attributeGroup>
   <!--
-
+    
     Controlling compilation of glyph programs
-
+    
   -->
   <xs:element name="glyph-select">
     <xs:simpleType>
@@ -399,18 +394,16 @@
     </xs:complexType>
   </xs:element>
   <!--
-
+    
     Script I/O
-
+    
   -->
-  <xs:element name="infile" type="xs:string"/>
-  <xs:element name="outfile" type="xs:string"/>
-  <xs:element name="outfile-base" type="xs:string"/>
-  <xs:element name="outfile-script-name" type="xs:string"/>
+  <xs:element name="inputfont" type="xs:string"/>
+  <xs:element name="outputfont" type="xs:string"/>
   <!--
-
+    
     Top-level declarations
-
+    
   -->
   <xs:element name="round-state">
     <xs:complexType>
@@ -500,13 +493,6 @@
     </xs:attribute>
     <xs:attributeGroup ref="xgridfit2:att.value"/>
   </xs:attributeGroup>
-  <xs:element name="ps-private">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="xgridfit2:entry"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
   <xs:element name="entry">
     <xs:complexType>
       <xs:attributeGroup ref="xgridfit2:attlist.entry"/>
@@ -518,23 +504,7 @@
   </xs:attributeGroup>
   <xs:element name="region">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="xgridfit2:cvv"/>
-      </xs:sequence>
       <xs:attributeGroup ref="xgridfit2:attlist.region"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:attributeGroup name="attlist.region">
-    <xs:attribute name="tag" use="required"/>
-    <xs:attribute name="top" use="required"/>
-    <xs:attribute name="bot" use="required"/>
-    <xs:attribute name="peak" use="required"/>
-  </xs:attributeGroup>
-  <xs:element name="cvar">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="xgridfit2:region"/>
-      </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="cvv">
@@ -547,6 +517,27 @@
     <xs:attributeGroup ref="xgridfit2:att.name"/>
     <xs:attribute name="value" use="required" type="xs:int"/>
   </xs:attributeGroup>
+  <xs:attributeGroup name="attlist.region">
+    <xs:attribute name="tag" use="required"/>
+    <xs:attribute name="top" use="required"/>
+    <xs:attribute name="bot" use="required"/>
+    <xs:attribute name="peak" use="required"/>
+  </xs:attributeGroup>
+  <xs:element name="tuple">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="xgridfit2:region"/>
+        <xs:element maxOccurs="unbounded" ref="xgridfit2:cvv"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="cvar">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="xgridfit2:tuple"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="control-value">
     <xs:complexType>
       <xs:attributeGroup ref="xgridfit2:attlist.control-value"/>
@@ -637,15 +628,6 @@
     <xs:attributeGroup ref="xgridfit2:att.name"/>
     <xs:attribute name="value"/>
   </xs:attributeGroup>
-  <xs:element name="legacy-functions">
-    <xs:complexType>
-      <xs:group minOccurs="0" maxOccurs="unbounded" ref="xgridfit2:programming"/>
-      <xs:attributeGroup ref="xgridfit2:attlist.legacy-functions"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:attributeGroup name="attlist.legacy-functions">
-    <xs:attribute name="max-function-defs" use="required" type="xs:nonNegativeInteger"/>
-  </xs:attributeGroup>
   <xs:element name="pre-program">
     <xs:complexType>
       <xs:sequence>
@@ -682,15 +664,15 @@
     <xs:attribute name="assume-y" type="xgridfit2:YESNO"/>
   </xs:attributeGroup>
   <!--
-
+    
     Miscellaneous / Oddball
-
+    
   -->
   <xs:element name="message" substitutionGroup="xgridfit2:various" type="xs:string"/>
   <!--
-
+    
     Points and point structures
-
+    
   -->
   <xs:element name="point">
     <xs:complexType>
@@ -815,9 +797,9 @@
     </xs:complexType>
   </xs:element>
   <!--
-
+    
     Point-moving instructions
-
+    
   -->
   <xs:element name="mirp">
     <xs:complexType>
@@ -930,13 +912,13 @@
   </xs:element>
   <xs:element name="move-point-to-intersection">
     <xs:complexType>
-<!--      <xs:choice> -->
+      <xs:choice>
         <xs:sequence>
           <xs:element ref="xgridfit2:point"/>
           <xs:element ref="xgridfit2:line"/>
           <xs:element ref="xgridfit2:line"/>
         </xs:sequence>
-<!--        <xs:sequence>
+        <xs:sequence>
           <xs:element ref="xgridfit2:line"/>
           <xs:element ref="xgridfit2:line"/>
           <xs:element ref="xgridfit2:point"/>
@@ -946,7 +928,7 @@
           <xs:element ref="xgridfit2:point"/>
           <xs:element ref="xgridfit2:line"/>
         </xs:sequence>
-      </xs:choice> -->
+      </xs:choice>
     </xs:complexType>
   </xs:element>
   <xs:element name="interpolate">
@@ -1110,7 +1092,7 @@
         <xs:element ref="xgridfit2:line"/>
         <xs:element ref="xgridfit2:line"/>
         <xs:element minOccurs="0" ref="xgridfit2:align"/>
-<!--        <xs:element minOccurs="0" ref="xgridfit2:align"/> -->
+        <xs:element minOccurs="0" ref="xgridfit2:align"/>
       </xs:sequence>
       <xs:attributeGroup ref="xgridfit2:attlist.diagonal-stem"/>
     </xs:complexType>
@@ -1207,9 +1189,9 @@
     </xs:sequence>
   </xs:group>
   <!--
-
+    
     Enable/disable instructions
-
+    
   -->
   <xs:element name="disable-instructions" substitutionGroup="xgridfit2:graphics">
     <xs:complexType/>
@@ -1218,9 +1200,9 @@
     <xs:complexType/>
   </xs:element>
   <!--
-
+    
     Graphics state
-
+    
   -->
   <xs:element name="set-vectors" substitutionGroup="xgridfit2:graphics" type="xgridfit2:model.set-vector"/>
   <xs:element name="with-vectors" substitutionGroup="xgridfit2:graphics" type="xgridfit2:model.with-vector"/>
@@ -1438,9 +1420,9 @@
     </xs:attribute>
   </xs:attributeGroup>
   <!--
-
+    
     Arithmetic elements
-
+    
   -->
   <xs:element name="set-equal">
     <xs:complexType>
@@ -1739,9 +1721,9 @@
     </xs:complexType>
   </xs:element>
   <!--
-
+    
     Function and macro calls
-
+    
   -->
   <xs:element name="call-function" substitutionGroup="xgridfit2:flow">
     <xs:complexType>
@@ -1824,9 +1806,9 @@
     </xs:sequence>
   </xs:group>
   <!--
-
+    
     Conditionals
-
+    
   -->
   <xs:element name="if" substitutionGroup="xgridfit2:flow">
     <xs:complexType>
@@ -1857,9 +1839,9 @@
     </xs:complexType>
   </xs:element>
   <!--
-
+    
     Getting info
-
+    
   -->
   <xs:element name="measure-distance" substitutionGroup="xgridfit2:measure">
     <xs:complexType>
@@ -1888,9 +1870,9 @@
     <xs:attribute name="result-to" type="xs:NCName"/>
   </xs:attributeGroup>
   <!--
-
+    
     Primitives
-
+    
   -->
   <xs:element name="command" substitutionGroup="xgridfit2:primitive">
     <xs:complexType>
@@ -1932,9 +1914,9 @@
   <xs:element name="push" substitutionGroup="xgridfit2:primitive" type="xs:string"/>
   <xs:element name="to-stack" substitutionGroup="xgridfit2:primitive" type="xs:string"/>
   <!--
-
+    
     XInclude
-
+    
   -->
   <xs:attributeGroup name="xg.xi.include.attlist">
     <xs:attribute name="href" type="xs:anyURI"/>

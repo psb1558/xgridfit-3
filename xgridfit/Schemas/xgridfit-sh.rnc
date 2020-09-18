@@ -1,7 +1,3 @@
-#      This file is part of xgridfit, version 3.
-#      Licensed under the Apache License, Version 2.0.
-#      Copyright (c) 2006-20 by Peter S. Baker
-
 default namespace = "http://xgridfit.sourceforge.net/Xgridfit2"
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 namespace xi = "http://www.w3.org/2001/XInclude"
@@ -170,22 +166,17 @@ model.with-vector =
 xgridfit =
   element xgridfit{
         att.id?&
-        glyph-select?&
-        infile?&
-        outfile?&
-        outfile-base?&
-        outfile-script-name?&
+        inputfont?&
+        outputfont?&
         no-compile?&
-        legacy-functions?&
         prep?&
-        ps-private?&
         cn*&
-	alias*&
+	      alias*&
         var*&
         round-state*&
         \default*&
         cv*&
-	cvar?&
+	      cvar?&
         fn*&
         mo*&
         gl*&
@@ -216,16 +207,12 @@ no-compile =
 #
 # Script I/O
 #
-infile =
-  element infile { text }
-outfile =
-  element outfile {
+inputfont =
+  element inputfont { text }
+outputfont =
+  element outputfont {
     attribute fmflags { text }?,
     text }
-outfile-base =
-  element outfile-base { xsd:anyURI }
-outfile-script-name =
-  element outfile-script-name { xsd:anyURI }
 #
 # Top-level declarations
 #
@@ -292,28 +279,28 @@ attlist.default &=
     | "assume-always-y"
   },
   att.val
-ps-private =
-  element ps-private { entry+ }
 entry =
   element entry { attlist.entry, empty }
 attlist.entry &=
   att.nm,
   att.val
 region =
-  element region { attlist.region, cvv+ }
-attlist.region &=
-  attribute tag { text },
-  attribute top { text },
-  attribute bot { text },
-  attribute peak { text }
-cvar =
-  element cvar { region+ }
+  element region { attlist.region }
 cvv =
   element cvv { attlist.cvv, empty }
 attlist.cvv &=
   attribute index { text }?,
   att.nm,
   attribute val { xsd:int }
+attlist.region &=
+  attribute tag  { text },
+  attribute top  { text },
+  attribute bot  { text },
+  attribute peak { text }
+tuple =
+  element tuple { region+, cvv+ }
+cvar =
+  element cvar { tuple+ }
 cv =
   element cv { attlist.cv, empty }
 attlist.cv &=
@@ -351,12 +338,6 @@ pm =
 attlist.pm &=
   att.nm,
   att.val?
-legacy-functions =
-  element legacy-functions {
-    attlist.legacy-functions, programming*
-  }
-attlist.legacy-functions &=
-  attribute max-function-defs { xsd:nonNegativeInteger }
 prep =
   element prep { att.id?, (var|alias)*, programming* }
 gl =

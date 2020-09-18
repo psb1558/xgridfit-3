@@ -57,13 +57,18 @@ def wipe_font(fo):
 
 def install_glyph_program(nm, fo, asm):
     """ name of the glyph, the font object, the instructions in one big string."""
-    global maxInstructions
-    g = fo['glyf'][nm]
-    g.program = tables.ttProgram.Program()
-    g.program.fromAssembly(asm)
-    b = len(g.program.getBytecode())
-    if b > maxInstructions:
-        maxInstructions = b
+    try:
+        global maxInstructions
+        g = fo['glyf'][nm]
+        g.program = tables.ttProgram.Program()
+        g.program.fromAssembly(asm)
+        b = len(g.program.getBytecode())
+        if b > maxInstructions:
+            maxInstructions = b
+    except KeyError:
+        print("Unable to install glyph '" + nm + "'. Make sure the glyph's")
+        print("name is correct and that it exists in the font.")
+        sys.exit(1)
 
 def is_number(s):
     try:
@@ -189,13 +194,13 @@ def install_functions(fo, fns, base):
         # as a test
         # fo['fpgm'].program.getBytecode()
 
-def install_prep(fo, pr, keepold):
+def install_prep(fo, pr, keepold, replace):
     """If keepold is True, we append our own prep table to the existing one.
     It is up to the Xgridfit programmer to make sure that no conflicts arise
     (though if there's a duplication--for example, instructions being disabled
     at a different ppem in the new code than in the old, the new code will
     take precedence.)"""
-    if keepold:
+    if keepold and not replace:
         oldprep = "\n".join(fo['prep'].program.getAssembly())
         newprep = oldprep + "\n" + str(pr)
         # print(newprep)
@@ -209,19 +214,49 @@ def install_prep(fo, pr, keepold):
         # as a test
         # fo['prep'].program.getBytecode()
 
+# Compare two dictionaries. It would be easier to do an equality test, but
+# I can't be sure two otherwise matching dictionaries aren't in a different
+# order.
+def _axes_match(dict1, dict2):
+    try:
+        assert len(dict1) == len(dict2)
+    except:
+        return False
+    for dd in dict1.items():
+        k,v = dd[0],dd[1]
+        if not (k in dict2 and v==dict2[k]):
+            return False
+    for dd in dict2.items():
+        k,v = dd[0],dd[1]
+        if not (k in dict1 and v==dict1[k]):
+            return False
+    return True
+
 def install_cvar(fo, cvarstore, keepold):
     """If keepold is True, we append our own cvar data to the existing
-    TupleVariation objects. If False, generate our own cvar table.
-    The cvar element in the Xgridfit code must reproduce the structure of the
-    cvar element in the existing font. So the number of regions must be the
-    same, and in the same order."""
+    TupleVariation objects. If False, generate our own cvar table. Since
+    The old cvar may not exactly match the new one, there are contingencies:
+    If a tuple is missing in the existing or the xgf cvar, pad the new one
+    and issue a warning. If there is no cvar at all in the existing font (this
+    can easily happen with VTT), pad all our tuples and issue a warning. In
+    such cases it may be a good idea to manually edit the cvar table. This
+    function seems fragile. Think about it and revisit."""
     if keepold:
         complications = False
+        needoldfontpadding = False
         try:
             oldcvarstore = fo['cvar'].variations
         except:
             print("No cvar table in existing font")
-            sys.exit(1)
+            #create a dummy cvar table to put the new one on top of.
+            complications = True
+            oldcvardummy = []
+            oldcvtlen = len(fo['cvt '].values)
+            for cvst in cvarstore:
+                oldcvardummy.append(TupleVariation(cvst[0], [None] * oldcvtlen))
+            fo['cvar'] = ttFont.newTable('cvar')
+            fo['cvar'].variations = oldcvardummy
+            oldcvarstore = fo['cvar'].variations
         oldcoordlen = len(oldcvarstore[0].coordinates)
         newcoordlen = len(cvarstore[0][1])
         new_tuple_found = [0] * len(cvarstore)
@@ -230,7 +265,8 @@ def install_cvar(fo, cvarstore, keepold):
                 newc = None
                 new_tuple_counter = 0
                 for tc in cvarstore:
-                    if oldc.axes == tc[0]:
+                    # if oldc.axes == tc[0]:
+                    if _axes_match(oldc.axes, tc[0]):
                         newc = tc
                         break
                     new_tuple_counter += 1
@@ -264,12 +300,11 @@ def install_cvar(fo, cvarstore, keepold):
             print("Warning: The cvar table in the existing font and the one")
             print("in the Xgridfit program were not a perfect match. I have")
             print("done my best to combine them, but you should check over it")
-            print("and edit it, if necessary, in a program like ttx. Here is")
-            print("the new cvar table:")
+            print("and make changes if necessary. Here is the new cvar table:")
             print(fo['cvar'].variations)
     else:
         ts = []
-        for s in cvstore:
+        for s in cvarstore:
             ts.append(TupleVariation(s[0], s[1]))
         fo['cvar'] = ttFont.newTable('cvar')
         fo['cvar'].variations = ts
@@ -292,25 +327,39 @@ def main():
 
     # First read the command-line arguments. At minimum we need the inputfile.
 
-    argparser = argparse.ArgumentParser(description='Compile XML into TrueType instructions, embedded in a Python script.')
-    argparser.add_argument("inputfile", help='Xgridfit (XML) file to process.')
-    argparser.add_argument("outputfile", nargs='?', help="Name of Python script to output")
-    argparser.add_argument('--novalidation', action="store_true", help="Skip validation of the input file")
+    argparser = argparse.ArgumentParser(description='Compile XML into TrueType instructions and add them to a font.')
+    argparser.add_argument('-e', '--expand', action="store_true", help="Convert file to expanded syntax, save, and exit")
+    argparser.add_argument('-c', '--compact', action="store_true", help="Convert file to compact syntax, save, and exit")
+    argparser.add_argument('-n', '--novalidation', action="store_true", help="Skip validation of the input file")
     argparser.add_argument('--nocompilation', action="store_true", help="Skip compilation of the input file")
-    argparser.add_argument('--expand', action="store_true", help="Convert file to expanded syntax, save, and exit")
-    argparser.add_argument('--compact', action="store_true", help="Convert file to compact syntax, save, and exit")
-    argparser.add_argument('--merge', action="store_true", help="Merge Xgridfit with existing instructions")
-    argparser.add_argument('--quiet', action="store_true", help="No progress messages")
+    argparser.add_argument('-m', '--merge', action="store_true", help="Merge Xgridfit with existing instructions")
+    argparser.add_argument('-r', '--replaceprep', action="store_true", help="Whether to replace the existing prep table (use with --merge)")
+    argparser.add_argument('--initgraphics', choices=['yes', 'no'],
+                           help="Whether to initialize graphics-tracking variables at the beginning of glyph program")
+    argparser.add_argument('-a', '--assume_y', choices=['yes', 'no'],
+                           help="Whether compiler should assume that your hints are all vertical")
+    argparser.add_argument('-q', '--quiet', action="store_true", help="No progress messages")
+    argparser.add_argument('-g', '--glyphlist', help="List of glyphs to compile")
+    argparser.add_argument('-i', '--inputfont', action='store', type=str, help="The font file to add instructions to")
+    argparser.add_argument('-o', '--outputfont', action='store', type=str, help="The font file to write")
+    argparser.add_argument("inputfile", help='Xgridfit (XML) file to process.')
+    argparser.add_argument("outputfile", nargs='?', help="Filename for options (e.g. --expand) that produce text output")
     args = argparser.parse_args()
 
-    inputfile   = args.inputfile
-    outputfile  = args.outputfile
-    skipval     = args.novalidation
-    skipcomp    = args.nocompilation
-    expandonly  = args.expand
-    compactonly = args.compact
-    mergemode   = args.merge
-    quietmode   = args.quiet
+    inputfile    = args.inputfile
+    outputfile   = args.outputfile
+    inputfont    = args.inputfont
+    outputfont   = args.outputfont
+    skipval      = args.novalidation
+    skipcomp     = args.nocompilation
+    expandonly   = args.expand
+    compactonly  = args.compact
+    mergemode    = args.merge
+    quietmode    = args.quiet
+    initgraphics = args.initgraphics
+    assume_y     = args.assume_y
+    glyphlist    = args.glyphlist
+    replaceprep  = args.replaceprep
 
     if not quietmode:
         print("Opening the Xgridfit file ...")
@@ -387,8 +436,13 @@ def main():
 
     if not quietmode:
         print("Opening and evaluating the font ...")
-
-    inputfont = xgffile.xpath("/xgf:xgridfit/xgf:infile/text()", namespaces=ns)[0]
+    if not inputfont:
+        inputfont = xgffile.xpath("/xgf:xgridfit/xgf:inputfont/text()", namespaces=ns)[0]
+    if not inputfont:
+        print("Need the filename of a font to read. Use the --inputfont")
+        print("command-line argument or the <inputfont> element in your")
+        print("Xgridfit file.")
+        sys.exit(1)
     thisFont = ttLib.TTFont(inputfont)
     functionBase = 0     # Offset to account for functions in existing font
     cvtBase      = 0     # Offset to account for cvs in existing font
@@ -397,14 +451,8 @@ def main():
     twilightBase = 0     # Offset to account for twilight space in existing font
     if mergemode:
         maxInstructions = max(maxInstructions, thisFont['maxp'].maxSizeOfInstructions)
-        # mi = thisFont['maxp'].maxSizeOfInstructions
-        # if mi > maxInstructions:
-        #    maxInstructions = mi
         storageBase = thisFont['maxp'].maxStorage
-        # st = thisFont['maxp'].maxStackElements
         maxStack = max(maxStack, thisFont['maxp'].maxStackElements)
-        # if st > maxStack:
-        #    maxStack = st
         functionBase = thisFont['maxp'].maxFunctionDefs
         twilightBase = thisFont['maxp'].maxTwilightPoints
         try:
@@ -429,7 +477,11 @@ def main():
 
     # Get a list of the glyphs in the file
 
-    glyph_list = str(etransform(xgffile, **{"get-glyph-list": "'yes'"}))
+    if glyphlist:
+        glyph_list = glyphlist
+    else:
+        glyph_list = str(etransform(xgffile, **{"get-glyph-list": "'yes'"}))
+    print(type(glyph_list[1]))
     glyph_list = list(glyph_list.split(" "))
 
     # Back to the xgf file. We're also going to need a list of stack-safe
@@ -467,22 +519,14 @@ def main():
     maxFunction = etransform(xgffile, **{"function-count": "'yes'"})
     maxFunction = int(maxFunction) + predef_functions + functionBase
 
-    fpgm_code = etransform(xgffile, **{"fpgm-only": "'yes'",
-                           "function-base": str(functionBase),
-                           "storage-base": str(storageBase),
-                           "cvt-base": str(cvtBase)})
-    for entry in etransform.error_log:
-        print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
+    fpgm_code = etransform(xgffile, **{"fpgm-only": "'yes'"})
     install_functions(thisFont, fpgm_code, functionBase)
 
     if not quietmode:
         print("Getting prep table ...")
 
-    prep_code = etransform(xgffile, **{"prep-only": "'yes'",
-                           "function-base": str(functionBase),
-                           "storage-base": str(storageBase),
-                           "cvt-base": str(cvtBase)})
-    install_prep(thisFont, prep_code, mergemode)
+    prep_code = etransform(xgffile, **{"prep-only": "'yes'"})
+    install_prep(thisFont, prep_code, mergemode, replaceprep)
 
     # Now loop through the glyphs for which there is code.
 
@@ -491,10 +535,15 @@ def main():
             print("Processing glyph " + g)
         try:
             gt = "'" + g + "'"
-            g_inst = etransform(xgffile, singleGlyphId=gt)
+            glyph_args = {'singleGlyphId': gt}
+            if initgraphics:
+                glyph_args['init_graphics'] = "'" + initgraphics + "'"
+            if assume_y:
+                glyph_args['assume-always-y'] = "'" + assume_y + "'"
+            g_inst = etransform(xgffile, **glyph_args)
         except Exception as e:
             print(e)
-            print("Entries in error log: " + str(len(etransform.error_log)))
+            # print("Entries in error log: " + str(len(etransform.error_log)))
             for entry in etransform.error_log:
                 print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
         install_glyph_program(g, thisFont, compact_instructions(str(g_inst), safe_calls))
@@ -507,5 +556,12 @@ def main():
     thisFont['maxp'].maxStackElements = maxStack
     thisFont['maxp'].maxFunctionDefs = maxFunction
     thisFont['head'].flags |= 0b0000000000001000
-    outputfont = str(xgffile.xpath("/xgf:xgridfit/xgf:outfile/text()", namespaces=ns)[0])
+    if not outputfont:
+        outputfont = str(xgffile.xpath("/xgf:xgridfit/xgf:outputfont/text()",
+                                       namespaces=ns)[0])
+    if not outputfont:
+        print("Need the filename of a font to write. Use the --outputfont")
+        print("command-line argument or the <outputfont> element in your")
+        print("Xgridfit file.")
+        sys.exit(1)
     thisFont.save(outputfont, 1)

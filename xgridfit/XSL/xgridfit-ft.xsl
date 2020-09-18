@@ -14,41 +14,13 @@
       Copyright (c) 2006-20 by Peter S. Baker
   -->
 
-  <!--
-    New merge-mode needs to worry about these things:
-    - Storage. Read max-storage from maxp. The number becomes
-      the new storage-base. DONE BUT NOT TESTED.
-    - CVT. The old Xgridfit employed a scheme whereby old cvs
-      were re-used where possible. This may interfere with
-      the color attribute on the cv. Find out if it does, and
-      if so drop the old scheme and just add all new cvs to the
-      old. NOT WORTH IT. WE PUT THE NEW CVT ON TOP OF THE OLD
-    - Functions. Read the number of functions from maxp. But
-      this is not reliable, since the series of functions
-      indices may contain gaps. So provide an override via a
-      default element. NOT YET IMPLEMENTED.
-    To do:
-      There are lots of params and variables. Make sure they're
-      all needed: delete any that aren't.
-  -->
-
   <xsl:output method="text" encoding="UTF-8"/>
-
-  <!--
-    glyph-select, which let you select just one glyph to compile, is obsolete
-    as formerly implemented, but still very much worth doing. Best done in the
-    Python programming, though.
-  -->
 
   <!--
     combine-prep, which let you choose whether to retain the prep table from
     the existing font, should be implemented in the Python programming.
   -->
 
-  <!--
-    Check to make sure this is still functional, and make it accessible from
-    the Python script.
-  -->
   <xsl:param name="init_graphics">
     <xsl:choose>
       <xsl:when test="/xgf:xgridfit/xgf:default[@type='init-graphics']">
@@ -60,9 +32,6 @@
     </xsl:choose>
   </xsl:param>
 
-  <!--
-    There should be a command-line argument. Not sure I like the current name.
-  -->
   <xsl:param name="assume-always-y">
     <xsl:choose>
       <xsl:when
@@ -154,23 +123,19 @@
   <xsl:variable name="merge-mode" select="$function-base &gt; 0 or
     $storage-base &gt; 0 or $cvt-base &gt; 0"/>
 
-  <!--
-    Should probably have a more font-specific name, since we also
-    have the script and an outfilename when some text output is needed.
-  -->
-  <xsl:param name="infile">
+  <xsl:param name="inputfont">
     <xsl:choose>
-      <xsl:when test="/xgf:xgridfit/xgf:infile">
-        <xsl:value-of select="/xgf:xgridfit/xgf:infile"/>
+      <xsl:when test="/xgf:xgridfit/xgf:inputfont">
+        <xsl:value-of select="/xgf:xgridfit/xgf:inputfont"/>
       </xsl:when>
       <xsl:otherwise>!!nofile!!</xsl:otherwise>
     </xsl:choose>
   </xsl:param>
 
-  <xsl:param name="outfile">
+  <xsl:param name="outputfont">
     <xsl:choose>
-      <xsl:when test="/xgf:xgridfit/xgf:outfile">
-        <xsl:value-of select="/xgf:xgridfit/xgf:outfile"/>
+      <xsl:when test="/xgf:xgridfit/xgf:outputfont">
+        <xsl:value-of select="/xgf:xgridfit/xgf:outputfont"/>
       </xsl:when>
       <xsl:otherwise>!!nofile!!</xsl:otherwise>
     </xsl:choose>
@@ -515,7 +480,7 @@
         <xsl:call-template name="make-glyph-list"/>
       </xsl:when>
       <xsl:when test="$get-cvar='yes'">
-        <xsl:call-template name="get-cvar-tuples"/>
+        <xsl:apply-templates select="/xgf:xgridfit/xgf:cvar"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message terminate="no">
@@ -529,35 +494,37 @@
 
   <!-- Two templates for producing data for cvar templates. -->
 
-  <xsl:template name="get-cvar-tuples">
-    <xsl:message>
-      <xsl:text>Generating cvar tuples</xsl:text>
-    </xsl:message>
-    <xsl:text>[</xsl:text>
-    <xsl:for-each select="/xgf:xgridfit/xgf:cvar/xgf:region">
-      <xsl:text>[{"</xsl:text>
-      <xsl:value-of select="@tag"/>
-      <xsl:text>": (</xsl:text>
-      <xsl:value-of select="@bot"/>
-      <xsl:text>, </xsl:text>
-      <xsl:value-of select="@peak"/>
-      <xsl:text>, </xsl:text>
-      <xsl:value-of select="@top"/>
-      <xsl:text>)}, </xsl:text>
-      <xsl:call-template name="get-region-coordinates">
-        <xsl:with-param name="region" select="."/>
-      </xsl:call-template>
-      <xsl:text>]</xsl:text>
-      <xsl:if test="position() != last()">
-        <xsl:text>, </xsl:text>
-      </xsl:if>
-    </xsl:for-each>
-    <xsl:text>]</xsl:text>
+  <xsl:template match="xgf:cvar">
+    <xsl:text>[ </xsl:text>
+    <xsl:apply-templates/>
+    <xsl:text> ]</xsl:text>
   </xsl:template>
 
-  <xsl:template name="get-region-coordinates">
-    <xsl:param name="region"/>
-    <xsl:variable name="cvvs" select="$region/xgf:cvv"/>
+  <xsl:template match="xgf:tuple">
+    <xsl:text>( {</xsl:text>
+    <xsl:apply-templates select="xgf:region"/>
+    <xsl:text> }, </xsl:text>
+    <xsl:call-template name="get-cvar-coordinates">
+      <xsl:with-param name="tuple" select="."/>
+    </xsl:call-template>
+    <xsl:text> ),</xsl:text>
+  </xsl:template>
+
+  <xsl:template match="xgf:region">
+    <xsl:text> '</xsl:text>
+    <xsl:value-of select="@tag"/>
+    <xsl:text>': (</xsl:text>
+    <xsl:value-of select="@bot"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="@peak"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="@top"/>
+    <xsl:text>), </xsl:text>
+  </xsl:template>
+
+  <xsl:template name="get-cvar-coordinates">
+    <xsl:param name="tuple"/>
+    <xsl:variable name="cvvs" select="$tuple/xgf:cvv"/>
     <xsl:text>[</xsl:text>
     <xsl:for-each select="/xgf:xgridfit/xgf:control-value">
       <xsl:variable name="cvname" select="@name"/>
@@ -608,11 +575,15 @@
 
   <!--
       The Python proggie nees to know which functions promise to leave
-      a clean stack behind them.
+      a clean stack behind them. To Do: adjust function 1 when functionBase
+      is non-zero!
   -->
 
   <xsl:template name="make-stack-safe-list">
-    <xsl:text>{1: 1</xsl:text>
+    <xsl:variable name="f-one" select="number($function-base) + 1"/>
+    <xsl:text>{</xsl:text>
+    <xsl:value-of select="number($function-base) + 1"/>
+    <xsl:text>: 1</xsl:text>
     <xsl:for-each select="/xgf:xgridfit/xgf:function">
       <xsl:if test="@stack-safe = 'yes'">
       <xsl:text>, </xsl:text>
@@ -643,6 +614,7 @@
   </xsl:template>
 
   <xsl:template match="xgf:pre-program">
+    <xsl:message terminate="no">pre-program called</xsl:message>
     <xsl:variable name="all-defaults" select="/xgf:xgridfit/xgf:default"/>
     <xsl:variable name="use-tt-defaults"
                   select="boolean($all-defaults[@type =
@@ -651,7 +623,6 @@
       <xsl:call-template name="pre-program-instructions"/>
       </xsl:variable>
     <xsl:value-of select="substring-after($current-inst,$leading-newline)"/>
-    <xsl:apply-templates/>
   </xsl:template>
 
   <!--

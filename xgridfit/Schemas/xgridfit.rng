@@ -395,9 +395,9 @@
     </choice>
   </define>
   <!--
-
+    
     Top level
-
+    
   -->
   <define name="xgridfit">
     <element name="xgridfit">
@@ -406,31 +406,16 @@
           <ref name="att.id"/>
         </optional>
         <optional>
-          <ref name="glyph-select"/>
+          <ref name="inputfont"/>
         </optional>
         <optional>
-          <ref name="infile"/>
-        </optional>
-        <optional>
-          <ref name="outfile"/>
-        </optional>
-        <optional>
-          <ref name="outfile-base"/>
-        </optional>
-        <optional>
-          <ref name="outfile-script-name"/>
+          <ref name="outputfont"/>
         </optional>
         <optional>
           <ref name="no-compile"/>
         </optional>
         <optional>
-          <ref name="legacy-functions"/>
-        </optional>
-        <optional>
           <ref name="pre-program"/>
-        </optional>
-        <optional>
-          <ref name="ps-private"/>
         </optional>
         <zeroOrMore>
           <ref name="constant"/>
@@ -469,9 +454,9 @@
     </element>
   </define>
   <!--
-
+    
     Value declarations
-
+    
   -->
   <define name="constant">
     <element name="constant">
@@ -502,9 +487,9 @@
     <ref name="att.target"/>
   </define>
   <!--
-
+    
     Controlling compilation of glyph programs
-
+    
   -->
   <define name="glyph-select">
     <element name="glyph-select">
@@ -526,34 +511,24 @@
     </element>
   </define>
   <!--
-
+    
     Script I/O
-
+    
   -->
-  <define name="infile">
-    <element name="infile">
+  <define name="inputfont">
+    <element name="inputfont">
       <data type="string"/>
     </element>
   </define>
-  <define name="outfile">
-    <element name="outfile">
-      <data type="string"/>
-    </element>
-  </define>
-  <define name="outfile-base">
-    <element name="outfile-base">
-      <data type="string"/>
-    </element>
-  </define>
-  <define name="outfile-script-name">
-    <element name="outfile-script-name">
+  <define name="outputfont">
+    <element name="outputfont">
       <data type="string"/>
     </element>
   </define>
   <!--
-
+    
     Top-level declarations
-
+    
   -->
   <define name="round-state">
     <element name="round-state">
@@ -637,13 +612,6 @@
     </attribute>
     <ref name="att.value"/>
   </define>
-  <define name="ps-private">
-    <element name="ps-private">
-      <oneOrMore>
-        <ref name="entry"/>
-      </oneOrMore>
-    </element>
-  </define>
   <define name="entry">
     <element name="entry">
       <ref name="attlist.entry"/>
@@ -657,22 +625,6 @@
   <define name="region">
     <element name="region">
       <ref name="attlist.region"/>
-      <oneOrMore>
-        <ref name="cvv"/>
-      </oneOrMore>
-    </element>
-  </define>
-  <define name="attlist.region" combine="interleave">
-    <attribute name="tag"/>
-    <attribute name="top"/>
-    <attribute name="bot"/>
-    <attribute name="peak"/>
-  </define>
-  <define name="cvar">
-    <element name="cvar">
-      <oneOrMore>
-        <ref name="region"/>
-      </oneOrMore>
     </element>
   </define>
   <define name="cvv">
@@ -689,6 +641,29 @@
     <attribute name="value">
       <data type="int"/>
     </attribute>
+  </define>
+  <define name="attlist.region" combine="interleave">
+    <attribute name="tag"/>
+    <attribute name="top"/>
+    <attribute name="bot"/>
+    <attribute name="peak"/>
+  </define>
+  <define name="tuple">
+    <element name="tuple">
+      <oneOrMore>
+        <ref name="region"/>
+      </oneOrMore>
+      <oneOrMore>
+        <ref name="cvv"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="cvar">
+    <element name="cvar">
+      <oneOrMore>
+        <ref name="tuple"/>
+      </oneOrMore>
+    </element>
   </define>
   <define name="control-value">
     <element name="control-value">
@@ -805,19 +780,6 @@
       <ref name="att.value"/>
     </optional>
   </define>
-  <define name="legacy-functions">
-    <element name="legacy-functions">
-      <ref name="attlist.legacy-functions"/>
-      <zeroOrMore>
-        <ref name="programming"/>
-      </zeroOrMore>
-    </element>
-  </define>
-  <define name="attlist.legacy-functions" combine="interleave">
-    <attribute name="max-function-defs">
-      <data type="nonNegativeInteger"/>
-    </attribute>
-  </define>
   <define name="pre-program">
     <element name="pre-program">
       <optional>
@@ -870,9 +832,9 @@
     </optional>
   </define>
   <!--
-
+    
     Miscellaneous / Oddball
-
+    
   -->
   <define name="message">
     <element name="message">
@@ -880,9 +842,9 @@
     </element>
   </define>
   <!--
-
+    
     Points and point structures
-
+    
   -->
   <define name="point">
     <element name="point">
@@ -985,9 +947,9 @@
     </element>
   </define>
   <!--
-
+    
     Point-moving instructions
-
+    
   -->
   <define name="mirp">
     <element name="mirp">
@@ -1423,9 +1385,9 @@
     </element>
   </define>
   <!--
-
+    
     Enable/disable instructions
-
+    
   -->
   <define name="disable-instructions">
     <element name="disable-instructions">
@@ -1438,9 +1400,9 @@
     </element>
   </define>
   <!--
-
+    
     Graphics state
-
+    
   -->
   <define name="set-vectors">
     <element name="set-vectors">
@@ -1689,9 +1651,9 @@
     </attribute>
   </define>
   <!--
-
+    
     Arithmetic elements
-
+    
   -->
   <define name="set-equal">
     <element name="set-equal">
@@ -1921,9 +1883,9 @@
     </element>
   </define>
   <!--
-
+    
     Function and macro calls
-
+    
   -->
   <define name="call-function">
     <element name="call-function">
@@ -2021,9 +1983,9 @@
     </element>
   </define>
   <!--
-
+    
     Conditionals
-
+    
   -->
   <define name="if">
     <element name="if">
@@ -2062,9 +2024,9 @@
     </element>
   </define>
   <!--
-
+    
     Getting info
-
+    
   -->
   <define name="measure-distance">
     <element name="measure-distance">
@@ -2092,9 +2054,9 @@
     </optional>
   </define>
   <!--
-
+    
     Primitives
-
+    
   -->
   <define name="command">
     <element name="command">
@@ -2145,9 +2107,9 @@
     </element>
   </define>
   <!--
-
+    
     XInclude
-
+    
   -->
   <define name="xg.xi.include.attlist">
     <optional>

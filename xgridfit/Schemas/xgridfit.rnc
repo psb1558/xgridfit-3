@@ -167,15 +167,10 @@ model.with-vector =
 xgridfit =
   element xgridfit{
         att.id?&
-        glyph-select?&
-        infile?&
-        outfile?&
-        outfile-base?&
-        outfile-script-name?&
+        inputfont?&
+        outputfont?&
         no-compile?&
-        legacy-functions?&
         pre-program?&
-        ps-private?&
         constant*&
         alias*&
         variable*&
@@ -213,14 +208,10 @@ no-compile =
 #
 # Script I/O
 #
-infile =
-  element infile { xsd:string }
-outfile =
-  element outfile { xsd:string }
-outfile-base =
-  element outfile-base { xsd:string }
-outfile-script-name =
-  element outfile-script-name { xsd:string }
+inputfont =
+  element inputfont { xsd:string }
+outputfont =
+  element outputfont { xsd:string }
 #
 # Top-level declarations
 #
@@ -287,28 +278,28 @@ attlist.default &=
     | "assume-always-y"
   },
   att.value
-ps-private =
-  element ps-private { entry+ }
 entry =
   element entry { attlist.entry, empty }
 attlist.entry &=
   att.name,
   att.value
 region =
-  element region { attlist.region, cvv+ }
-attlist.region &=
-  attribute tag { text },
-  attribute top { text },
-  attribute bot { text },
-  attribute peak { text }
-cvar =
-  element cvar { region+ }
+  element region { attlist.region }
 cvv =
   element cvv { attlist.cvv, empty }
 attlist.cvv &=
   attribute index { text }?,
   att.name,
   attribute value { xsd:int }
+attlist.region &=
+  attribute tag  { text },
+  attribute top  { text },
+  attribute bot  { text },
+  attribute peak { text }
+tuple =
+  element tuple { region+, cvv+ }
+cvar =
+  element cvar { tuple+ }
 control-value =
   element control-value { attlist.control-value, empty }
 attlist.control-value &=
@@ -346,12 +337,6 @@ param =
 attlist.param &=
   att.name,
   att.value?
-legacy-functions =
-  element legacy-functions {
-    attlist.legacy-functions, programming*
-  }
-attlist.legacy-functions &=
-  attribute max-function-defs { xsd:nonNegativeInteger }
 pre-program =
   element pre-program { att.id?, (variable|alias)*, programming* }
 glyph =
