@@ -333,7 +333,7 @@ def main():
     argparser.add_argument('-n', '--novalidation', action="store_true", help="Skip validation of the input file")
     argparser.add_argument('--nocompilation', action="store_true", help="Skip compilation of the input file")
     argparser.add_argument('-m', '--merge', action="store_true", help="Merge Xgridfit with existing instructions")
-    argparser.add_argument('-r', '--replaceprep', action="store_true", help="Whether to replace the existing prep table (use with --merge)")
+    argparser.add_argument('-r', '--replaceprep', action="store_true", help="Whether to replace the existing prep table or append the new one (use with --merge)")
     argparser.add_argument('--initgraphics', choices=['yes', 'no'],
                            help="Whether to initialize graphics-tracking variables at the beginning of glyph program")
     argparser.add_argument('-a', '--assume_y', choices=['yes', 'no'],
