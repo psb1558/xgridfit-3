@@ -233,8 +233,7 @@ def install_cvar(fo, cvarstore, keepold, cvtbase):
     If a tuple is missing in the existing or the xgf cvar, pad the new one
     and issue a warning. If there is no cvar at all in the existing font (this
     can easily happen with VTT), pad all our tuples and issue a warning. In
-    such cases it may be a good idea to manually edit the cvar table. This
-    function seems fragile. Think about it and revisit."""
+    such cases it may be a good idea to manually edit the cvar table."""
     cvtlen = len(fo['cvt '].values)
     if keepold:
         complications = False
