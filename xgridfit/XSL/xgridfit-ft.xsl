@@ -192,10 +192,6 @@
   <!-- These will be found in func-predef.xsl. -->
   <xsl:variable name="predefined-functions" select="4"/>
 
-  <xsl:variable name="var-legacy-storage">
-    <xsl:value-of select="$storage-base"/>
-  </xsl:variable>
-
   <xsl:variable name="function-round-restore"
                 select="$function-base"/>
 
@@ -402,11 +398,11 @@
     <xsl:param name="add" select="0"/>
     <xsl:choose>
       <xsl:when test="number($n) or number($n) = 0">
-        <xsl:value-of select="number($n) + number($var-legacy-storage) + $add"/>
+        <xsl:value-of select="number($n) + number($storage-base) + $add"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="number(document('xgfdata.xml')/*/xgfd:var-locations/xgfd:loc[@name=$n]/@val) +
-                              number($var-legacy-storage) + $add"/>
+                              number($storage-base) + $add"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

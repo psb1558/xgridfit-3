@@ -13,7 +13,7 @@
   <xsl:variable name="xgf-version" select="'3.0'"/>
   <!--
       First in the Storage Area is a block of locations used by legacy
-      code (defined as the "legacy-storage" default). Next come some
+      code (e.g. from ttfautohint). Next come some
       reserved locations used by Xgridfit to track state
       information. Next is the global variable area and finally a
       growable variable frame area.
