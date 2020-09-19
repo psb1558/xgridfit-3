@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-model href="../Schemas/xgridfit-sh.rnc"
+<?xml-model href="../xgridfit/Schemas/xgridfit-sh.rnc"
             type="application/relax-ng-compact-syntax"?>
 <xgridfit   xmlns="http://xgridfit.sourceforge.net/Xgridfit2"
 	          xmlns:xi="http://www.w3.org/2001/XInclude">
@@ -21,9 +21,9 @@
       infile and outfile are the font to hint and the name
       of the font to write. These should be different
   -->
-  <infile>Elstob-Italic[GRAD,opsz,wght].ttf</infile>
+  <inputfont>Elstob-Italic[GRAD,opsz,wght].ttf</inputfont>
 
-  <outfile>Elstob-Italic[GRAD,opsz,wght]-hinted.ttf</outfile>
+  <outputfont>Elstob-Italic[GRAD,opsz,wght]-hinted.ttf</outputfont>
 
   <!--
       The amount of storage to reserve for variables. A modern
@@ -174,7 +174,8 @@
       significant.
   -->
   <cvar>
-    <region tag="wght" bot="-1.0" peak="-1.0" top="0.0">
+    <tuple>
+      <region tag="wght" bot="-1.0" peak="-1.0" top="0.0"/>
       <cvv nm="cap-serif" val="40"/>
       <cvv nm="cap-bar" val="42"/>
       <cvv nm="cap-round-stem" val="31"/>
@@ -193,8 +194,9 @@
       <cvv nm="sc-bar" val="45"/>
       <cvv nm="sc-curved-stem" val="31"/>
       <cvv nm="tilde-stem" val="81"/>
-    </region>
-    <region tag="wght" bot="0.0" peak="1.0" top="1.0">
+    </tuple>
+    <tuple>
+      <region tag="wght" bot="0.0" peak="1.0" top="1.0"/>
       <cvv nm="cap-serif" val="60"/>
       <cvv nm="cap-bar" val="70"/>
       <cvv nm="cap-round-stem" val="68"/>
@@ -211,8 +213,9 @@
       <cvv nm="sc-bar" val="70"/>
       <cvv nm="sc-curved-stem" val="68"/>
       <cvv nm="tilde-stem" val="137"/>
-    </region>
-    <region tag="opsz" bot="-1.0" peak="-1.0" top="0.0">
+    </tuple>
+    <tuple>
+      <region tag="opsz" bot="-1.0" peak="-1.0" top="0.0"/>
       <cvv nm="xheight" val="944"/>
       <cvv nm="xheight-overshoot" val="952"/>
       <cvv nm="cap-serif" val="84"/>
@@ -241,8 +244,9 @@
       <cvv nm="mod-baseline-undershoot" val="598"/>
       <cvv nm="mod-xheight-overshoot" val="1170"/>
       <cvv nm="mod-xheight" val="1065"/>
-    </region>
-    <region tag="opsz" bot="0.0" peak="1.0" top="1.0">
+    </tuple>
+    <tuple>
+     <region tag="opsz" bot="0.0" peak="1.0" top="1.0"/>
       <cvv nm="xheight" val="856"/>
       <cvv nm="xheight-overshoot" val="870"/>
       <cvv nm="cap-serif" val="50"/>
@@ -269,8 +273,9 @@
       <cvv nm="mod-baseline-undershoot" val="510"/>
       <cvv nm="mod-xheight-overshoot" val="1034"/>
       <cvv nm="mod-xheight" val="1025"/>
-    </region>
-    <region tag="GRAD" bot="0.0" peak="1.0" top="1.0">
+    </tuple>
+    <tuple>
+      <region tag="GRAD" bot="0.0" peak="1.0" top="1.0"/>
       <cvv nm="cap-serif" val="60"/>
       <cvv nm="cap-bar" val="70"/>
       <cvv nm="cap-round-stem" val="68"/>
@@ -289,7 +294,7 @@
       <cvv nm="sc-curved-stem" val="68"/>
       <cvv nm="tilde-stem" val="81"/>
       <cvv nm="tilde-stem" val="151"/>
-    </region>
+    </tuple>
   </cvar>
 
   <!--
@@ -692,10 +697,10 @@
           </callm>
     -->
     <callm nm="serif-sh">
-      <pms>pt-a: 18, pt-b: 19, sh-a: bot-a, sh-b: 23, cv-h: cap-serif</pms>
+      pt-a: 18, pt-b: 19, sh-a: bot-a, sh-b: 23, cv-h: cap-serif
     </callm>
     <callm nm="mid-stem">
-      <pms>ref1: 18, ref2: 11, pt1: 26, pt2: 27</pms>
+      ref1: 18, ref2: 11, pt1: 26, pt2: 27
     </callm>
   </gl>
 
@@ -706,10 +711,10 @@
       <sh p="1 20 29"/>
     </mv>
     <callm nm="serif-sh">
-      <pms>pt-a: 44, pt-b: 45, sh-a: bot-a, sh-b: bot-b, cv-h: cap-serif</pms>
+      pt-a: 44, pt-b: 45, sh-a: bot-a, sh-b: bot-b, cv-h: cap-serif
     </callm>
     <callm nm="mid-stem">
-      <pms>ref1: 44, ref2: 11, pt1: 37, pt2: 38</pms>
+      ref1: 44, ref2: 11, pt1: 37, pt2: 38
     </callm>
   </gl>
 
@@ -719,18 +724,18 @@
       <sh p="67 27"/>
     </mv>
     <callm nm="round-point">
-      <pms>p: 27</pms>
+      p: 27
     </callm>
     <mv di="caprs" r="27" p="45"/>
     <callm nm="serif-sh">
-      <pms>pt-a: 54, pt-b: 55, sh-a: bot-a, sh-b: 59, cv-h: cap-serif</pms>
+      pt-a: 54, pt-b: 55, sh-a: bot-a, sh-b: 59, cv-h: cap-serif
     </callm>
     <callm nm="round-point">
-      <pms>p: 18</pms>
+      p: 18
     </callm>
     <mv di="caprs" r="18" p="36"/>
     <callm nm="mid-stem">
-      <pms>ref1: 54, ref2: 11, pt1: 62, pt2: 63</pms>
+      ref1: 54, ref2: 11, pt1: 62, pt2: 63
     </callm>
   </gl>
 
@@ -738,17 +743,17 @@
     <set nm="top-a" p="8 30 38 22"/>
     <set nm="bot-a" p="29 0"/>
     <callm nm="serif-sh">
-      <pms>pt-a: 34, pt-b: 33, sh-a: top-a, sh-b: 37, cv: cap-height</pms>
+      pt-a: 34, pt-b: 33, sh-a: top-a, sh-b: 37, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 41, pt-b: 42, sh-a: bot-a</pms>
+      pt-a: 41, pt-b: 42, sh-a: bot-a
     </callm>
     <callm nm="round-point">
-      <pms>p: 0</pms>
+      p: 0
     </callm>
     <mv di="cap-round-stem" r="0" p="17"/>
     <callm nm="mid-stem">
-      <pms>ref1: 41, ref2: 34, pt1: 45, pt2: 46</pms>
+      ref1: 41, ref2: 34, pt1: 45, pt2: 46
     </callm>
   </gl>
 
@@ -756,13 +761,13 @@
     <set nm="top-a" p="7 15 31"/>
     <set nm="bot-a" p="30 0 14"/>
     <callm nm="serif-sh">
-      <pms>pt-a: 19, pt-b: 18, sh-a: top-a, cv: cap-height</pms>
+      pt-a: 19, pt-b: 18, sh-a: top-a, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 22, pt-b: 23, sh-a: bot-a, cv: baseline</pms>
+      pt-a: 22, pt-b: 23, sh-a: bot-a, cv: baseline
     </callm>
     <callm nm="mid-stem">
-      <pms>ref1: 22, ref2: 19, pt1: 26, pt2: 27</pms>
+      ref1: 22, ref2: 19, pt1: 26, pt2: 27
     </callm>
   </gl>
 
@@ -770,26 +775,26 @@
     <set nm="top-a" p="11 23 31 19"/>
     <set nm="bot-a" p="30 4 18"/>
     <callm nm="serif-sh">
-      <pms>pt-a: 23, pt-b: 22, sh-a: top-a, cv: cap-height</pms>
+      pt-a: 23, pt-b: 22, sh-a: top-a, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 26, pt-b: 27, sh-a: bot-a, cv: baseline</pms>
+      pt-a: 26, pt-b: 27, sh-a: bot-a, cv: baseline
     </callm>
     <callm nm="mid-stem">
-      <pms>ref1: 23, ref2: 26, pt1: 0, pt2: 1</pms>
+      ref1: 23, ref2: 26, pt1: 0, pt2: 1
     </callm>
   </gl>
 
   <gl pnm="uniA73C"> <!-- AV with bar -->
     <set nm="top-a" p="15 38 50"/>
     <callm nm="serif-sh">
-      <pms>pt-a: 46, pt-b: 45, sh-a: top-a, cv: cap-height</pms>
+      pt-a: 46, pt-b: 45, sh-a: top-a, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 23, pt-b: 24, sh-a: 49, cv: baseline</pms>
+      pt-a: 23, pt-b: 24, sh-a: 49, cv: baseline
     </callm>
     <callm nm="mid-stem">
-      <pms>ref1: 46, ref2: 23, pt1: 28, pt2: 29</pms>
+      ref1: 46, ref2: 23, pt1: 28, pt2: 29
     </callm>
     <mv p="0"/>
     <ip r="23 0" p="31"/>
@@ -798,7 +803,7 @@
   <gl pnm="Aring">
     <set nm="bot-a" p="0 40 4"/>
     <callm nm="serif-sh">
-      <pms>pt-a: 36, pt-b: 37, sh-a: bot-a, sh-b: 41, cv: baseline</pms>
+      pt-a: 36, pt-b: 37, sh-a: bot-a, sh-b: 41, cv: baseline
     </callm>
     <mv p="15">
       <mv p="8">
@@ -824,7 +829,7 @@
       </mv>
     </mv>
     <callm nm="mid-stem">
-      <pms>ref1: 15, ref2: 36, pt1: 44, pt2: 45</pms>
+      ref1: 15, ref2: 36, pt1: 44, pt2: 45
     </callm>
   </gl>
 
@@ -832,13 +837,13 @@
     <set nm="top-a" p="22 15"/>
     <set nm="bot-a" p="21 25 0"/>
     <callm nm="serif-sh">
-      <pms>pt-a: 6, pt-b: 5, sh-a: top-a, sh-b: 14, cv: cap-height</pms>
+      pt-a: 6, pt-b: 5, sh-a: top-a, sh-b: 14, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 17, pt-b: 18, sh-a: bot-a, sh-b: 26, cv: baseline</pms>
+      pt-a: 17, pt-b: 18, sh-a: bot-a, sh-b: 26, cv: baseline
     </callm>
     <callm nm="mid-stem">
-      <pms>ref1: 6, ref2: 17, pt1: 34, pt2: 35, cv: cap-bar</pms>
+      ref1: 6, ref2: 17, pt1: 34, pt2: 35, cv: cap-bar
     </callm>
     <sh r="35" p="39"/>
     <sh r="34" p="38"/>
@@ -846,13 +851,13 @@
 
   <gl pnm="B">
     <callm nm="serif-sh">
-      <pms>pt-a: 26, pt-b: 25, sh-a: 1, cv: cap-height</pms>
+      pt-a: 26, pt-b: 25, sh-a: 1, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 4, pt-b: 5, sh-a: 0, cv: baseline</pms>
+      pt-a: 4, pt-b: 5, sh-a: 0, cv: baseline
     </callm>
     <callm nm="mid-stem">
-      <pms>ref1: 26, ref2: 4, pt1: 15, pt2: 16, cv: cap-bar</pms>
+      ref1: 26, ref2: 4, pt1: 15, pt2: 16, cv: cap-bar
     </callm>
   </gl>
 
@@ -874,7 +879,7 @@
       </mv>
     </mv>
     <callm nm="serif-sh">
-      <pms>pt-a: 0, pt-b: 1, sh-a: 37, cv: baseline</pms>
+      pt-a: 0, pt-b: 1, sh-a: 37, cv: baseline
     </callm>
   </gl>
 
@@ -891,13 +896,13 @@
 
   <gl pnm="E">
     <callm nm="serif-sh">
-      <pms>pt-a: 25, pt-b: 24, sh-a: 1, cv: cap-height</pms>
+      pt-a: 25, pt-b: 24, sh-a: 1, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 4, pt-b: 5, sh-a: 0, cv: baseline</pms>
+      pt-a: 4, pt-b: 5, sh-a: 0, cv: baseline
     </callm>
     <callm nm="mid-stem">
-      <pms>ref1: 25, ref2: 4, pt1: 12, pt2: 13, cv: cap-bar</pms>
+      ref1: 25, ref2: 4, pt1: 12, pt2: 13, cv: cap-bar
     </callm>
     <sh r="13" p="17"/>
     <sh r="12" p="16"/>
@@ -905,13 +910,13 @@
 
   <gl pnm="F">
     <callm nm="serif-sh">
-      <pms>pt-a: 10, pt-b: 9, sh-a: 1, cv: cap-height</pms>
+      pt-a: 10, pt-b: 9, sh-a: 1, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 13, pt-b: 14, sh-a: 0, cv: baseline</pms>
+      pt-a: 13, pt-b: 14, sh-a: 0, cv: baseline
     </callm>
     <callm nm="mid-stem">
-      <pms>ref1: 10, ref2: 13, pt1: 17, pt2: 18, cv: cap-bar</pms>
+      ref1: 10, ref2: 13, pt1: 17, pt2: 18, cv: cap-bar
     </callm>
     <sh r="18" p="22"/>
     <sh r="17" p="21"/>
@@ -925,7 +930,7 @@
     </mv>
     <mv p="0"/>
     <callm nm="mid-stem">
-      <pms>ref1: 8, ref2: 0, pt1: 15, pt2: 16, cv: cap-bar</pms>
+      ref1: 8, ref2: 0, pt1: 15, pt2: 16, cv: cap-bar
     </callm>
   </gl>
 
@@ -984,7 +989,7 @@
      other glyph are the same as here, and start the other glyph
      program with this:
      <callg pnm="H">
-       <pms>include-iup: no</pms>
+       include-iup: no
      </callg>
      The other glyph should also have the assume-y="no" attribute.
      It can omit <setvs axis="y"/> at the beginning but must
@@ -996,13 +1001,13 @@
     <set nm="bot-a" p="4 24 8"/>
     <setvs axis="y"/>
     <callm nm="serif-sh">
-      <pms>pt-a: 13, pt-b: 12, sh-a: top-a, sh-b: 16, cv: cap-height</pms>
+      pt-a: 13, pt-b: 12, sh-a: top-a, sh-b: 16, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 20, pt-b: 21, sh-a: bot-a, sh-b: 25, cv: baseline</pms>
+      pt-a: 20, pt-b: 21, sh-a: bot-a, sh-b: 25, cv: baseline
     </callm>
     <callm nm="mid-stem">
-      <pms>ref1: 13, ref2: 20, pt1: 0, pt2: 1, cv: cap-bar</pms>
+      ref1: 13, ref2: 20, pt1: 0, pt2: 1, cv: cap-bar
     </callm>
     <compile-if test="include-iup = 0">
       <iup axis="y"/>
@@ -1011,16 +1016,16 @@
 
   <gl pnm="I">
     <callm nm="serif-sh">
-      <pms>pt-a: 5, pt-b: 4, sh-a: 1, cv: cap-height</pms>
+      pt-a: 5, pt-b: 4, sh-a: 1, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 8, pt-b: 9, sh-a: 0, cv: baseline</pms>
+      pt-a: 8, pt-b: 9, sh-a: 0, cv: baseline
     </callm>
   </gl>
 
   <gl pnm="J">
     <callm nm="serif-sh">
-      <pms>pt-a: 31, pt-b: 30, sh-a: 18, cv: cap-height</pms>
+      pt-a: 31, pt-b: 30, sh-a: 18, cv: cap-height
     </callm>
     <mv p="0">
       <sh p="11"/>
@@ -1032,22 +1037,22 @@
     <set nm="top-a" p="1 33 15"/>
     <set nm="bot-a" p="0 24 4"/>
     <callm nm="serif-sh">
-      <pms>pt-a: 29, pt-b: 28, sh-a: top-a, sh-b: 32, cv: cap-height</pms>
+      pt-a: 29, pt-b: 28, sh-a: top-a, sh-b: 32, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 20, pt-b: 21, sh-a: bot-a, sh-b: 25, cv: baseline</pms>
+      pt-a: 20, pt-b: 21, sh-a: bot-a, sh-b: 25, cv: baseline
     </callm>
     <callm nm="mid-stem">
-      <pms>ref1: 29, ref2: 20, pt1: 9, pt2: 10, cv: cap-bar</pms>
+      ref1: 29, ref2: 20, pt1: 9, pt2: 10, cv: cap-bar
     </callm>
   </gl>
 
   <gl pnm="L">
     <callm nm="serif-sh">
-      <pms>pt-a: 14, pt-b: 13, sh-a: 10, cv: cap-height</pms>
+      pt-a: 14, pt-b: 13, sh-a: 10, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 0, pt-b: 1, sh-a: 9, cv: baseline</pms>
+      pt-a: 0, pt-b: 1, sh-a: 9, cv: baseline
     </callm>
   </gl>
 
@@ -1055,10 +1060,10 @@
     <set nm="top-a" p="1 21 14 18 26"/>
     <set nm="bot-a" p="20 0 32 24"/>
     <callm nm="serif-sh">
-      <pms>pt-a: 4, pt-b: 3, sh-a: top-a, sh-b: 16, cv: cap-height</pms>
+      pt-a: 4, pt-b: 3, sh-a: top-a, sh-b: 16, cv: cap-height
     </callm>
     <callm nm="serif-sh">
-      <pms>pt-a: 28, pt-b: 29, sh-a: bot-a, sh-b: 33, cv: baseline</pms>
+      pt-a: 28, pt-b: 29, sh-a: bot-a, sh-b: 33, cv: baseline
     </callm>
   </gl>
 
