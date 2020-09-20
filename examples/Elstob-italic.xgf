@@ -742,11 +742,17 @@
   <gl pnm="uniA736"> <!-- AU -->
     <set nm="top-a" p="8 30 38 22"/>
     <set nm="bot-a" p="29 0"/>
+    <!--
+        The following is equialent to two calls to the serif-sh
+        macro, except that it is (maybe) easier to type.
+    -->
     <callm nm="serif-sh">
-      pt-a: 34, pt-b: 33, sh-a: top-a, sh-b: 37, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 41, pt-b: 42, sh-a: bot-a
+      <pmset>
+        pt-a: 34, pt-b: 33, sh-a: top-a, sh-b: 37, cv: cap-height
+      </pmset>
+      <pmset>
+        pt-a: 41, pt-b: 42, sh-a: bot-a
+      </pmset>
     </callm>
     <callm nm="round-point">
       p: 0
@@ -761,10 +767,12 @@
     <set nm="top-a" p="7 15 31"/>
     <set nm="bot-a" p="30 0 14"/>
     <callm nm="serif-sh">
-      pt-a: 19, pt-b: 18, sh-a: top-a, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 22, pt-b: 23, sh-a: bot-a, cv: baseline
+      <pmset>
+        pt-a: 19, pt-b: 18, sh-a: top-a, cv: cap-height
+      </pmset>
+      <pmset>
+        pt-a: 22, pt-b: 23, sh-a: bot-a, cv: baseline
+      </pmset>
     </callm>
     <callm nm="mid-stem">
       ref1: 22, ref2: 19, pt1: 26, pt2: 27
@@ -775,10 +783,12 @@
     <set nm="top-a" p="11 23 31 19"/>
     <set nm="bot-a" p="30 4 18"/>
     <callm nm="serif-sh">
-      pt-a: 23, pt-b: 22, sh-a: top-a, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 26, pt-b: 27, sh-a: bot-a, cv: baseline
+      <pmset>
+        pt-a: 23, pt-b: 22, sh-a: top-a, cv: cap-height
+      </pmset>
+      <pmset>
+        pt-a: 26, pt-b: 27, sh-a: bot-a, cv: baseline
+      </pmset>
     </callm>
     <callm nm="mid-stem">
       ref1: 23, ref2: 26, pt1: 0, pt2: 1
@@ -788,10 +798,12 @@
   <gl pnm="uniA73C"> <!-- AV with bar -->
     <set nm="top-a" p="15 38 50"/>
     <callm nm="serif-sh">
-      pt-a: 46, pt-b: 45, sh-a: top-a, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 23, pt-b: 24, sh-a: 49, cv: baseline
+      <pmset>
+        pt-a: 46, pt-b: 45, sh-a: top-a, cv: cap-height
+      </pmset>
+      <pmset>
+        pt-a: 23, pt-b: 24, sh-a: 49, cv: baseline
+      </pmset>
     </callm>
     <callm nm="mid-stem">
       ref1: 46, ref2: 23, pt1: 28, pt2: 29
@@ -837,10 +849,12 @@
     <set nm="top-a" p="22 15"/>
     <set nm="bot-a" p="21 25 0"/>
     <callm nm="serif-sh">
-      pt-a: 6, pt-b: 5, sh-a: top-a, sh-b: 14, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 17, pt-b: 18, sh-a: bot-a, sh-b: 26, cv: baseline
+      <pmset>
+       pt-a: 6, pt-b: 5, sh-a: top-a, sh-b: 14, cv: cap-height
+     </pmset>
+     <pmset>
+       pt-a: 17, pt-b: 18, sh-a: bot-a, sh-b: 26, cv: baseline
+     </pmset>
     </callm>
     <callm nm="mid-stem">
       ref1: 6, ref2: 17, pt1: 34, pt2: 35, cv: cap-bar
@@ -851,10 +865,12 @@
 
   <gl pnm="B">
     <callm nm="serif-sh">
-      pt-a: 26, pt-b: 25, sh-a: 1, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 4, pt-b: 5, sh-a: 0, cv: baseline
+      <pmset>
+        pt-a: 26, pt-b: 25, sh-a: 1, cv: cap-height
+      </pmset>
+      <pmset>
+        pt-a: 4, pt-b: 5, sh-a: 0, cv: baseline
+      </pmset>
     </callm>
     <callm nm="mid-stem">
       ref1: 26, ref2: 4, pt1: 15, pt2: 16, cv: cap-bar
@@ -896,10 +912,12 @@
 
   <gl pnm="E">
     <callm nm="serif-sh">
-      pt-a: 25, pt-b: 24, sh-a: 1, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 4, pt-b: 5, sh-a: 0, cv: baseline
+      <pmset>
+        pt-a: 25, pt-b: 24, sh-a: 1, cv: cap-height
+      </pmset>
+      <pmset>
+        pt-a: 4, pt-b: 5, sh-a: 0, cv: baseline
+      </pmset>
     </callm>
     <callm nm="mid-stem">
       ref1: 25, ref2: 4, pt1: 12, pt2: 13, cv: cap-bar
@@ -910,10 +928,12 @@
 
   <gl pnm="F">
     <callm nm="serif-sh">
-      pt-a: 10, pt-b: 9, sh-a: 1, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 13, pt-b: 14, sh-a: 0, cv: baseline
+      <pmset>
+        pt-a: 10, pt-b: 9, sh-a: 1, cv: cap-height
+      </pmset>
+      <pmset>
+        pt-a: 13, pt-b: 14, sh-a: 0, cv: baseline
+      </pmset>
     </callm>
     <callm nm="mid-stem">
       ref1: 10, ref2: 13, pt1: 17, pt2: 18, cv: cap-bar
@@ -925,7 +945,7 @@
   <gl pnm="uniA784"> <!-- Insular F -->
     <mv di="cap-height-overshoot" p="8">
       <mv min-distance="no" col="g" p="24">
-	<mv p="35"/>
+	       <mv p="35"/>
       </mv>
     </mv>
     <mv p="0"/>
@@ -1001,10 +1021,12 @@
     <set nm="bot-a" p="4 24 8"/>
     <setvs axis="y"/>
     <callm nm="serif-sh">
-      pt-a: 13, pt-b: 12, sh-a: top-a, sh-b: 16, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 20, pt-b: 21, sh-a: bot-a, sh-b: 25, cv: baseline
+      <pmset>
+        pt-a: 13, pt-b: 12, sh-a: top-a, sh-b: 16, cv: cap-height
+      </pmset>
+      <pmset>
+        pt-a: 20, pt-b: 21, sh-a: bot-a, sh-b: 25, cv: baseline
+      </pmset>
     </callm>
     <callm nm="mid-stem">
       ref1: 13, ref2: 20, pt1: 0, pt2: 1, cv: cap-bar
@@ -1016,10 +1038,12 @@
 
   <gl pnm="I">
     <callm nm="serif-sh">
-      pt-a: 5, pt-b: 4, sh-a: 1, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 8, pt-b: 9, sh-a: 0, cv: baseline
+      <pmset>
+        pt-a: 5, pt-b: 4, sh-a: 1, cv: cap-height
+      </pmset>
+      <pmset>
+        pt-a: 8, pt-b: 9, sh-a: 0, cv: baseline
+      </pmset>
     </callm>
   </gl>
 
@@ -1037,10 +1061,12 @@
     <set nm="top-a" p="1 33 15"/>
     <set nm="bot-a" p="0 24 4"/>
     <callm nm="serif-sh">
-      pt-a: 29, pt-b: 28, sh-a: top-a, sh-b: 32, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 20, pt-b: 21, sh-a: bot-a, sh-b: 25, cv: baseline
+      <pmset>
+        pt-a: 29, pt-b: 28, sh-a: top-a, sh-b: 32, cv: cap-height
+      </pmset>
+      <pmset>
+        pt-a: 20, pt-b: 21, sh-a: bot-a, sh-b: 25, cv: baseline
+      </pmset>
     </callm>
     <callm nm="mid-stem">
       ref1: 29, ref2: 20, pt1: 9, pt2: 10, cv: cap-bar
@@ -1049,10 +1075,12 @@
 
   <gl pnm="L">
     <callm nm="serif-sh">
-      pt-a: 14, pt-b: 13, sh-a: 10, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 0, pt-b: 1, sh-a: 9, cv: baseline
+      <pmset>
+        pt-a: 14, pt-b: 13, sh-a: 10, cv: cap-height
+      </pmset>
+      <pmset>
+        pt-a: 0, pt-b: 1, sh-a: 9, cv: baseline
+      </pmset>
     </callm>
   </gl>
 
@@ -1060,10 +1088,12 @@
     <set nm="top-a" p="1 21 14 18 26"/>
     <set nm="bot-a" p="20 0 32 24"/>
     <callm nm="serif-sh">
-      pt-a: 4, pt-b: 3, sh-a: top-a, sh-b: 16, cv: cap-height
-    </callm>
-    <callm nm="serif-sh">
-      pt-a: 28, pt-b: 29, sh-a: bot-a, sh-b: 33, cv: baseline
+      <pmset>
+        pt-a: 4, pt-b: 3, sh-a: top-a, sh-b: 16, cv: cap-height
+      </pmset>
+      <pmset>
+        pt-a: 28, pt-b: 29, sh-a: bot-a, sh-b: 33, cv: baseline
+      </pmset>
     </callm>
   </gl>
 
