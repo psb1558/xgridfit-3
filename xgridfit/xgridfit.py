@@ -4,6 +4,7 @@ from fontTools.ttLib.tables.TupleVariation import TupleVariation
 from fontTools.ufoLib.filenames import userNameToFileName
 from lxml import etree
 from ast import literal_eval
+from .version import __version__
 import sys
 import os
 import argparse
@@ -337,7 +338,9 @@ def main():
 
     # First read the command-line arguments. At minimum we need the inputfile.
 
-    argparser = argparse.ArgumentParser(description='Compile XML into TrueType instructions and add them to a font.')
+    argparser = argparse.ArgumentParser(prog='xgridfit',
+                                        description='Compile XML into TrueType instructions and add them to a font.')
+    argparser.add_argument('-v', '--version', action='version', version='Xgridfit ' + str(__version__))
     argparser.add_argument('-e', '--expand', action="store_true",
                            help="Convert file to expanded syntax, save, and exit")
     argparser.add_argument('-c', '--compact', action="store_true",

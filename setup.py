@@ -1,9 +1,11 @@
 import os
 from setuptools import setup, find_packages
 
+exec(open('xgridfit/version.py').read())
+
 setup (
     name = "xgridfit",
-    version = "3.1",
+    version = __version__,
     packages = find_packages(),
     entry_points={
         "console_scripts": ["xgridfit = xgridfit:main"]
