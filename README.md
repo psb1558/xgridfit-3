@@ -1,7 +1,7 @@
 # xgridfit-3
 A TrueType hinting language
 
-Xgridfit is an XML-based language for hinting TrueType fonts. It has been around since circa 2006 but has never been popular; and in recent years it has been broken by its dependence on LibXML2's obsolete Python bindings. In fact, that old version suffered from a welter of dependencies: FontForge and various XML parsers and validators. It was verbose, too, and its verbosity wasn't entirely relieved by the use of auto-completing XML editors like Emacs/Nxml and oXygen. Finally, the arrangement whereby the compiler generated a Python script instead of interacting directly with the font was sort of braindead.
+Xgridfit is an XML-based language for hinting TrueType fonts. It has been around since circa 2006 but has never been popular (I know of three fonts besides my own that it was used to hint); and in recent years it has been broken by its dependence on LibXML2's obsolete Python bindings. In fact, that old version suffered from a welter of dependencies: FontForge and various XML parsers and validators. It was verbose, too, and its verbosity wasn't entirely relieved by the use of auto-completing XML editors like Emacs/Nxml and oXygen. Finally, the arrangement whereby the compiler generated a Python script instead of interacting directly with the font was sort of braindead.
 
 What I can say for Xgridfit, though, is that it was the tool I wanted back when I first wrote it, and I still find it useful. It produces very compact instructions, adding relatively little to the size of a font, and it allows fine control over the programming without resorting to low-level assembly code. It plays nice with autohinters (ttfautohint and VTT), allowing you to take over where those tools produce unsatisfying results. In fonts for modern devices, for which only vertical hinting is necessary, development can be fast (comparing well with, say, VTT, in which the graphical interface is very fast but one spends a good bit of time on repetitive tasks). And it provides several conveniences that collectively make it easy to refer to points, functions, and other objects, re-use blocks of code (including whole glyph programs), and revise the code when a glyph changes.
 
@@ -33,7 +33,7 @@ Because hinting is now done almost exclusively on the y axis, Xgridfit 3 has an 
 
 Finally Xgridfit 3 can produce a cvar table or combine its own cvar table with an existing one; thus it can hint variable fonts.
 
-To install, Xgridfit, it is suggested that you run a virtual environment, as you very likely do for programs like ttx and fontmake. Unzip the program files in any convenient place, change to the root directory (the one with setup.py in it) and type
+To install Xgridfit, it is suggested that you run a Python3 virtual environment, as you very likely do for programs like ttx and fontmake. Unzip the program files in any convenient place, change to the root directory (the one with setup.py in it) and type
 
 ```
 $ pip install .
