@@ -38,7 +38,7 @@ To install, Xgridfit, it is suggested that you run a virtual environment, as you
 ```
 $ pip install .
 ```
-To run Xgridfit 3 from within the virtual environment, make sure the ``<infile>`` and ``outfile`` elements are included in your program files (with the names of the original font and the one you want to write), and then
+To run Xgridfit 3 from within the virtual environment, make sure the ``<inputfont>`` and ``<outputfont>`` elements are included in your program files (with the names of the original font and the one you want to write), and then
 
 ```
 $ xgridfit MyFontInstructions.xgf
@@ -46,6 +46,6 @@ $ xgridfit MyFontInstructions.xgf
 
 That's all! Xgridfit will compile the instructions in your ``.xgf`` file, open the font, merge in the new instructions, and save the font under a new name.
 
-The original documentation is [here](http://xgridfit.sourceforge.net/). It is mostly still valid, but the many command-line options are largely gone: use `<default>` elements in your Xgridfit program file instead. An updated element reference is in the doc folder.
+The original documentation is [here](http://xgridfit.sourceforge.net/). It is mostly still valid, but some obsolete features have been cleared away. An updated element reference is in the doc folder; for a quick summary type ``xgridfit -h``.
 
 Xgridfit 3 is licensed under the Apache license, version 2.0.
