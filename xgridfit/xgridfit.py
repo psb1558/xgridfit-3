@@ -340,7 +340,7 @@ def main():
 
     argparser = argparse.ArgumentParser(prog='xgridfit',
                                         description='Compile XML into TrueType instructions and add them to a font.')
-    argparser.add_argument('-v', '--version', action='version', version='Xgridfit ' + str(__version__))
+    argparser.add_argument('-v', '--version', action='version', version='Xgridfit ' + __version__)
     argparser.add_argument('-e', '--expand', action="store_true",
                            help="Convert file to expanded syntax, save, and exit")
     argparser.add_argument('-c', '--compact', action="store_true",
@@ -516,6 +516,11 @@ def main():
         # all the glyph programs in the file
         glyph_list = str(etransform(xgffile, **{"get-glyph-list": "'yes'"}))
     glyph_list = list(glyph_list.split(" "))
+    no_compact_list = str(etransform(xgffile, **{"get-no-compact-list": "'yes'"}))
+    if no_compact_list == None:
+        no_compact_list = []
+    else:
+        no_compact_list = list(no_compact_list.split(" "))
 
     # Back to the xgf file. We're also going to need a list of stack-safe
     # functions in this font.
@@ -584,10 +589,9 @@ def main():
             g_inst = etransform(xgffile, **glyph_args)
         except Exception as e:
             print(e)
-            # print("Entries in error log: " + str(len(etransform.error_log)))
             for entry in etransform.error_log:
                 print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
-        if nocompact:
+        if nocompact or g in no_compact_list:
             g_inst_final = str(g_inst)
         else:
             g_inst_final = compact_instructions(str(g_inst), safe_calls)
@@ -595,7 +599,7 @@ def main():
         if saveprograms:
             gfn = userNameToFileName(g) + ".instructions"
             gfnfile = open(gfn, "w")
-            if nocompact:
+            if nocompact or g in no_compact_list:
                 gfnfile.write(g_inst_final)
             else:
                 gfnfile.write("Uncompacted:\n\n")

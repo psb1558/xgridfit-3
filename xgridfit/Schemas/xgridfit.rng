@@ -247,6 +247,11 @@
       <ref name="YESNO"/>
     </attribute>
   </define>
+  <define name="att.compact">
+    <attribute name="compact">
+      <ref name="YESNO"/>
+    </attribute>
+  </define>
   <define name="att.whichpointer">
     <attribute name="whichpointer"/>
   </define>
@@ -395,9 +400,9 @@
     </choice>
   </define>
   <!--
-    
+
     Top level
-    
+
   -->
   <define name="xgridfit">
     <element name="xgridfit">
@@ -454,9 +459,9 @@
     </element>
   </define>
   <!--
-    
+
     Value declarations
-    
+
   -->
   <define name="constant">
     <element name="constant">
@@ -487,19 +492,10 @@
     <ref name="att.target"/>
   </define>
   <!--
-    
+
     Controlling compilation of glyph programs
-    
+
   -->
-  <define name="glyph-select">
-    <element name="glyph-select">
-      <list>
-        <zeroOrMore>
-          <ref name="token.ps-name"/>
-        </zeroOrMore>
-      </list>
-    </element>
-  </define>
   <define name="no-compile">
     <element name="no-compile">
       <zeroOrMore>
@@ -511,9 +507,9 @@
     </element>
   </define>
   <!--
-    
+
     Script I/O
-    
+
   -->
   <define name="inputfont">
     <element name="inputfont">
@@ -526,9 +522,9 @@
     </element>
   </define>
   <!--
-    
+
     Top-level declarations
-    
+
   -->
   <define name="round-state">
     <element name="round-state">
@@ -593,7 +589,6 @@
         <value>push-break</value>
         <value>max-twilight-points</value>
         <value>max-storage</value>
-        <value>legacy-storage</value>
         <value>max-stack</value>
         <value>use-truetype-defaults</value>
         <value>cleartype</value>
@@ -602,11 +597,6 @@
         <value>compile-globals</value>
         <value>init-graphics</value>
         <value>color</value>
-        <value>delete-all</value>
-        <value>combine-prep</value>
-        <value>auto-instr</value>
-        <value>auto-hint</value>
-        <value>cv-num-in-compile-if</value>
         <value>assume-always-y</value>
       </choice>
     </attribute>
@@ -830,11 +820,14 @@
     <optional>
       <ref name="att.assume-y"/>
     </optional>
+    <optional>
+      <ref name="att.compact"/>
+    </optional>
   </define>
   <!--
-    
+
     Miscellaneous / Oddball
-    
+
   -->
   <define name="message">
     <element name="message">
@@ -842,9 +835,9 @@
     </element>
   </define>
   <!--
-    
+
     Points and point structures
-    
+
   -->
   <define name="point">
     <element name="point">
@@ -947,9 +940,9 @@
     </element>
   </define>
   <!--
-    
+
     Point-moving instructions
-    
+
   -->
   <define name="mirp">
     <element name="mirp">
@@ -1385,9 +1378,9 @@
     </element>
   </define>
   <!--
-    
+
     Enable/disable instructions
-    
+
   -->
   <define name="disable-instructions">
     <element name="disable-instructions">
@@ -1400,9 +1393,9 @@
     </element>
   </define>
   <!--
-    
+
     Graphics state
-    
+
   -->
   <define name="set-vectors">
     <element name="set-vectors">
@@ -1651,9 +1644,9 @@
     </attribute>
   </define>
   <!--
-    
+
     Arithmetic elements
-    
+
   -->
   <define name="set-equal">
     <element name="set-equal">
@@ -1883,9 +1876,9 @@
     </element>
   </define>
   <!--
-    
+
     Function and macro calls
-    
+
   -->
   <define name="call-function">
     <element name="call-function">
@@ -1983,9 +1976,9 @@
     </element>
   </define>
   <!--
-    
+
     Conditionals
-    
+
   -->
   <define name="if">
     <element name="if">
@@ -2024,9 +2017,9 @@
     </element>
   </define>
   <!--
-    
+
     Getting info
-    
+
   -->
   <define name="measure-distance">
     <element name="measure-distance">
@@ -2054,9 +2047,9 @@
     </optional>
   </define>
   <!--
-    
+
     Primitives
-    
+
   -->
   <define name="command">
     <element name="command">
@@ -2107,9 +2100,9 @@
     </element>
   </define>
   <!--
-    
+
     XInclude
-    
+
   -->
   <define name="xg.xi.include.attlist">
     <optional>

@@ -256,6 +256,11 @@
       <ref name="YESNO"/>
     </attribute>
   </define>
+  <define name="att.compact">
+    <attribute name="compact">
+      <ref name="YESNO"/>
+    </attribute>
+  </define>
   <define name="att.whichpointer">
     <attribute name="whichpointer"/>
   </define>
@@ -500,15 +505,6 @@
     Controlling compilation of glyph programs
 
   -->
-  <define name="glyph-select">
-    <element name="glyph-select">
-      <list>
-        <zeroOrMore>
-          <ref name="token.pnm"/>
-        </zeroOrMore>
-      </list>
-    </element>
-  </define>
   <define name="no-compile">
     <element name="no-compile">
       <zeroOrMore>
@@ -605,7 +601,6 @@
         <value>push-break</value>
         <value>max-twilight-points</value>
         <value>max-storage</value>
-        <value>legacy-storage</value>
         <value>max-stack</value>
         <value>use-truetype-defaults</value>
         <value>cleartype</value>
@@ -614,11 +609,6 @@
         <value>compile-globals</value>
         <value>init-graphics</value>
         <value>color</value>
-        <value>delete-all</value>
-        <value>combine-prep</value>
-        <value>auto-instr</value>
-        <value>auto-hint</value>
-        <value>cv-num-in-compile-if</value>
         <value>assume-always-y</value>
       </choice>
     </attribute>
@@ -841,6 +831,9 @@
     </optional>
     <optional>
       <ref name="att.assume-y"/>
+    </optional>
+    <optional>
+      <ref name="att.compact"/>
     </optional>
   </define>
   <!--

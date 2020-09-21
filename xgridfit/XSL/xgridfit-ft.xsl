@@ -433,6 +433,7 @@
   <xsl:param name="stack-safe-list" select="'no'"/>
   <xsl:param name="get-cvt-list" select="'no'"/>
   <xsl:param name="get-glyph-list" select="'no'"/>
+  <xsl:param name="get-no-compact-list" select="'no'"/>
   <xsl:param name="get-cvar" select="'no'"/>
   <xsl:param name="another-test" select="'no'"/>
 
@@ -451,16 +452,6 @@
         <xsl:apply-templates select="xgf:pre-program"/>
       </xsl:when>
       <xsl:when test="$fpgm-only='yes'">
-        <!--
-        <xsl:message terminate="yes">
-          <xsl:text>function-base: </xsl:text>
-          <xsl:value-of select="$function-base"/>
-          <xsl:text>storage-base: </xsl:text>
-          <xsl:value-of select="$storage-base"/>
-          <xsl:text>cvt-base: </xsl:text>
-          <xsl:value-of select="$cvt-base"/>
-        </xsl:message>
-      -->
         <xsl:call-template name="make-new-functions"/>
       </xsl:when>
       <xsl:when test="$function-count='yes'">
@@ -474,6 +465,9 @@
       </xsl:when>
       <xsl:when test="$get-glyph-list='yes'">
         <xsl:call-template name="make-glyph-list"/>
+      </xsl:when>
+      <xsl:when test="$get-no-compact-list='yes'">
+        <xsl:call-template name="make-no-compact-list"/>
       </xsl:when>
       <xsl:when test="$get-cvar='yes'">
         <xsl:apply-templates select="/xgf:xgridfit/xgf:cvar"/>
@@ -562,6 +556,15 @@
 
   <xsl:template name="make-glyph-list">
     <xsl:for-each select="/xgf:xgridfit/xgf:glyph">
+      <xsl:value-of select="@ps-name"/>
+      <xsl:if test="position() != last()">
+        <xsl:text> </xsl:text>
+      </xsl:if>
+    </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template name="make-no-compact-list">
+    <xsl:for-each select="/xgf:xgridfit/xgf:glyph[@compact='no']">
       <xsl:value-of select="@ps-name"/>
       <xsl:if test="position() != last()">
         <xsl:text> </xsl:text>

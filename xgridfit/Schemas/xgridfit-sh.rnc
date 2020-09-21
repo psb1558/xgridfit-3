@@ -114,6 +114,7 @@ att.result-to = attribute result-to { xsd:NCName }
 att.test = attribute test { text }
 att.grid-fitted = attribute grid-fitted { YESNO }
 att.assume-y = attribute assume-y { YESNO }
+att.compact = attribute compact { YESNO }
 att.whichpointer = attribute whichpointer { text }
 att.id = attribute xml:id { xsd:ID }
 att.round = attribute round { text }
@@ -200,8 +201,6 @@ attlist.alias &=
 #
 # Controlling compilation of glyph programs
 #
-glyph-select =
-  element glyph-select { list { token.pnm* } }
 no-compile =
   element no-compile { (gl | xg.xi.include)* }
 #
@@ -262,7 +261,6 @@ attlist.default &=
     | "push-break"
     | "max-twilight-points"
     | "max-storage"
-    | "legacy-storage"
     | "max-stack"
     | "use-truetype-defaults"
     | "cleartype"
@@ -271,11 +269,6 @@ attlist.default &=
     | "compile-globals"
     | "init-graphics"
     | "color"
-    | "delete-all"
-    | "combine-prep"
-    | "auto-instr"
-    | "auto-hint"
-    | "cv-num-in-compile-if"
     | "assume-always-y"
   },
   att.val
@@ -351,7 +344,8 @@ attlist.gl &=
   att.pnm,
   attribute init-graphics { YESNO }?,
   att.id?,
-  att.assume-y?
+  att.assume-y?,
+  att.compact?
 #
 # Miscellaneous / Oddball
 #
