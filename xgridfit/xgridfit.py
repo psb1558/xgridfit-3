@@ -170,7 +170,7 @@ def compact_instructions(inst, sc):
     return(list_to_string(instruction_list))
 
 def install_cvt(fo, cvs, base):
-    """If base is greater than zero, we append cvs to an existing CVT table. If
+    """If base is greater than zero, we append CVs to an existing CVT table. If
     not, we generate a new table."""
     if base > 0:
         assert base == len(fo['cvt '].values)
@@ -231,9 +231,10 @@ def install_cvar(fo, cvarstore, keepold, cvtbase):
     """If keepold is True, we append our own cvar data to the existing
     TupleVariation objects. If False, generate our own cvar table. Since
     The old cvar may not exactly match the new one, there are contingencies:
-    If a tuple is missing in the existing or the xgf cvar, pad the new one
+    If a tuple is missing in the old or the new cvar, pad the new one
     and issue a warning. If there is no cvar at all in the existing font (this
-    can easily happen with VTT), pad all our tuples and issue a warning. In
+    can easily happen with VTT or the non-VF version of ttfautohint), pad all
+    our tuples and issue a warning. In
     such cases it may be a good idea to manually edit the cvar table."""
     cvtlen = len(fo['cvt '].values)
     if keepold:
@@ -243,7 +244,7 @@ def install_cvar(fo, cvarstore, keepold, cvtbase):
             oldcvarstore = fo['cvar'].variations
         except:
             if quietmode < 2:
-                print("No cvar table in existing font. Making a dummy table.")
+                print("Warning: No cvar table in existing font. Making a dummy table.")
             # Create a dummy cvar table to merge the new one into.
             complications = True
             cvardummy = []
@@ -474,7 +475,7 @@ def main():
         sys.exit(1)
     thisFont = ttLib.TTFont(inputfont)
     functionBase = 0     # Offset to account for functions in existing font
-    cvtBase      = 0     # Offset to account for cvs in existing font
+    cvtBase      = 0     # Offset to account for CVs in existing font
     storageBase  = 0     # Offset to account for storage in existing font
     maxStack     = 256   # Our (generous) default stack size
     twilightBase = 0     # Offset to account for twilight space in existing font
@@ -616,6 +617,10 @@ def main():
     thisFont['maxp'].maxStackElements = maxStack
     thisFont['maxp'].maxFunctionDefs = maxFunction
     thisFont['head'].flags |= 0b0000000000001000
+    if skipcomp:
+        if quietcount < 1:
+            print("As --nocompilation flag is set, exiting without writing font file.")
+        sys.exit(0)
     if not outputfont:
         outputfont = str(xgffile.xpath("/xgf:xgridfit/xgf:outputfont/text()",
                                        namespaces=ns)[0])
