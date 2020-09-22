@@ -48,7 +48,7 @@ and now you can call it this way:
 
 Because hinting is now done almost exclusively on the y axis, Xgridfit 3 has an "assume-always-y" default setting which allows optimization of some rounding operations, and also relieves you of having to tediously repeat ``<set-vectors> (<setvs>)`` and ``<interpolate-untouched-points> (<iup>)`` at the beginning and end of every glyph program. Distance-colors can now be associated with control-values, and a new default setting instructs Xgridfit to guess at the appropriate distance-color where none is given. Thus it is rarely necessary to indicate the color of individual moves.
 
-Finally Xgridfit 3 can produce a cvar table or combine its own cvar table with an existing one; in this and other ways it has been designed to work well with variable fonts.
+Finally, Xgridfit 3 can produce a cvar table or combine its own cvar table with an existing one; in this and other ways it has been redesigned to work well with variable fonts.
 
 To install Xgridfit, it is suggested that you run a Python3 virtual environment, as you very likely do already for programs like ttx and fontmake. Unzip the program files in any convenient place, change to the root directory (the one with setup.py in it) and type
 
