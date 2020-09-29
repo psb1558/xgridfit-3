@@ -63,6 +63,6 @@ $ xgridfit MyFontInstructions.xgf
 
 That's all! Xgridfit will compile the instructions in your ``.xgf`` file, open the font, merge in the new instructions, and save the font under a new name.
 
-The original documentation is [here](http://xgridfit.sourceforge.net/). It is mostly still valid, but some obsolete features have been cleared away. An updated element reference is in the doc folder; for a quick summary type ``xgridfit -h``.
+The original documentation is [here](http://xgridfit.sourceforge.net/). It is mostly still valid, but some obsolete features have been cleared away. An updated element reference is in the doc folder; for a quick summary of command-line arguments, type ``xgridfit -h``.
 
 Xgridfit 3 is licensed under the Apache license, version 2.0.
