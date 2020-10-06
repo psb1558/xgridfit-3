@@ -577,9 +577,15 @@ def main():
 
     # Now loop through the glyphs for which there is code.
 
+    cycler = 0
     for g in glyph_list:
         if quietcount < 1:
             print("Processing glyph " + g)
+        elif quietcount < 2 and cycler == 4:
+            print(".", end=" ", flush=True)
+        cycler += 1
+        if cycler == 5:
+            cycler = 0
         try:
             gt = "'" + g + "'"
             glyph_args = {'singleGlyphId': gt}
@@ -608,6 +614,7 @@ def main():
                 gfnfile.write("\n\nCompacted:\n\n")
                 gfnfile.write(g_inst_final)
             gfnfile.close
+    print("")
 
     if quietcount < 1:
         print("Cleaning up and writing the new font")
