@@ -9,6 +9,7 @@ import sys
 import os
 import argparse
 import array
+import re
 import pkg_resources
 
 #      This file is part of xgridfit, version 3.
@@ -35,6 +36,8 @@ byte_push_instructions = [ 'PUSHB', 'NPUSHB' ]
 maxInstructions = 200
 
 quietcount = 0
+
+coordinateFuzz = 1
 
 def get_file_path(fn):
     return pkg_resources.resource_filename(__name__, fn)
@@ -243,7 +246,7 @@ def install_cvar(fo, cvarstore, keepold, cvtbase):
         try:
             oldcvarstore = fo['cvar'].variations
         except:
-            if quietmode < 2:
+            if quietcount < 2:
                 print("Warning: No cvar table in existing font. Making a dummy table.")
             # Create a dummy cvar table to merge the new one into.
             complications = True
@@ -321,6 +324,94 @@ def install_cvar(fo, cvarstore, keepold, cvtbase):
         fo['cvar'] = ttFont.newTable('cvar')
         fo['cvar'].variations = ts
 
+def make_coordinate_index(glist, fo):
+    """ glyph list, the font object. """
+    coordinateIndex = {}
+    for gn in glist:
+        currentGlyph = fo['glyf'][gn]
+        if not currentGlyph.isComposite():
+            c = currentGlyph.getCoordinates(fo['glyf'])
+            pointIndex = 0
+            for point in c[0]:
+                pp = gn + "@" + str(point).replace('(','').replace(')','').replace(',','x').replace(' ','')
+                coordinateIndex[pp] = pointIndex
+                pointIndex += 1
+    return coordinateIndex
+
+def rewrite_point_string(original_point_string, coordinateIndex, coord_pattern, glyph_name):
+    """ Determines whether original_point_string is a pair of coordinates for
+        a point, and if so, looks up the point number in coordinateIndex. If
+        not, simply returns the original value. In theory, this should leave
+        simple expressions undisturbed, e.g. {125;10} + 4. """
+    coord = coord_pattern.search(original_point_string)
+    if coord:
+        matched_string = coord.group()
+        split_string = coord_pattern.split(original_point_string)
+        string_index = split_string.index(matched_string)
+        coord_id = glyph_name + '@' + matched_string.replace('{','').replace('}','').replace(';','x').replace(' ','')
+        try:
+            point_number = coordinateIndex[coord_id]
+        except KeyError:
+            point_number = coordinateFuzzyMatch(coord_id, coordinateIndex)
+            try:
+                int(point_number)
+            except TypeError:
+                print("In glyph " + glyph_name + ", can't resolve coordinates " + matched_string)
+                sys.exit(1)
+        string_counter = 0
+        substitute_string = ""
+        for string_bit in split_string:
+            if string_counter == string_index:
+                substitute_string = substitute_string + str(point_number)
+            else:
+                substitute_string = substitute_string + string_bit
+            string_counter += 1
+        return substitute_string
+    else:
+        return original_point_string
+
+def coordinateFuzzyMatch(coordID, coordinateIndex):
+    splitCoordID = coordID.split('@')
+    glyphID = splitCoordID[0]
+    coordinates = splitCoordID[1].split('x')
+    originalX = int(coordinates[0])
+    originalY = int(coordinates[1])
+    startX = originalX - coordinateFuzz
+    endX = originalX + coordinateFuzz
+    startY = originalY - coordinateFuzz
+    endY = originalY + coordinateFuzz
+    Xcounter = startX
+    while Xcounter <= endX:
+        Ycounter = startY
+        while Ycounter <= endY:
+            teststring = glyphID + '@' + str(Xcounter) + 'x' + str(Ycounter)
+            try:
+                ci = coordinateIndex[teststring]
+                if quietcount < 2:
+                    print("Warning: In glyph " + glyphID + ", point " + str(ci) + " found at coordinates " +
+                          str(Xcounter) + "," + str(Ycounter) + " instead of " + str(originalX) + "," + str(originalY) + ".")
+                return ci
+            except KeyError:
+                Ycounter += 1
+        Xcounter += 1
+    return None
+
+def coordinates_to_points(glist, xgffile, coordinateIndex, ns):
+    """ glyph list, xgf program, coordinate index, namespaces.
+        surveys all the glyph programs in the file and changes coordinate
+        pairs (e.g. {125,-3}) to point numbers. """
+    coord_pattern = re.compile(r'(\{[0-9\-]{1,4};[0-9\-]{1,4}\})')
+    for gn in glist:
+        points = xgffile.xpath("/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']/descendant::xgf:point".format(gnm=gn), namespaces=ns)
+        for p in points:
+            p.attrib['num'] = rewrite_point_string(p.attrib['num'], coordinateIndex, coord_pattern, gn)
+        params = xgffile.xpath("/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']/descendant::xgf:with-param".format(gnm=gn), namespaces=ns)
+        for p in params:
+            p.attrib['value'] = rewrite_point_string(p.attrib['value'], coordinateIndex, coord_pattern, gn)
+        constants = xgffile.xpath("/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']/descendant::xgf:constant".format(gnm=gn), namespaces=ns)
+        for c in constants:
+            c.attrib['value'] = rewrite_point_string(c.attrib['value'], coordinateIndex, coord_pattern, gn)
+
 def validate(f, syntax, noval):
     if noval and quietcount < 1:
         print("Skipping validation")
@@ -361,7 +452,7 @@ def main():
     argparser.add_argument('-a', '--assume_y', choices=['yes', 'no'],
                            help="Whether compiler should assume that your hints are all vertical")
     argparser.add_argument('-q', '--quiet', action="count", default=0,
-                           help="No progress messages (repeat to suppress warnings too)")
+                           help="No progress messages (-qq to suppress warnings too)")
     argparser.add_argument('-g', '--glyphlist', help="List of glyphs to compile")
     argparser.add_argument('-i', '--inputfont', action='store', type=str,
                            help="The font file to add instructions to")
@@ -369,6 +460,8 @@ def main():
                            help="The font file to write")
     argparser.add_argument('-s', '--saveprograms', action="store_true",
                            help="Save generated instructions to text files")
+    argparser.add_argument('-f', '--coordinatefuzz', type=int, default=1,
+                           help="Error tolerance for points identified by coordinates (default is 1)")
     argparser.add_argument("inputfile", help='Xgridfit (XML) file to process.')
     argparser.add_argument("outputfile", nargs='?',
                            help="Filename for options (e.g. --expand) that produce text output")
@@ -390,9 +483,13 @@ def main():
     replaceprep  = args.replaceprep
     saveprograms = args.saveprograms
     nocompact    = args.nocompact
+    cfuzz        = args.coordinatefuzz
 
     if quietcount < 1:
         print("Opening the Xgridfit file ...")
+
+    if cfuzz > 1:
+        coordinateFuzz = cfuzz
 
     xgffile = etree.parse(inputfile)
 
@@ -523,6 +620,12 @@ def main():
     else:
         no_compact_list = list(no_compact_list.split(" "))
 
+    # Now that we have a glyph list, we can make the coordinate index
+    # and substitute point numbers for coordinates.
+
+    coordinateIndex = make_coordinate_index(glyph_list, thisFont)
+    coordinates_to_points(glyph_list, xgffile, coordinateIndex, ns)
+
     # Back to the xgf file. We're also going to need a list of stack-safe
     # functions in this font.
 
@@ -598,6 +701,7 @@ def main():
             print(e)
             for entry in etransform.error_log:
                 print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
+            sys.exit(1)
         if nocompact or g in no_compact_list:
             g_inst_final = str(g_inst)
         else:
