@@ -7,13 +7,9 @@ examples/schemas.xml
 *.txt
 Xgridfit.egg-info/PKG-INFO
 req
-build/lib/src/__init__.py
-build/lib/src/xgflib.py
-build/lib/src/xgridfit.py
-build/lib/xgridfit/__init__.py
-build/lib/xgridfit/xgflib.py
-build/lib/xgridfit/xgridfit.py
+build/
 dist/Xgridfit-3.0-py3.7.egg
 xgridfit/__pycache__/__init__.cpython-37.pyc
 xgridfit/__pycache__/xgflib.cpython-37.pyc
 XSL/expand.xsl.old
+doc/.~lock.Xgridfit-reference.odt#
