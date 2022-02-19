@@ -85,6 +85,7 @@
     <xsl:variable name="current">
       <xsl:call-template name="get-first-token">
         <xsl:with-param  name="s" select="$s"/>
+        <xsl:with-param name="left-paren-sep" select="'('"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:variable name="remaining">

@@ -108,6 +108,7 @@
     -->
   <xsl:template name="get-first-token">
     <xsl:param name="s"/>
+    <xsl:param name="left-paren-sep" select="'('"/>
     <xsl:variable name="use-s">
       <xsl:value-of select="normalize-space($s)"/>
     </xsl:variable>
@@ -121,7 +122,7 @@
         <xsl:value-of
           select="normalize-space(substring($use-s,1,number($n)))"/>
       </xsl:when>
-      <xsl:when test="contains($use-s,'(')">
+      <xsl:when test="contains($use-s,$left-paren-sep)">
         <xsl:variable name="st" select="substring-before($use-s,'(')"/>
         <xsl:choose>
           <xsl:when test="contains($st,' ')">
