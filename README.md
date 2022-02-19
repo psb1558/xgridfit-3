@@ -8,7 +8,8 @@ A TrueType hinting language
 You can now identify points by either index (the usual
 method) or by coordinates. Instead of writing an integer, write the point's
 coordinates in braces, separated by a semicolon, e.g. `{145;-12}`. This
-feature takes advantage of the way Glyphs, fontmake, and presumably other
+feature takes advantage of the way [Glyphs](https://glyphsapp.com/),
+[fontmake](https://github.com/googlefonts/fontmake), and presumably other
 programs keep on-curve points at the same location when generating fonts.
 A small Python script for Glyphs is included, which copies the coordinates
 of selected points to the clipboard in the format required by Xgridfit. This
