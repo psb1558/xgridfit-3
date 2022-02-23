@@ -483,6 +483,12 @@
     <xsl:param name="all-vars"
                select="xgf:variable | parent::xgf:function/xgf:variable"/>
     <xsl:param name="v-plural" select="false()"/>
+    <!--
+      If attribute primitive='yes' is present, skip all the setup and don't
+      pop parameters off the stack. We assume that the programmer is handling
+      the stack responsibly.
+    -->
+    <xsl:variable name="is-primitive" select="@primitive = 'yes'"/>
     <xsl:if test="local-name() = 'variant' and (@name or xgf:param or xgf:variable)">
       <xsl:call-template name="error-message">
         <xsl:with-param name="msg">
@@ -530,72 +536,76 @@ contain param or variable elements.</xsl:text>
          var-function-stack-count. This will help us find
          parameters when we need them, even if stuff has been pushed onto the
          stack in the meantime. -->
-    <xsl:if test="$all-params">
-      <xsl:call-template name="simple-command">
-        <xsl:with-param name="cmd" select="'DEPTH'"/>
-      </xsl:call-template>
-      <xsl:call-template name="stack-top-to-storage">
-        <xsl:with-param name="loc">
-          <xsl:call-template name="resolve-std-variable-loc">
-            <xsl:with-param name="n" select="$var-function-stack-count"/>
-          </xsl:call-template>
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:if>
+    <xsl:if test="not($is-primitive)">
+      <xsl:if test="$all-params">
+        <xsl:call-template name="simple-command">
+          <xsl:with-param name="cmd" select="'DEPTH'"/>
+        </xsl:call-template>
+        <xsl:call-template name="stack-top-to-storage">
+          <xsl:with-param name="loc">
+            <xsl:call-template name="resolve-std-variable-loc">
+              <xsl:with-param name="n" select="$var-function-stack-count"/>
+            </xsl:call-template>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:if>
     <!-- If we have declared variables, place the new top of the variable
          frame in var-frame-top. -->
-    <xsl:if test="$all-vars">
-      <xsl:call-template name="push-num">
-        <xsl:with-param name="num">
-          <xsl:call-template name="resolve-std-variable-loc">
-            <xsl:with-param name="n" select="$var-frame-top"/>
-          </xsl:call-template>
-        </xsl:with-param>
-      </xsl:call-template>
-      <xsl:call-template name="number-command">
-        <xsl:with-param name="num">
-          <xsl:call-template name="resolve-std-variable-loc">
-            <xsl:with-param name="n" select="$var-frame-bottom"/>
-          </xsl:call-template>
-        </xsl:with-param>
-        <xsl:with-param name="cmd" select="'RS'"/>
-      </xsl:call-template>
-      <xsl:call-template name="number-command">
-        <xsl:with-param name="num" select="count($all-vars)"/>
-        <xsl:with-param name="cmd" select="'ADD'"/>
-      </xsl:call-template>
-      <xsl:call-template name="simple-command">
-        <xsl:with-param name="cmd" select="'WS'"/>
-      </xsl:call-template>
-      <!-- Also, initialize any that want initializing. -->
-      <xsl:apply-templates select="$all-vars" mode="initialize"/>
-    </xsl:if>
-    <!-- If the function is declared as expecting a return value, initialize
-         var-return-value to zero. This is a safety measure, since it is
-         impractical (right now at least) to check that the function contains
-         an instruction that writes to that location. -->
-    <xsl:if test="@return = 'yes'">
-      <xsl:call-template name="push-list">
-        <xsl:with-param name="list">
-          <xsl:call-template name="resolve-std-variable-loc">
-            <xsl:with-param name="n" select="$var-return-value"/>
-          </xsl:call-template>
-          <xsl:value-of select="$semicolon"/>
-          <xsl:value-of select="0"/>
-        </xsl:with-param>
-      </xsl:call-template>
-      <xsl:call-template name="simple-command">
-        <xsl:with-param name="cmd" select="'WS'"/>
-      </xsl:call-template>
+      <xsl:if test="$all-vars">
+        <xsl:call-template name="push-num">
+          <xsl:with-param name="num">
+            <xsl:call-template name="resolve-std-variable-loc">
+              <xsl:with-param name="n" select="$var-frame-top"/>
+            </xsl:call-template>
+          </xsl:with-param>
+        </xsl:call-template>
+        <xsl:call-template name="number-command">
+          <xsl:with-param name="num">
+            <xsl:call-template name="resolve-std-variable-loc">
+              <xsl:with-param name="n" select="$var-frame-bottom"/>
+            </xsl:call-template>
+          </xsl:with-param>
+          <xsl:with-param name="cmd" select="'RS'"/>
+        </xsl:call-template>
+        <xsl:call-template name="number-command">
+          <xsl:with-param name="num" select="count($all-vars)"/>
+          <xsl:with-param name="cmd" select="'ADD'"/>
+        </xsl:call-template>
+        <xsl:call-template name="simple-command">
+          <xsl:with-param name="cmd" select="'WS'"/>
+        </xsl:call-template>
+        <!-- Also, initialize any that want initializing. -->
+        <xsl:apply-templates select="$all-vars" mode="initialize"/>
+      </xsl:if>
+      <!-- If the function is declared as expecting a return value, initialize
+           var-return-value to zero. This is a safety measure, since it is
+           impractical (right now at least) to check that the function contains
+           an instruction that writes to that location. -->
+      <xsl:if test="@return = 'yes'">
+        <xsl:call-template name="push-list">
+          <xsl:with-param name="list">
+            <xsl:call-template name="resolve-std-variable-loc">
+              <xsl:with-param name="n" select="$var-return-value"/>
+            </xsl:call-template>
+            <xsl:value-of select="$semicolon"/>
+            <xsl:value-of select="0"/>
+          </xsl:with-param>
+        </xsl:call-template>
+        <xsl:call-template name="simple-command">
+          <xsl:with-param name="cmd" select="'WS'"/>
+        </xsl:call-template>
+      </xsl:if>
     </xsl:if>
     <!-- Now execute instructions. -->
     <xsl:apply-templates/>
     <!-- Pop all the parameters off the stack, and we're done. -->
-    <xsl:for-each select="$all-params">
-      <xsl:call-template name="simple-command">
-        <xsl:with-param name="cmd" select="'POP'"/>
-      </xsl:call-template>
-    </xsl:for-each>
+    <xsl:if test="not($is-primitive)">
+      <xsl:for-each select="$all-params">
+        <xsl:call-template name="simple-command">
+          <xsl:with-param name="cmd" select="'POP'"/>
+        </xsl:call-template>
+      </xsl:for-each>
+    </xsl:if>
     <xsl:call-template name="simple-command">
       <xsl:with-param name="cmd" select="'ENDF'"/>
     </xsl:call-template>

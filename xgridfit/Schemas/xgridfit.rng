@@ -709,6 +709,11 @@
       </attribute>
     </optional>
     <optional>
+      <attribute name="primitive">
+        <ref name="YESNO"/>
+      </attribute>
+    </optional>
+    <optional>
       <attribute name="stack-safe">
         <ref name="YESNO"/>
       </attribute>

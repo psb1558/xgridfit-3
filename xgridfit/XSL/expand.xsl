@@ -342,6 +342,7 @@
 
   <xsl:template match="xgf:fn">
     <xgf:function>
+      <xsl:apply-templates select="@primitive"/>
       <xsl:apply-templates select="@return"/>
       <xsl:apply-templates select="@xml:id"/>
       <xsl:apply-templates select="@nm"/>
