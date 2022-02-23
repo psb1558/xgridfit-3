@@ -332,9 +332,10 @@ def make_coordinate_index(glist, fo):
         if not currentGlyph.isComposite():
             c = currentGlyph.getCoordinates(fo['glyf'])
             pointIndex = 0
-            for point in c[0]:
-                pp = gn + "@" + str(point).replace('(','').replace(')','').replace(',','x').replace(' ','')
-                coordinateIndex[pp] = pointIndex
+            for point in zip(c[0], c[2]):
+                if point[1] & 0x01 == 0x01:
+                    pp = gn + "@" + str(point[0]).replace('(','').replace(')','').replace(',','x').replace(' ','')
+                    coordinateIndex[pp] = pointIndex
                 pointIndex += 1
     return coordinateIndex
 
