@@ -15,6 +15,16 @@ A small Python script for Glyphs is included, which copies the coordinates
 of selected points to the clipboard in the format required by Xgridfit. This
 feature is especially useful for variable fonts.
 
+**New in version 3.2.1:**
+
+**(a)** If you add the attribute `primitive="yes"` to the `function` element, the
+compiler will omit the code that enables high-level programming constructs in
+functions, and you will be responsible for writing the code (probably using
+low-level `command` elements) and managing the stack. **(b)** Only on-curve points
+can be identified by their coordinates. Use point arithmetic (e.g. "{23;45} + 1")
+if it is necessary to reach off-curve points. This saves a good bit of memory
+and may speed the conversion of coordinates to point indices.
+
 ---
 
 Xgridfit is an XML-based language for hinting TrueType fonts. It has been around since circa 2006 but has never been popular (I know of three fonts besides my own that it was used to hint); and in recent years it has been broken by its dependence on LibXML2's obsolete Python bindings. In fact, that old version suffered from a welter of dependencies: FontForge and various XML parsers and validators. It was verbose, too, and its verbosity wasn't entirely relieved by the use of auto-completing XML editors like Emacs/Nxml and oXygen. Finally, the arrangement whereby the compiler generated a Python script instead of interacting directly with the font was sort of braindead.
