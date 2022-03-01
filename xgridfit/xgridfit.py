@@ -406,7 +406,10 @@ def coordinates_to_points(glist, xgffile, coordinateIndex, ns):
         points = xgffile.xpath("/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']/descendant::xgf:point".format(gnm=gn), namespaces=ns)
         for p in points:
             p.attrib['num'] = rewrite_point_string(p.attrib['num'], coordinateIndex, coord_pattern, gn)
-        params = xgffile.xpath("/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']/descendant::xgf:with-param".format(gnm=gn), namespaces=ns)
+        wparams = xgffile.xpath("/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']/descendant::xgf:with-param".format(gnm=gn), namespaces=ns)
+        for p in wparams:
+            p.attrib['value'] = rewrite_point_string(p.attrib['value'], coordinateIndex, coord_pattern, gn)
+        params = xgffile.xpath("/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']/descendant::xgf:param".format(gnm=gn), namespaces=ns)
         for p in params:
             p.attrib['value'] = rewrite_point_string(p.attrib['value'], coordinateIndex, coord_pattern, gn)
         constants = xgffile.xpath("/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']/descendant::xgf:constant".format(gnm=gn), namespaces=ns)
