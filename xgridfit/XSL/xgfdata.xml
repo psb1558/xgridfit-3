@@ -265,19 +265,27 @@
       <entry name="engine-version" selector="1"/>
       <entry name="is-glyph-rotated" selector="2"/>
       <entry name="is-glyph-stretched" selector="4"/>
+      <entry name="are-font-variations-supported" selector="8"/>
+      <entry name="are-vertical-phantom-points-used" selector="16"/>
       <entry name="is-glyph-grayscale" selector="32"/>
       <entry name="is-glyph-transformed" selector="38"/>
       <entry name="is-cleartype-enabled" selector="64"/>
       <entry name="is-compatible-width-enabled" selector="128"/>
       <entry name="is-symmetrical-smoothing-enabled" selector="256"/>
       <entry name="is-BGR-order" selector="512"/>
+      <entry name="is-subpixel-positioned-text-enabled" selector="1024"/>
+      <entry name="is-symmetric-rendering-enabled" selector="2048"/>
+      <entry name="is-gray-rendering-enabled" selector="4096"/>
     </getinfo>
     <engine-versions>
       <entry name="engine-mac-6-init" num="1"/>
       <entry name="engine-mac-7" num="2"/>
       <entry name="engine-windows-3-1" num="3"/>
       <entry name="engine-freetype-1" num="3"/>
-      <entry name="engine-kanjitalk-6-1" num="4"/>
+      <entry name="engine-mac-6-2" num="4"/>
+      <entry name="engine-kirin-printer" num="5"/>
+      <entry name="engine-mac-7-1" num="6"/>
+      <entry name="engine-mac-quickdraw-gx" num="7"/>
       <entry name="engine-ms-1-5" num="33"/>
       <entry name="engine-ms-1-6" num="34"/>
       <entry name="engine-ms-1-7" num="35"/>
@@ -285,5 +293,9 @@
       <entry name="engine-ms-1-6-plus" num="36"/>
       <entry name="engine-ms-1-8" num="37"/>
       <entry name="engine-ms-1-9" num="38"/>
+      <entry name="engine-ms-2-0" num="39"/>
+      <entry name="engine-ms-2-1" num="40"/>
+      <entry name="engine-ms-2-2" num="41"/>
+      <entry name="engine-ms-2-3" num="42"/>
     </engine-versions>
 </xgfdata>
