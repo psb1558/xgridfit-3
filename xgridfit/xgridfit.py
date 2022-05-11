@@ -339,17 +339,30 @@ def make_coordinate_index(glist, fo):
                 pointIndex += 1
     return coordinateIndex
 
-def rewrite_point_string(original_point_string, coordinateIndex, coord_pattern, glyph_name):
+def rewrite_point_string(original_point_string, coordinateIndex, coord_pattern, glyph_name,
+                         xoffset, yoffset, crash=True):
     """ Determines whether original_point_string is a pair of coordinates for
         a point, and if so, looks up the point number in coordinateIndex. If
         not, simply returns the original value. In theory, this should leave
         simple expressions undisturbed, e.g. {125;10} + 4. """
     coord = coord_pattern.search(original_point_string)
     if coord:
+        # Extract the coordinates (saving the rest); split them apart so that
+        # offsets can be applied to them, then reassemble them as a key for the
+        # coordinate list.
         matched_string = coord.group()
         split_string = coord_pattern.split(original_point_string)
         string_index = split_string.index(matched_string)
-        coord_id = glyph_name + '@' + matched_string.replace('{','').replace('}','').replace(';','x').replace(' ','')
+        raw_coord = matched_string.replace('{','').replace('}','').replace(' ','')
+        coord_list = raw_coord.split(';')
+        x_coord = int(coord_list[0]) + int(xoffset)
+        y_coord = int(coord_list[1]) + int(yoffset)
+        coord_id = glyph_name + '@' + str(x_coord) + 'x' + str(y_coord)
+
+        # Try to look up the point number from coordinates. If that fails,
+        # try to make a fuzzy match. If that fails, fall back on the val
+        # attribute (if we've been evaluating the coord attribute). Failing
+        # that, we crash.
         try:
             point_number = coordinateIndex[coord_id]
         except KeyError:
@@ -357,8 +370,15 @@ def rewrite_point_string(original_point_string, coordinateIndex, coord_pattern, 
             try:
                 int(point_number)
             except TypeError:
-                print("In glyph " + glyph_name + ", can't resolve coordinates " + matched_string)
-                sys.exit(1)
+                if crash:
+                    print("In glyph " + glyph_name + ", can't resolve coordinates " + matched_string)
+                    sys.exit(1)
+                else:
+                    if quietcount < 2:
+                        print("Can't resolve coordinate " + original_point_string + "; falling back to value")
+                    raise Exception("Can't resolve coordinate")
+
+        # Reassemble the expression.
         string_counter = 0
         substitute_string = ""
         for string_bit in split_string:
@@ -372,6 +392,11 @@ def rewrite_point_string(original_point_string, coordinateIndex, coord_pattern, 
         return original_point_string
 
 def coordinateFuzzyMatch(coordID, coordinateIndex):
+    # This is an extremely inefficient search, executed only if no match found
+    # without it. Construct a box around the coordinate (default is 2x2), and
+    # for each position in that box, construct a potential key for
+    # coordinateIndex. If we find a match, we issue a warning and go on. If
+    # not, return None and (probably) crash.
     splitCoordID = coordID.split('@')
     glyphID = splitCoordID[0]
     coordinates = splitCoordID[1].split('x')
@@ -400,21 +425,73 @@ def coordinateFuzzyMatch(coordID, coordinateIndex):
 def coordinates_to_points(glist, xgffile, coordinateIndex, ns):
     """ glyph list, xgf program, coordinate index, namespaces.
         surveys all the glyph programs in the file and changes coordinate
-        pairs (e.g. {125,-3}) to point numbers. """
+        pairs (e.g. {125;-3}) to point numbers. """
     coord_pattern = re.compile(r'(\{[0-9\-]{1,4};[0-9\-]{1,4}\})')
+    gPathString = "/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']"
     for gn in glist:
-        points = xgffile.xpath("/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']/descendant::xgf:point".format(gnm=gn), namespaces=ns)
+        try:
+            xoffset = xgffile.xpath(gPathString.format(gnm=gn), namespaces=ns)[0].attrib['xoffset']
+        except KeyError:
+            xoffset = "0"
+        try:
+            yoffset = xgffile.xpath(gPathString.format(gnm=gn), namespaces=ns)[0].attrib['yoffset']
+        except KeyError:
+            yoffset = "0"
+
+        points = xgffile.xpath((gPathString + "/descendant::xgf:point").format(gnm=gn), namespaces=ns)
         for p in points:
-            p.attrib['num'] = rewrite_point_string(p.attrib['num'], coordinateIndex, coord_pattern, gn)
-        wparams = xgffile.xpath("/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']/descendant::xgf:with-param".format(gnm=gn), namespaces=ns)
+            p.attrib['num'] = rewrite_point_string(p.attrib['num'],
+                                                   coordinateIndex,
+                                                   coord_pattern,
+                                                   gn,
+                                                   xoffset,
+                                                   yoffset)
+        wparams = xgffile.xpath((gPathString + "/descendant::xgf:with-param").format(gnm=gn), namespaces=ns)
         for p in wparams:
-            p.attrib['value'] = rewrite_point_string(p.attrib['value'], coordinateIndex, coord_pattern, gn)
-        params = xgffile.xpath("/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']/descendant::xgf:param".format(gnm=gn), namespaces=ns)
+            try:
+                # print(gn + ": converting " + p.attrib['value'])
+                p.attrib['value'] = rewrite_point_string(p.attrib['value'],
+                                                         coordinateIndex,
+                                                         coord_pattern,
+                                                         gn,
+                                                         xoffset,
+                                                         yoffset)
+            except:
+                pass
+
+        params = xgffile.xpath((gPathString + "/descendant::xgf:param").format(gnm=gn), namespaces=ns)
         for p in params:
-            p.attrib['value'] = rewrite_point_string(p.attrib['value'], coordinateIndex, coord_pattern, gn)
-        constants = xgffile.xpath("/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']/descendant::xgf:constant".format(gnm=gn), namespaces=ns)
+            p.attrib['value'] = rewrite_point_string(p.attrib['value'],
+                                                     coordinateIndex,
+                                                     coord_pattern,
+                                                     gn,
+                                                     xoffset,
+                                                     yoffset)
+
+        constants = xgffile.xpath((gPathString + "/descendant::xgf:constant").format(gnm=gn), namespaces=ns)
         for c in constants:
-            c.attrib['value'] = rewrite_point_string(c.attrib['value'], coordinateIndex, coord_pattern, gn)
+            orig_value = c.attrib['value']
+            try:
+                orig_coord = c.attrib['coordinate']
+                point_num = rewrite_point_string(orig_coord,
+                                                 coordinateIndex,
+                                                 coord_pattern,
+                                                 gn,
+                                                 xoffset,
+                                                 yoffset,
+                                                 False)
+                if str(point_num) != orig_value:
+                    if quietcount < 2:
+                        print("Warning: In glyph '" + gn + "', changing value " + orig_value + " to " +
+                              str(point_num) + " after coordinate " + orig_coord)
+                    c.attrib['value'] = str(point_num)
+            except:
+                c.attrib['value'] = rewrite_point_string(orig_value,
+                                                         coordinateIndex,
+                                                         coord_pattern,
+                                                         gn,
+                                                         xoffset,
+                                                         yoffset)
 
 def validate(f, syntax, noval):
     if noval and quietcount < 1:
