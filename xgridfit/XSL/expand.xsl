@@ -45,6 +45,12 @@
    </xsl:attribute>
   </xsl:template>
 
+  <xsl:template match="@coord">
+    <xsl:attribute name="coordinate">
+      <xsl:value-of select="."/>
+    </xsl:attribute>
+  </xsl:template>
+
   <xsl:template match="@pnm">
    <xsl:attribute name="ps-name">
       <xsl:value-of select="."/>
@@ -326,6 +332,7 @@
     <xgf:constant>
       <xsl:apply-templates select="@nm"/>
       <xsl:apply-templates select="@val"/>
+      <xsl:apply-templates select="@coord"/>
       <xsl:apply-templates select="node()"/>
     </xgf:constant>
   </xsl:template>
@@ -359,6 +366,8 @@
       <xsl:apply-templates select="@pnm"/>
       <xsl:apply-templates select="@assume-y"/>
       <xsl:apply-templates select="@compact"/>
+      <xsl:apply-templates select="@xoffset"/>
+      <xsl:apply-templates select="@yoffset"/>
       <xsl:apply-templates select="node()"/>
     </xgf:glyph>
   </xsl:template>

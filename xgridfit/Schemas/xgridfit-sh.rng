@@ -164,6 +164,13 @@
   <define name="att.val">
     <attribute name="val"/>
   </define>
+  <define name="att.coord">
+    <attribute name="coord">
+      <data type="token">
+        <param name="pattern">\{-?[0-9]{1,4};-?[0-9]{1,4}\}</param>
+      </data>
+    </attribute>
+  </define>
   <define name="att.num">
     <attribute name="num"/>
   </define>
@@ -475,6 +482,9 @@
   <define name="cn">
     <element name="cn">
       <ref name="attlist.val.with.name"/>
+      <optional>
+        <ref name="att.coord"/>
+      </optional>
       <empty/>
     </element>
   </define>
@@ -839,6 +849,16 @@
     </optional>
     <optional>
       <ref name="att.compact"/>
+    </optional>
+    <optional>
+      <attribute name="xoffset">
+        <data type="int"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="yoffset">
+        <data type="int"/>
+      </attribute>
     </optional>
   </define>
   <!--

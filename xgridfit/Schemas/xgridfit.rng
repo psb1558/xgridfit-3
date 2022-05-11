@@ -828,6 +828,16 @@
     <optional>
       <ref name="att.compact"/>
     </optional>
+    <optional>
+      <attribute name="xoffset">
+        <data type="int"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="yoffset">
+        <data type="int"/>
+      </attribute>
+    </optional>
   </define>
   <!--
 

@@ -99,6 +99,7 @@ token.pnm = xsd:token {pattern = "\.notdef|[A-Za-z_][A-Za-z0-9_\.]{0,30}" }
 att.p = attribute p { text }
 att.r = attribute r { text }
 att.val = attribute val { text }
+att.coord = attribute coord { xsd:token { pattern = "\{-?[0-9]{1,4};-?[0-9]{1,4}\}" }}
 att.num = attribute num { text }
 att.n = attribute n { text }
 att.nm = attribute nm { xsd:NCName }
@@ -187,7 +188,7 @@ xgridfit =
 # Value declarations
 #
 cn =
-  element cn { attlist.val.with.name, empty }
+  element cn { attlist.val.with.name, att.coord?, empty }
 var =
   element var { attlist.var, empty }
 attlist.var &=
@@ -346,7 +347,9 @@ attlist.gl &=
   attribute init-graphics { YESNO }?,
   att.id?,
   att.assume-y?,
-  att.compact?
+  att.compact?,
+  attribute xoffset { xsd:int }?,
+  attribute yoffset { xsd:int }?
 #
 # Miscellaneous / Oddball
 #

@@ -101,6 +101,7 @@ programming =
   various | movements | graphics | vars | flow | measure | primitive
 token.ps-name = xsd:token {pattern = "\.notdef|[A-Za-z_][A-Za-z0-9_\.]{0,30}" }
 att.value = attribute value { text }
+att.coordinate = attribute coordinate { xsd:token { pattern = "\{-?[0-9]{1,4};-?[0-9]{1,4}\}" }}
 att.num = attribute num { text }
 att.name = attribute name { xsd:NCName }
 att.ref = attribute ref { xsd:NCName }
@@ -188,7 +189,7 @@ xgridfit =
 # Value declarations
 #
 constant =
-  element constant { attlist.value.with.name, empty }
+  element constant { attlist.value.with.name, att.coordinate?, empty }
 variable =
   element variable { attlist.variable, empty }
 attlist.variable &=
@@ -345,7 +346,9 @@ attlist.glyph &=
   attribute init-graphics { YESNO }?,
   att.id?,
   att.assume-y?,
-  att.compact?
+  att.compact?,
+  attribute xoffset { xsd:int }?,
+  attribute yoffset { xsd:int }?
 #
 # Miscellaneous / Oddball
 #
