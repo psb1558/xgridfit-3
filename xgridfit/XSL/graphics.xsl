@@ -1089,14 +1089,14 @@
     <xsl:variable name="ln" select="substring(local-name(),6)"/>
     <xsl:variable name="v">
       <xsl:choose>
-  <xsl:when test="$ln = 'delta-shift'">
-    <xsl:call-template name="resolve-delta-shift-value">
-      <xsl:with-param name="v" select="@units-per-pixel"/>
-    </xsl:call-template>
-  </xsl:when>
-  <xsl:otherwise>
-    <xsl:value-of select="@value"/>
-  </xsl:otherwise>
+        <xsl:when test="$ln = 'delta-shift'">
+          <xsl:call-template name="resolve-delta-shift-value">
+            <xsl:with-param name="v" select="@units-per-pixel"/>
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="@value"/>
+        </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:call-template name="do-with-block">
@@ -1104,14 +1104,14 @@
       <xsl:with-param name="cmd"
         select="document('xgfdata.xml')/*/xgfd:instruction-set/xgfd:inst[@el=$ln]/@val"/>
       <xsl:with-param name="loc">
-  <xsl:call-template name="get-graph-location">
-    <xsl:with-param name="s" select="$ln"/>
-  </xsl:call-template>
+        <xsl:call-template name="get-graph-location">
+          <xsl:with-param name="s" select="$ln"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="default-loc">
-  <xsl:call-template name="get-graph-default-location">
-    <xsl:with-param name="s" select="$ln"/>
-  </xsl:call-template>
+        <xsl:call-template name="get-graph-default-location">
+          <xsl:with-param name="s" select="$ln"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="mp-container"
         select="$mp-container"/>
