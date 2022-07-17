@@ -802,6 +802,7 @@ def main():
     print("")
 
     if quietcount < 1:
+        print("Hinted " + str(len(glyph_list)) + " glyphs.")
         print("Cleaning up and writing the new font")
     thisFont['maxp'].maxSizeOfInstructions = maxInstructions + 50
     thisFont['maxp'].maxTwilightPoints = twilightBase + 25
