@@ -5,6 +5,7 @@ from fontTools.ufoLib.filenames import userNameToFileName
 from lxml import etree
 from ast import literal_eval
 from .version import __version__
+from .ygridfit import ygridfit_parse
 import sys
 import os
 import argparse
@@ -518,6 +519,8 @@ def main():
                            help="Convert file to expanded syntax, save, and exit")
     argparser.add_argument('-c', '--compact', action="store_true",
                            help="Convert file to compact syntax, save, and exit")
+    argparser.add_argument('-y', '--yaml2xgf', action="store_true",
+                           help="Convert yaml file to expanded syntax, save, and exit")
     argparser.add_argument('-n', '--novalidation', action="store_true",
                            help="Skip validation of the Xgridfit program")
     argparser.add_argument('--nocompilation', action="store_true",
@@ -556,6 +559,7 @@ def main():
     skipcomp     = args.nocompilation
     expandonly   = args.expand
     compactonly  = args.compact
+    yconvonly    = args.yaml2xgf
     mergemode    = args.merge
     quietcount   = args.quiet
     initgraphics = args.initgraphics
@@ -572,7 +576,12 @@ def main():
     if cfuzz > 1:
         coordinateFuzz = cfuzz
 
-    xgffile = etree.parse(inputfile)
+    if os.path.splitext(inputfile)[1] == ".yaml":
+        if quietcount < 1:
+            print("Converting yaml source to Xgridfit")
+        xgffile = ygridfit_parse(inputfile)
+    else:
+        xgffile = etree.parse(inputfile)
 
     # We'll need namespaces
 
@@ -614,15 +623,19 @@ def main():
                 print(tstr)
             sys.exit(0)
     elif len(xgffile.xpath("/xgf:xgridfit/xgf:pre-program", namespaces=ns)):
-        validate(xgffile, "normal", skipval)
-        if compactonly:
-            xslfile = get_file_path("XSL/compact.xsl")
-            etransform = etree.XSLT(etree.parse(xslfile))
-            xgffile = etransform(xgffile)
-            tstr = str(xgffile)
-            tstr = tstr.replace('xgf:','')
-            tstr = tstr.replace('xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"','')
-            tstr = tstr.replace(' >','>')
+        # validate(xgffile, "normal", skipval)
+        if compactonly or yconvonly:
+            if compactonly:
+                xslfile = get_file_path("XSL/compact.xsl")
+                etransform = etree.XSLT(etree.parse(xslfile))
+                xgffile = etransform(xgffile)
+                tstr = str(xgffile)
+                tstr = tstr.replace('xgf:','')
+                tstr = tstr.replace('xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"','')
+                tstr = tstr.replace(' >','>')
+            if yconvonly:
+                tstr = str(etree.tostring(xgffile).decode())
+                # tstr = str(xgffile)
             if outputfile:
                 of = open(outputfile, "w")
                 of.write(tstr)
