@@ -23,6 +23,7 @@ import ygModel
 import defcon
 from defcon import Font, Glyph, registerRepresentationFactory
 from fontTools.pens.qtPen import QtPen
+import inspect
 
 
 HINT_ARROW_WIDTH =               3
@@ -1327,7 +1328,6 @@ class ygGlyphViewer(QGraphicsScene):
         else:
             hint.yg_hint.set_extra_target(pt)
 
-
     def macfunc_ref(self, _params):
         hint = _params["hint"]
         pt = _params["pt"]
@@ -1625,10 +1625,22 @@ class ygGlyphViewer(QGraphicsScene):
             return p.yg_point
         return p
 
+    def test_menu_signal(self, a):
+        print(self.sender().text())
 
-    def make_hint_from_selection(self, hint_type, **kwargs):
+    # Check above to see how to set sender. This function must be split: one
+    # function for regular hints, another for macros and functions.
+    def make_hint_from_selection(self, a):
         """ Make a hint based on selection in the editing panel.
         """
+        menu_to_hint_type = {"Anchor": "anchor",
+                             "Align": "align",
+                             "Shift": "shift",
+                             "Interpolate": "interpolate",
+                             "White Distance": "whitespace",
+                             "Black Distance": "blackspace",
+                             "Gray Distance": "grayspace"}
+        hint_type = menu_to_hint_type[self.sender().text()]
         hint_type_num = self.get_hint_type_num(hint_type)
         pp = self.selectedObjects(True)
         pplen = len(pp)
@@ -1658,6 +1670,8 @@ class ygGlyphViewer(QGraphicsScene):
                 target = newlist.pop(1)
                 new_yg_hint = ygModel.ygHint(self.yg_glyph, target, newlist, {'rel': hint_type})
                 self.sig_new_hint.emit(new_yg_hint)
+
+    def make_macfunc_from_selection(self, **kwargs):
         if hint_type_num == 4:
             name = kwargs["name"]
             if hint_type == "function":
@@ -2066,6 +2080,27 @@ class MyView(QGraphicsView):
         self.original_transform = self.transform()
         self.yg_font = font
 
+    def _current_index(self):
+        return self.yg_font.glyph_index[self.viewer.yg_glyph.gname]
+
+    def next_glyph(self, a):
+        #self.sender().disconnect()
+        self.parent().parent().disconnect_all()
+        current_index = self._current_index()
+        if current_index < len(self.yg_font.glyph_list) - 1:
+            gname = self.yg_font.glyph_list[current_index + 1][1]
+        self.switch_to(gname)
+        self.parent().parent().setup_connections()
+
+    def previous_glyph(self, a):
+        #self.sender().disconnect()
+        self.parent().parent().disconnect_all()
+        current_index = self._current_index()
+        if current_index > 0:
+            gname = self.yg_font.glyph_list[current_index - 1][1]
+        self.switch_to(gname)
+        self.parent().parent().setup_connections()
+
     def switch_to(self, gname):
         self.viewer.yg_glyph.save_source()
         new_glyph = ygModel.ygGlyph(self.yg_font, gname)
@@ -2074,38 +2109,53 @@ class MyView(QGraphicsView):
         ed = self.parent().parent().source_editor
         new_glyph.set_yaml_editor(ed)
 
+
+    def zoom(self, a):
+        """ Called by signal.
+        """
+        self.sender().disconnect()
+        sender_text = self.sender().text()
+        if sender_text == "Original Size":
+            self.setTransform(self.original_transform)
+        elif sender_text == "Zoom In":
+            self.scale(1.5, 1.5)
+        elif sender_text == "Zoom Out":
+            self.scale(0.75, 0.75)
+        self.parent().parent().setup_zoom_connections()
+
+
     def keyPressEvent(self, event):
         # print(event.key())
-        if event.key() == Qt.Key.Key_A:
-            self.viewer.make_hint_from_selection("anchor")
-        if event.key() == Qt.Key.Key_S:
-            self.viewer.make_hint_from_selection("stem")
-        if event.key() == Qt.Key.Key_H:
-            self.viewer.make_hint_from_selection("shift")
-        if event.key() == Qt.Key.Key_L:
-            self.viewer.make_hint_from_selection("align")
-        if event.key() == Qt.Key.Key_I:
-            self.viewer.make_hint_from_selection("interpolate")
-        if event.key() == 48: # zero. I can't find the mnemonic for it.
-            modifier = QApplication.keyboardModifiers()
-            if (modifier & Qt.KeyboardModifier.ControlModifier) == Qt.KeyboardModifier.ControlModifier:
-                self.setTransform(self.original_transform)
-        if event.key() == 45: # "Key_hyphen" seems not to be working
-            modifier = QApplication.keyboardModifiers()
-            if (modifier & Qt.KeyboardModifier.ControlModifier) == Qt.KeyboardModifier.ControlModifier:
-                self.scale(0.75, 0.75)
-        if event.key() == Qt.Key.Key_Equal:
-            modifier = QApplication.keyboardModifiers()
-            if (modifier & Qt.KeyboardModifier.ControlModifier) == Qt.KeyboardModifier.ControlModifier:
-                self.scale(1.5, 1.5)
+        #if event.key() == Qt.Key.Key_A:
+        #    self.viewer.make_hint_from_selection("anchor")
+        #if event.key() == Qt.Key.Key_S:
+        #    self.viewer.make_hint_from_selection("stem")
+        #if event.key() == Qt.Key.Key_H:
+        #    self.viewer.make_hint_from_selection("shift")
+        #if event.key() == Qt.Key.Key_L:
+        #    self.viewer.make_hint_from_selection("align")
+        #if event.key() == Qt.Key.Key_I:
+        #    self.viewer.make_hint_from_selection("interpolate")
+        #if event.key() == 48: # zero. I can't find the mnemonic for it.
+        #    modifier = QApplication.keyboardModifiers()
+        #    if (modifier & Qt.KeyboardModifier.ControlModifier) == Qt.KeyboardModifier.ControlModifier:
+        #        self.setTransform(self.original_transform)
+        #if event.key() == 45: # "Key_hyphen" seems not to be working
+        #    modifier = QApplication.keyboardModifiers()
+        #    if (modifier & Qt.KeyboardModifier.ControlModifier) == Qt.KeyboardModifier.ControlModifier:
+        #        self.scale(0.75, 0.75)
+        #if event.key() == Qt.Key.Key_Equal:
+        #    modifier = QApplication.keyboardModifiers()
+        #    if (modifier & Qt.KeyboardModifier.ControlModifier) == Qt.KeyboardModifier.ControlModifier:
+        #        self.scale(1.5, 1.5)
         if event.key() in [16777219, 16777223]:
             self.viewer.delete_selected_hints()
-        if event.key() == 16777236: # right arrow key
-            # print(self.parent().parent())
-            current_index = self.yg_font.glyph_index[self.viewer.yg_glyph.gname]
-            if current_index < len(self.yg_font.glyph_list) - 1:
-                self.switch_to(self.yg_font.glyph_list[current_index + 1][1])
-        if event.key() == 16777234: # left arrow key
-            current_index = self.yg_font.glyph_index[self.viewer.yg_glyph.gname]
-            if current_index > 0:
-                self.switch_to(self.yg_font.glyph_list[current_index - 1][1])
+        #if event.key() == 16777236: # right arrow key
+        #    # print(self.parent().parent())
+        #    current_index = self.yg_font.glyph_index[self.viewer.yg_glyph.gname]
+        #    if current_index < len(self.yg_font.glyph_list) - 1:
+        #        self.switch_to(self.yg_font.glyph_list[current_index + 1][1])
+        #if event.key() == 16777234: # left arrow key
+        #    current_index = self.yg_font.glyph_index[self.viewer.yg_glyph.gname]
+        #    if current_index > 0:
+        #        self.switch_to(self.yg_font.glyph_list[current_index - 1][1])

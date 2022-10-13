@@ -17,12 +17,18 @@ class SourceFile:
     def __init__(self, filename):
         """ The constructor reads the file into the internal structure y_doc.
         """
+        self.filename = filename
         y_stream = open(filename, 'r')
         self.y_doc = yaml.safe_load(y_stream)
         y_stream.close()
 
     def get_source(self):
         return self.y_doc
+
+    def save_source(self):
+        f = open(self.filename, "w")
+        f.write(yaml.dump(self.y_doc, sort_keys=False, Dumper=Dumper))
+        f.close()
 
 
 
@@ -56,16 +62,18 @@ class ygFont:
         you only have to open the yaml file.
     """
     def __init__(self, source_file):
-        self.source     = SourceFile(source_file).get_source()
-        self.font_files = FontFiles(self.source)
-        self.dc_font    = defcon.Font(self.font_files.in_font())
-        self.glyphs     = ygGlyphs(self.source)
-        self.defaults   = ygDefaults(self.source)
-        self.cvt        = ygcvt(self.source)
-        self.cvar       = ygcvar(self.source)
-        self.functions  = ygFunctions(self.source)
-        self.macros     = ygMacros(self.source)
-        self.glyph_list = []
+        self.source_file = SourceFile(source_file)
+        self.source      = self.source_file.get_source()
+        self.font_files  = FontFiles(self.source)
+        self.dc_font     = defcon.Font(self.font_files.in_font())
+        self.glyphs      = ygGlyphs(self.source).data
+        self.defaults    = ygDefaults(self.source)
+        self.cvt         = ygcvt(self.source)
+        self.cvar        = ygcvar(self.source)
+        self.functions   = ygFunctions(self.source)
+        self.macros      = ygMacros(self.source)
+        self.glyph_list  = []
+        self.clean       = True
         for g in self.dc_font:
             if g.bounds:
                 u = g.unicode
@@ -80,12 +88,21 @@ class ygFont:
             self.glyph_index[g[1]] = glyph_counter
             glyph_counter += 1
 
-
     def get_glyph(self, gname):
-        return self.glyphs.get_glyph(gname)
+        try:
+            # print(self.glyphs[gname])
+            return self.glyphs[gname]
+        except KeyError:
+            return {"y": {"points": []}}
 
     def get_glyph_index(self, gname):
         return self.glyph_list.index(gname)
+
+    def save_glyph_source(self, source, gname):
+        if not gname in self.glyphs:
+            self.glyphs[gname] = {}
+        self.glyphs[gname] = source
+
 
 
 
@@ -551,10 +568,17 @@ class ygGlyph(QObject):
     """ Keeps all the data for one glyph and provides an interface for
         changing it.
 
+        Parameters:
+
+        yg_font (ygFont): The font object, providing access to the defcon
+        representation and the whole of the hinting source.
+
+        gname (str): The name of this glyph.
+
     """
 
     sig_hints_changed = pyqtSignal(object)
-    sig_display_glyph_source = pyqtSignal(object)
+    sig_glyph_source_ready = pyqtSignal(object)
     viewer_ready = False
 
     def __init__(self, yg_font, gname):
@@ -582,11 +606,6 @@ class ygGlyph(QObject):
             self.y_block = copy.copy(self.gsource["y"])
         if "x" in self.gsource:
             self.x_block = copy.copy(self.gsource["x"])
-
-        # Going to run several indexes for this glyph's points. This is because
-        # Xgridfit is permissive about naming, so we need several ways to look
-        # up points. (Check later to make sure all these are being used.)
-        # Get the defcon-style glyph.
         try:
             self.defcon_glyph = yg_font.dc_font[gname]
         except KeyError:
@@ -599,6 +618,10 @@ class ygGlyph(QObject):
                 self.xoffset = self.props["xoffset"]
             if "yoffset" in self.props:
                 self.yoffset = self.props["yoffset"]
+        # Going to run several indexes for this glyph's points. This is because
+        # Xgridfit is permissive about naming, so we need several ways to look
+        # up points. (Check later to make sure all these are being used.)
+        # Get the defcon-style glyph.
         self.point_list = self._make_point_list()
         self.point_id_dict = {}
         for p in self.point_list:
@@ -608,13 +631,18 @@ class ygGlyph(QObject):
             self.point_coord_dict[p.coord] = p
         # Copy the hint tree from the yaml source, flatten it into a list, and
         # build a new tree. This gives us a chance to insert implicit hints
-        # and handle functions and macros properly. (on the to do list)
+        # and handle functions and macros properly. (on the to do list) The
+        # default axis will be y. If there is no code yet, supply a stub.
         if not self.y_block:
             self.y_block = {"points": []}
+        # Fix up the source and build a tree of ygHhint objects.
         k = self.y_block.keys()
         for kk in k:
+            # This procedure is clunky and (no doubt) inefficient. I need to
+            # work on doing it more simply, in one pass.
             self.yaml_add_parents(self.y_block[kk])
             self.yaml_supply_refs(self.y_block[kk])
+            self.yaml_strip_parent_nodes(self.y_block[kk])
         self.current_block = self.y_block
         self.current_vector = "y"
         # This provides a flat list of ygHint objects.
@@ -622,22 +650,35 @@ class ygGlyph(QObject):
         # Then rebuild it in to a tree of ygHintNode objects.
         self.hint_tree = self._build_hint_tree(flat_list)
 
+        # This is the QGraphicsScene wrapper for this glyph object. But
+        # do we need a reference here in the __init__? It's only used once,
+        # in setting up a signal, and there are other ways to do that.
         self.glyph_viewer = None
 
         self.sig_hints_changed.connect(self.hints_changed)
 
     def save_source(self):
-        # print(yaml.dump(self.yg_font.get_glyph(self.gname), sort_keys=False, Dumper=Dumper))
-        self.gsource[self.current_vector] = yamlTree(self.hint_tree, self.current_vector).tree
+        """ Converts the working hint tree for this glyph to a yaml tree and
+            calls ygFont.save_glyph_source to save it to the in-memory yaml
+            source.
+
+        """
+        if not self.clean:
+            s = {}
+            if self.y_block:
+                s['y'] = yamlTree(self.hint_tree, self.y_block).tree
+            if self.x_block:
+                s['x'] = yamlTree(self.hint_tree, self.x_block).tree
+            self.yg_font.save_glyph_source(s, self.gname)
         # Also save the other things (cvt, etc.) if dirty.
 
     def set_yaml_editor(self, ed):
-        self.sig_display_glyph_source.connect(ed.install_source)
+        self.sig_glyph_source_ready.connect(ed.install_source)
         self.send_yaml()
 
     def send_yaml(self):
         new_yaml = yamlTree(self.hint_tree, "y").tree
-        self.sig_display_glyph_source.emit(yaml.dump(new_yaml, sort_keys=False, Dumper=Dumper))
+        self.sig_glyph_source_ready.emit(yaml.dump(new_yaml, sort_keys=False, Dumper=Dumper))
 
     def hint_changed(self, h):
         """ Called by signal from ygHint
@@ -649,7 +690,7 @@ class ygGlyph(QObject):
     def hints_changed(self, hint_tree):
         """ Called by signal. *** Is this the best way to do this? Calling
             ygGlyphView directly? Figure out something else (compare
-            sig_display_glyph_source, for which we didn't have to import
+            sig_glyph_source_ready, for which we didn't have to import
             anything).
 
         """
@@ -668,7 +709,8 @@ class ygGlyph(QObject):
         self.hint_tree = self._build_hint_tree(flat_list)
 
     def _build_hint_tree(self, flist):
-        """ Assemble a tree from a flattened list of hint nodes.
+        """ Assemble a tree from a flattened list of hint nodes and send a
+            signal that it is ready.
 
         """
         root = ygHintNode()
@@ -680,7 +722,7 @@ class ygGlyph(QObject):
             self.gsource["y"] = yamlTree(self.hint_tree, "y")
             new_source = self.yg_font.get_glyph(self.gname)
             new_source["y"] = yamlTree(self.hint_tree, "y").tree
-            self.sig_display_glyph_source.emit(yaml.dump(new_source, sort_keys=False, Dumper=Dumper))
+            self.sig_glyph_source_ready.emit(yaml.dump(new_source, sort_keys=False, Dumper=Dumper))
         return root
 
     def _flatten_hint_list_from_tree(self, node):
@@ -757,6 +799,13 @@ class ygGlyph(QObject):
                 for ppt in pt["points"]:
                     ppt["parent"] = pt
                 self.yaml_add_parents(pt['points'])
+
+    def yaml_strip_parent_nodes(self, node):
+        for pt in node:
+            if "parent" in pt:
+                del pt["parent"]
+            if "points" in pt:
+                self.yaml_strip_parent_nodes(pt["points"])
 
     def yaml_supply_refs(self, node):
         """ After "parent" properties have been added, walk the tree supplying
@@ -984,12 +1033,6 @@ class ygHint(QObject):
         if not pt and ("ref" in self.extra):
             del self.extra["ref"]
         self.hint_changed_signal.emit(self)
-
-    # def get_ref(self):
-    #    if type(self.ref) is list:
-    #        return self.ref[0]
-    #    else:
-    #        return self.ref
 
     def can_be_reversed(self):
         no_func = not hasattr(self, "function") or self.function == None
