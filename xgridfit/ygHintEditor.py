@@ -1,8 +1,26 @@
 import sys
 import uuid
 
-from PyQt6.QtCore import Qt, QPoint, QPointF, QSize, QSizeF, QRect, QRectF, pyqtSignal, QLineF
-from PyQt6.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QPolygonF, QAction
+from PyQt6.QtCore import (
+    Qt,
+    QPoint,
+    QPointF,
+    QSize,
+    QSizeF,
+    QRect,
+    QRectF,
+    pyqtSignal,
+    QLineF
+)
+from PyQt6.QtGui import (
+    QPainter,
+    QPainterPath,
+    QPen,
+    QBrush,
+    QColor,
+    QPolygonF,
+    QAction
+)
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -19,9 +37,12 @@ from PyQt6.QtWidgets import (
     QLabel
 )
 import ygModel
-# import time
 import defcon
-from defcon import Font, Glyph, registerRepresentationFactory
+from defcon import (
+    Font,
+    Glyph,
+    registerRepresentationFactory
+)
 from fontTools.pens.qtPen import QtPen
 import inspect
 
@@ -991,7 +1012,7 @@ class ygSelection:
         obj.update()
 
     def _toggle_object(self, obj):
-        if obj.isVisible():
+        if not obj.isVisible():
             return
         if obj._is_yg_selected():
             obj.yg_unselect()
@@ -1611,7 +1632,7 @@ class ygGlyphViewer(QGraphicsScene):
     def make_macfunc(self, _params):
         hint_type = _params["hint_type"]
         name = _params["name"]
-        self.make_hint_from_selection(hint_type, name=name)
+        self.make_macfunc_from_selection(hint_type, name=name)
         # Called function will send the signal to the model.
 
 
@@ -1628,8 +1649,6 @@ class ygGlyphViewer(QGraphicsScene):
     def test_menu_signal(self, a):
         print(self.sender().text())
 
-    # Check above to see how to set sender. This function must be split: one
-    # function for regular hints, another for macros and functions.
     def make_hint_from_selection(self, a):
         """ Make a hint based on selection in the editing panel.
         """
@@ -1661,17 +1680,37 @@ class ygGlyphViewer(QGraphicsScene):
             if pplen >= 3:
                 if pplen > 3:
                     del pp[3:]
-                newlist = []
-                for p in pp:
-                    newlist.append(self._model_point(p))
-                sorter = ygModel.ygPointSorter("y")
-                sorter.sort(newlist)
-                # newlist.sort(key=self._ptcoords)
-                target = newlist.pop(1)
-                new_yg_hint = ygModel.ygHint(self.yg_glyph, target, newlist, {'rel': hint_type})
+                # If two of the three selected points are touched, they are the
+                # reference points, and the unselected point is the target.
+                # Otherwise, sort the points by x or y position: the middle one
+                # is the target, and the ones on the ends are reference points.
+                # If the program makes the wrong choice, user can rearrange
+                # things in the editor.
+                touched_points = []
+                untouched_points = []
+                for t in pp:
+                    if type(t) is ygPointView:
+                        if t.touched:
+                            touched_points.append(self._model_point(t))
+                        else:
+                            untouched_points.append(self._model_point(t))
+                if len(touched_points) == 2 and len(untouched_points) == 1:
+                    new_yg_hint = ygModel.ygHint(self.yg_glyph, untouched_points[0],
+                                                 touched_points, {'rel': hint_type})
+                else:
+                    newlist = []
+                    for p in pp:
+                        newlist.append(self._model_point(p))
+                    sorter = ygModel.ygPointSorter("y")
+                    sorter.sort(newlist)
+                    target = newlist.pop(1)
+                    new_yg_hint = ygModel.ygHint(self.yg_glyph, target, newlist,
+                                                 {'rel': hint_type})
                 self.sig_new_hint.emit(new_yg_hint)
 
-    def make_macfunc_from_selection(self, **kwargs):
+    def make_macfunc_from_selection(self, hint_type, **kwargs):
+        hint_type_num = self.get_hint_type_num(hint_type)
+        pp = self.selectedObjects(True)
         if hint_type_num == 4:
             name = kwargs["name"]
             if hint_type == "function":
@@ -1689,19 +1728,23 @@ class ygGlyphViewer(QGraphicsScene):
             counter = 0
             for p in pt_names:
                 try:
-                    pt_dict[p] = pp[counter]
+                    ppp = pp[counter]
+                    if type(ppp) is ygPointView:
+                        ppp = ppp.yg_point
+                    if type(ppp) is ygSetView:
+                        ppp = ppp.yg_set
+                    pt_dict[p] = ppp
                     counter += 1
                 except IndexError:
                     break
 
             # And make a ygParams object to hold these parameters
             yg_params = ygModel.ygParams(hint_type, name, pt_dict, other_params)
+            print(pt_dict)
 
-            # Build the hint and store it in yg_hint_view_index and yg_hint_view_list.
-            # yg_hint = ygModel.ygHint(self.yg_glyph, pt_dict, None, other_args=other_params)
+            # Build the hint and notify the model of its existence.
             yg_hint = ygModel.ygHint(self.yg_glyph, yg_params, None, other_args=other_params)
             yg_hint.hint_type = hint_type
-            # Notify model that there is a new hint.
             self.sig_new_hint.emit(yg_hint)
 
 
@@ -1765,7 +1808,7 @@ class ygGlyphViewer(QGraphicsScene):
                 Toggle visibility of off-curve poihts: Done
                 Toggle point numbers: Done
                 Round touched point: Done
-                Set control value: add checkmarks
+                Set control value: alphabetize list and add checkmarks
                 Set distance type for stem hints: Done
                 Reverse stem hint: Done
                 Additional parameters for functions and macros: To do
@@ -1912,16 +1955,20 @@ class ygGlyphViewer(QGraphicsScene):
         # target_point will be HintPointMarker. The pt attribute for that is
         # a ygPointView object.
         target_point = None
+        swap_old_name = None
         point_list = []
         try:
             # mouse_over_point actually returns a HintPointMarker.
             target_point = hint.mouse_over_point(QPointF(event.scenePos()))
             if hint.yg_hint.hint_type == "macro":
-                point_list = self.yg_glyph.yg_font.macros.point_list(hint.name)
+                point_list = self.yg_glyph.yg_font.macros.point_list(hint.yg_hint.name)
             else:
-                point_list = self.yg_glyph.yg_font.functions.point_list(hint.name)
-            point_list.remove(target_point.name)
-        except Exception:
+                point_list = self.yg_glyph.yg_font.functions.point_list(hint.yg_hint.name)
+            swap_old_name = target_point.name
+            point_list.remove(swap_old_name)
+            print("Got target point: " + str(swap_old_name))
+        except Exception as e:
+            print(e)
             disable_point_params = True
         point_param_menu = cmenu.addMenu("Point params")
         for p in point_list:
@@ -2048,7 +2095,7 @@ class ygGlyphViewer(QGraphicsScene):
         if action in function_actions:
             self.sig_make_macfunc.emit({"hint_type": "function", "name": action.text()})
         if action in point_param_list:
-            self.sig_swap_macfunc_points.emit({"hint": hint, "new_pt": action.text(), "old_pt": target_point.name})
+            self.sig_swap_macfunc_points.emit({"hint": hint, "new_pt": action.text(), "old_pt": swap_old_name})
         # Need to make functions for these
         if action == macfunc_target:
             self.sig_macfunc_target.emit({"hint": hint, "pt": target_point})
@@ -2074,41 +2121,66 @@ class MyView(QGraphicsView):
 
         parent: Is this used at all?
     """
+
+    sig_error = pyqtSignal(object)
+    sig_goto = pyqtSignal(object)
+
     def __init__(self, viewer, font, parent=None):
         super(MyView, self).__init__(viewer, parent=parent)
         self.viewer = viewer
         self.original_transform = self.transform()
         self.yg_font = font
 
+    def setup_error_signal(self, o):
+        self.sig_error.connect(o)
+
+    def setup_goto_signal(self, o):
+        self.sig_goto.connect(o)
+
     def _current_index(self):
         return self.yg_font.glyph_index[self.viewer.yg_glyph.gname]
 
+    def go_to_glyph(self, g):
+        # self.parent().parent().disconnect_all()
+        self.sender().disconnect()
+        self.parent().parent().disconnect_glyph_pane()
+        try:
+            self.switch_to(g)
+        except Exception:
+            self.sig_error.emit(["Warning", "Warning", "Can't load requested glyph."])
+        self.parent().parent().setup_glyph_pane_connections()
+
     def next_glyph(self, a):
-        #self.sender().disconnect()
-        self.parent().parent().disconnect_all()
+        self.sender().disconnect()
+        self.parent().parent().disconnect_glyph_pane()
+        # self.parent().parent().disconnect_all()
         current_index = self._current_index()
         if current_index < len(self.yg_font.glyph_list) - 1:
             gname = self.yg_font.glyph_list[current_index + 1][1]
         self.switch_to(gname)
-        self.parent().parent().setup_connections()
+        self.parent().parent().setup_glyph_pane_connections()
 
     def previous_glyph(self, a):
-        #self.sender().disconnect()
-        self.parent().parent().disconnect_all()
+        self.parent().parent().disconnect_glyph_pane()
+        self.sender().disconnect()
+        # self.parent().parent().disconnect_all()
         current_index = self._current_index()
         if current_index > 0:
             gname = self.yg_font.glyph_list[current_index - 1][1]
         self.switch_to(gname)
-        self.parent().parent().setup_connections()
+        self.parent().parent().setup_glyph_pane_connections()
 
     def switch_to(self, gname):
         self.viewer.yg_glyph.save_source()
         new_glyph = ygModel.ygGlyph(self.yg_font, gname)
         self.viewer = ygGlyphViewer(new_glyph)
         self.setScene(self.viewer)
+        self.parent().parent().set_window_title()
         ed = self.parent().parent().source_editor
         new_glyph.set_yaml_editor(ed)
 
+    def set_background(self):
+        self.setBackgroundBrush(QBrush(QColor(200,200,200,255)))
 
     def zoom(self, a):
         """ Called by signal.
@@ -2122,7 +2194,6 @@ class MyView(QGraphicsView):
         elif sender_text == "Zoom Out":
             self.scale(0.75, 0.75)
         self.parent().parent().setup_zoom_connections()
-
 
     def keyPressEvent(self, event):
         # print(event.key())
@@ -2159,3 +2230,6 @@ class MyView(QGraphicsView):
         #    current_index = self.yg_font.glyph_index[self.viewer.yg_glyph.gname]
         #    if current_index > 0:
         #        self.switch_to(self.yg_font.glyph_list[current_index - 1][1])
+
+    # def mousePressEvent(self, event):
+    #    event.ignore()

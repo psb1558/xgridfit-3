@@ -1,32 +1,46 @@
 import sys
 import ygModel
+import ygEditor
 import ygHintEditor
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (QApplication, QGraphicsScene, QGraphicsView, QMainWindow, QHBoxLayout, QSplitter, QWidget, QPlainTextEdit)
-from PyQt6.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QPolygonF, QAction, QFont, QKeySequence
-from defcon import Font, Glyph, registerRepresentationFactory
-
-class ygEditor(QPlainTextEdit):
-    def __init__(self, parent=None):
-        super().__init__()
-        # print("Doing init for the editor pane")
-        self.setStyleSheet("ygEditor {font-family: Source Code Pro, monospace; }")
-        self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
-        # print(self.lineWrapMode())
-
-    def install_source(self, text):
-        self.setPlainText(text)
-
-
+from PyQt6.QtWidgets import (
+    QApplication,
+    QGraphicsScene,
+    QGraphicsView,
+    QMainWindow,
+    QHBoxLayout,
+    QSplitter,
+    QWidget,
+    QMessageBox,
+    QInputDialog,
+    QLineEdit
+)
+from PyQt6.QtGui import (
+    QPainter,
+    QPainterPath,
+    QPen,
+    QBrush,
+    QColor,
+    QPolygonF,
+    QAction,
+    QFont,
+    QKeySequence
+)
+from defcon import (
+    Font,
+    Glyph,
+    registerRepresentationFactory
+)
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, app, parent=None):
         super(MainWindow,self).__init__(parent=parent)
         self.setWindowTitle("YG")
         self.qs = QSplitter(self)
         self.glyph_pane = None
         self.yg_font = None
         self.source_editor = None
+        self.app = app
 
         self.menu = self.menuBar()
 
@@ -109,12 +123,17 @@ class MainWindow(QMainWindow):
 
         self.hint_menu.addSeparator()
 
-        make_set_action = self.hint_menu.addAction("Make Set")
+        self.make_set_action = self.hint_menu.addAction("Make Set")
+
+        self.compile_action = self.hint_menu.addAction("Compile")
+        self.compile_action.setShortcut(QKeySequence("Ctrl+r"))
 
         self.hint_menu.aboutToShow.connect(self.hint_menu_about_to_show)
 
         self.central_widget = self.qs
         self.setCentralWidget(self.central_widget)
+
+        self.setup_file_connections()
 
     def hint_menu_about_to_show(self):
         print("Got the signal")
@@ -180,17 +199,14 @@ class MainWindow(QMainWindow):
             self.original_size_action.triggered.disconnect(self.glyph_pane.zoom)
         except Exception:
             pass
-        try:
-            self.next_glyph_action.triggered.disconnect(self.glyph_pane.next_glyph)
-        except Exception:
-            pass
-        try:
-            self.previous_glyph_action.triggered.disconnect(self.glyph_pane.previous_glyph)
-        except Exception:
-            pass
+
+    def setup_editor_connections(self):
+        self.compile_action.triggered.connect(self.source_editor.yaml_source)
+        self.source_editor.setup_error_signal(self.show_error_message)
 
     def setup_file_connections(self):
         self.save_action.triggered.connect(self.save_yaml_file)
+        self.quit_action.triggered.connect(self.app.quit, type=Qt.ConnectionType.QueuedConnection)
 
     def setup_hint_connections(self):
         self.black_action.triggered.connect(self.glyph_pane.viewer.make_hint_from_selection)
@@ -201,17 +217,96 @@ class MainWindow(QMainWindow):
         self.shift_action.triggered.connect(self.glyph_pane.viewer.make_hint_from_selection)
         self.align_action.triggered.connect(self.glyph_pane.viewer.make_hint_from_selection)
 
+    def disconnect_hint(self):
+        try:
+            self.black_action.triggered.disconnect(self.glyph_pane.viewer.make_hint_from_selection)
+        except Exception:
+            pass
+        try:
+            self.white_action.triggered.disconnect(self.glyph_pane.viewer.make_hint_from_selection)
+        except Exception:
+            pass
+        try:
+            self.gray_action.triggered.disconnect(self.glyph_pane.viewer.make_hint_from_selection)
+        except Exception:
+            pass
+        try:
+            self.anchor_action.triggered.disconnect(self.glyph_pane.viewer.make_hint_from_selection)
+        except Exception:
+            pass
+        try:
+            self.interpolate_action.triggered.disconnect(self.glyph_pane.viewer.make_hint_from_selection)
+        except Exception:
+            pass
+        try:
+            self.shift_action.triggered.disconnect(self.glyph_pane.viewer.make_hint_from_selection)
+        except Exception:
+            pass
+        try:
+            self.align_action.triggered.disconnect(self.glyph_pane.viewer.make_hint_from_selection)
+        except Exception:
+            pass
+
     def setup_zoom_connections(self):
         self.zoom_in_action.triggered.connect(self.glyph_pane.zoom, type=Qt.ConnectionType.SingleShotConnection)
         self.zoom_out_action.triggered.connect(self.glyph_pane.zoom, type=Qt.ConnectionType.SingleShotConnection)
         self.original_size_action.triggered.connect(self.glyph_pane.zoom, type=Qt.ConnectionType.SingleShotConnection)
 
+    def disconnect_zoom(self):
+        try:
+            self.next_glyph_action.triggered.disconnect(self.glyph_pane.next_glyph)
+        except Exception:
+            pass
+        try:
+            self.previous_glyph_action.triggered.disconnect(self.glyph_pane.previous_glyph)
+        except Exception:
+            pass
+        try:
+            self.goto_action.triggered.disconnect(self.show_goto_dialog)
+        except Exception:
+            pass
+
     def setup_nav_connections(self):
         self.next_glyph_action.triggered.connect(self.glyph_pane.next_glyph, type=Qt.ConnectionType.SingleShotConnection)
         self.previous_glyph_action.triggered.connect(self.glyph_pane.previous_glyph, type=Qt.ConnectionType.SingleShotConnection)
+        self.goto_action.triggered.connect(self.show_goto_dialog)
+        self.glyph_pane.setup_goto_signal(self.show_goto_dialog)
+
+    def disconnect_nav(self):
+        try:
+            self.next_glyph_action.triggered.disconnect(self.glyph_pane.next_glyph)
+        except Exception:
+            pass
+        try:
+            self.previous_glyph_action.triggered.disconnect(self.glyph_pane.previous_glyph)
+        except Exception:
+            pass
+        try:
+            self.goto_action.triggered.disconnect(self.show_goto_dialog)
+        except Exception:
+            pass
+
+
+    def setup_glyph_pane_connections(self):
+        # These get destroyed whenever we move from one glyph to another, and so the connections
+        # have to be reestablished every time. Check carefully to make sure we can't ever have
+        # duplicate connections!
+        self.setup_hint_connections()
+        self.setup_nav_connections()
+        self.setup_zoom_connections()
+        self.source_editor.setup_editor_signals(self.glyph_pane.viewer.yg_glyph.save_editor_source)
+        self.glyph_pane.viewer.yg_glyph.setup_error_signal(self.show_error_message)
+        self.glyph_pane.setup_error_signal(self.show_error_message)
+
+    def disconnect_glyph_pane(self):
+        self.disconnect_nav()
+        self.disconnect_zoom()
+        self.disconnect_hint()
 
     def setup_connections(self):
-        print(self.glyph_pane.viewer.yg_glyph.gname)
+        # This can safely be run when the program has just started, but not
+        # later.
+        self.setup_glyph_pane_connections()
         self.setup_file_connections()
         self.setup_hint_connections()
         self.setup_nav_connections()
@@ -225,12 +320,37 @@ class MainWindow(QMainWindow):
         # Must be a MyView(QGraphicsView) object.
         self.glyph_pane = g
         self.qs.addWidget(self.glyph_pane)
-        self.setup_connections()
+        self.setup_glyph_pane_connections()
 
     def save_yaml_file(self):
         self.glyph_pane.viewer.yg_glyph.save_source()
         self.yg_font.source_file.save_source()
 
+    def set_background(self):
+        self.glyph_pane.set_background()
+
+    def set_window_title(self):
+        base = "YG"
+        if self.yg_font:
+            base += " -- " + self.yg_font.family_name() + "-" + self.yg_font.style_name()
+        if self.glyph_pane:
+            base += " -- " + self.glyph_pane.viewer.yg_glyph.gname
+        self.setWindowTitle(base)
+
+    def show_error_message(self, msg_list):
+        msg = QMessageBox(self)
+        if msg_list[0] == "Warning":
+            msg.setIcon(QMessageBox.Icon.Warning)
+        msg.setWindowTitle(msg_list[1])
+        msg.setText(msg_list[2])
+        msg.show()
+
+    def show_goto_dialog(self):
+        print("Called goto_dialog")
+        text, ok = QInputDialog().getText(self, "Go to glyph", "Glyph name:",
+                                          QLineEdit.EchoMode.Normal)
+        if ok and text:
+            self.glyph_pane.go_to_glyph(text)
 
 
 
@@ -245,7 +365,7 @@ def QTFactory(glyph):
 if __name__ == "__main__":
     registerRepresentationFactory(Glyph, "NSQTPath", QTFactory)
 
-    print(dir(Qt.ConnectionType))
+    print(dir(QLineEdit.EchoMode))
 
     # 1. create the QApplication
     # 2. create the main window
@@ -258,8 +378,8 @@ if __name__ == "__main__":
     # 9. start the app
 
     app = QApplication([])
-    top_window = MainWindow()
-    yg_editor = ygEditor()
+    top_window = MainWindow(app)
+    yg_editor = ygEditor.ygEditor()
     top_window.add_editor(yg_editor)
     yg_font = ygModel.ygFont("Junicode-roman.yaml")
     top_window.yg_font = yg_font
@@ -268,6 +388,9 @@ if __name__ == "__main__":
     viewer = ygHintEditor.ygGlyphViewer(modelGlyph)
     view = ygHintEditor.MyView(viewer, yg_font)
     top_window.add_glyph_pane(view)
+    top_window.set_background()
+    top_window.set_window_title()
+    top_window.setup_editor_connections()
     # top_window.setup_connections()
     top_window.show()
     sys.exit(app.exec())

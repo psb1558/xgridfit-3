@@ -88,9 +88,14 @@ class ygFont:
             self.glyph_index[g[1]] = glyph_counter
             glyph_counter += 1
 
+    def family_name(self):
+        return self.dc_font.info.familyName
+
+    def style_name(self):
+        return self.dc_font.info.styleName
+
     def get_glyph(self, gname):
         try:
-            # print(self.glyphs[gname])
             return self.glyphs[gname]
         except KeyError:
             return {"y": {"points": []}}
@@ -579,6 +584,7 @@ class ygGlyph(QObject):
 
     sig_hints_changed = pyqtSignal(object)
     sig_glyph_source_ready = pyqtSignal(object)
+    sig_error = pyqtSignal(object)
     viewer_ready = False
 
     def __init__(self, yg_font, gname):
@@ -657,10 +663,34 @@ class ygGlyph(QObject):
 
         self.sig_hints_changed.connect(self.hints_changed)
 
+    def setup_error_signal(self, o):
+        self.sig_error.connect(o)
+
+    def save_editor_source(self, s):
+        """ When the user has typed Ctrl+R to compile the contents of the
+            editor pane, this function gets called to do the rest. It
+            massages the yaml source exactly as the __init__for this class
+            does (calling the same functions) and then installs new source
+            in self.current_block and generates a new hint_tree. Finally it
+            sends sig_hints_changed to notify that the hints are ready to
+            render and sends reconstituted source back to the editor.
+        """
+        try:
+            self.current_block = copy.copy(s)
+            self.yaml_add_parents(self.current_block["points"])
+            self.yaml_supply_refs(self.current_block["points"])
+            self.yaml_strip_parent_nodes(self.current_block["points"])
+            flat_list = self._flatten_hint_list_from_source(self.current_block)
+            self.hint_tree = self._build_hint_tree(flat_list)
+            self.sig_hints_changed.emit(self.hint_tree)
+            self.send_yaml()
+        except Exception:
+            self.sig_error.emit(["Warning", "Warning", "YAML source code is invalid."])
+
     def save_source(self):
         """ Converts the working hint tree for this glyph to a yaml tree and
             calls ygFont.save_glyph_source to save it to the in-memory yaml
-            source.
+            source. This is not for saving to disk.
 
         """
         if not self.clean:
@@ -673,15 +703,21 @@ class ygGlyph(QObject):
         # Also save the other things (cvt, etc.) if dirty.
 
     def set_yaml_editor(self, ed):
+        """ Registers a slot in a ygEditor object, for installing source.
+
+        """
         self.sig_glyph_source_ready.connect(ed.install_source)
         self.send_yaml()
 
     def send_yaml(self):
+        """ Sends yaml source for the current x or y block to the editor pane.
+
+        """
         new_yaml = yamlTree(self.hint_tree, "y").tree
         self.sig_glyph_source_ready.emit(yaml.dump(new_yaml, sort_keys=False, Dumper=Dumper))
 
     def hint_changed(self, h):
-        """ Called by signal from ygHint
+        """ Called by signal from ygHint. Rebuilds the hint tree in response.
 
         """
         self.clean = False
@@ -694,6 +730,7 @@ class ygGlyph(QObject):
             anything).
 
         """
+        # print(yamlTree(hint_tree, "y").tree) # It's still correct here
         self.clean = False
         from ygHintEditor import ygGlyphViewer
         if self.glyph_viewer:
@@ -746,8 +783,8 @@ class ygGlyph(QObject):
 
         """
         for pt in source:
-            # Not your standard kwargs, but an ordinary dict passed as an arg.
-            # kwargs = {"target": self.resolve_point_identifier(pt['ptid'])}
+            # Not your standard kwargs, but an ordinary dict passed as an arg,
+            # so we can have that flexibility on both sides of the call.
             target = self.resolve_point_identifier(pt['ptid'])
             if "ref" in pt:
                 ref = self.resolve_point_identifier(pt["ref"])
@@ -1045,16 +1082,21 @@ class ygHint(QObject):
             self.hint_changed_signal.emit(h)
 
     def swap_macfunc_points(self, new_name, old_name):
+        print("Type of new_name: " + str(type(new_name)))
+        print("Type of old_name: " + str(type(old_name)))
         if type(self.target) is dict:
             try:
                 self.target[new_name], self.target[old_name] = self.target[old_name], self.target[new_name]
-            except Exception:
+                print("Got to (1)")
+            except Exception as e:
+                print("In model (1): " + str(e))
                 self.target[new_name] = self.target[old_name]
                 del self.target[old_name]
         elif type(self.target) is ygParams:
             try:
                 self.target.point_dict[new_name], self.target.point_dict[old_name] = self.target.point_dict[old_name], self.target.point_dict[new_name]
-            except Exception:
+                print("Got to (2)")
+            except Exception as e:
                 self.target.point_dict[new_name] = self.target.point_dict[old_name]
                 del self.target.point_dict[old_name]
         self.hint_changed_signal.emit(self)
