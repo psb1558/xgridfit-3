@@ -344,6 +344,9 @@ def ygridfit_parse(yamlfile):
 
     y_stream = open(yamlfile, 'r')
     y_doc = yaml.safe_load(y_stream)
+    ygridfit_parse_stream(y_doc)
+
+def ygridfit_parse_obj(y_doc):
 
     y_keys = y_doc.keys()
 

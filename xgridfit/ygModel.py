@@ -6,6 +6,7 @@ import uuid
 import sys
 import copy
 from defcon import Font, Glyph
+import ygPreferences
 
 hint_type_nums  = {"anchor": 0, "align": 1, "shift": 1, "interpolate": 2,
                    "stem": 3, "whitespace": 3, "blackspace": 3, "grayspace": 3,
@@ -27,7 +28,7 @@ class SourceFile:
 
     def save_source(self):
         f = open(self.filename, "w")
-        f.write(yaml.dump(self.y_doc, sort_keys=False, Dumper=Dumper))
+        f.write(yaml.dump(self.y_doc, sort_keys=False, width=float("inf"), Dumper=Dumper))
         f.close()
 
 
@@ -386,12 +387,11 @@ class ygHintNode:
                 found_nodes[0].children.append(new_node)
                 tgt = new_node.data.get_target()
                 # Some top-level hints may be eligible for attachment as
-                # children of the newly created node. We're going to have to
-                # do more here, though, since some top-level hints may have
-                # automatically added anchor hints.
+                # children of the newly created node.
                 top_level_hints = []
                 for c in self.children:
-                    if c.data.get_target() == tgt:
+                    #if c.data.get_target() == tgt:
+                    if c.data.get_ref() == tgt:
                         top_level_hints.append(c)
                 for t in top_level_hints:
                     if len(t.children) > 0:
@@ -452,6 +452,9 @@ class yamlTree:
             attach.append(yaml_hint)
         if hasattr(yg_tree, "children") and len(yg_tree.children) > 0:
             for c in yg_tree.children:
+                # Two new lines, testing.
+                if hasattr(c, "ref"):
+                    c.ref = None
                 at = attach
                 if yaml_hint != None:
                     at = yaml_hint["points"]
@@ -534,8 +537,10 @@ class yamlNode:
             kk = hint.extra.keys()
             for k in kk:
                 self.yaml_node["extra"][k] = hint.extra[k]
+                # The following is wrong. Do we even need it?
                 if k == "target" or k == "ref":
-                    self.yaml_node["extra"][k] = self.yaml_node["extra"][k].index
+                    if type(self.yaml_node["extra"][k]) is ygPoint:
+                        self.yaml_node["extra"][k] = self.yaml_node["extra"][k].index
         else:
             del self.yaml_node["extra"]
 
@@ -584,14 +589,14 @@ class ygGlyph(QObject):
 
     sig_hints_changed = pyqtSignal(object)
     sig_glyph_source_ready = pyqtSignal(object)
-    sig_error = pyqtSignal(object)
     viewer_ready = False
 
-    def __init__(self, yg_font, gname):
+    def __init__(self, preferences, yg_font, gname):
         """ Requires a ygFont object and the name of the glyph. This will also
             parse the glyph's x and y hints into a tree structure.
         """
         super().__init__()
+        self.preferences = preferences
         self.yaml_editor = None
         ygHintNode.hint_index = {}
         self.yg_font = yg_font
@@ -645,7 +650,9 @@ class ygGlyph(QObject):
         k = self.y_block.keys()
         for kk in k:
             # This procedure is clunky and (no doubt) inefficient. I need to
-            # work on doing it more simply, in one pass.
+            # work on doing it more simply, in one pass. The point of this is
+            # to convert implicit reference points into explicit ones. We'll
+            # need this info now to display hints.
             self.yaml_add_parents(self.y_block[kk])
             self.yaml_supply_refs(self.y_block[kk])
             self.yaml_strip_parent_nodes(self.y_block[kk])
@@ -662,9 +669,6 @@ class ygGlyph(QObject):
         self.glyph_viewer = None
 
         self.sig_hints_changed.connect(self.hints_changed)
-
-    def setup_error_signal(self, o):
-        self.sig_error.connect(o)
 
     def save_editor_source(self, s):
         """ When the user has typed Ctrl+R to compile the contents of the
@@ -685,7 +689,7 @@ class ygGlyph(QObject):
             self.sig_hints_changed.emit(self.hint_tree)
             self.send_yaml()
         except Exception:
-            self.sig_error.emit(["Warning", "Warning", "YAML source code is invalid."])
+            self.preferences.top_window.show_error_message(["Warning", "Warning", "YAML source code is invalid."])
 
     def save_source(self):
         """ Converts the working hint tree for this glyph to a yaml tree and
@@ -759,7 +763,7 @@ class ygGlyph(QObject):
             self.gsource["y"] = yamlTree(self.hint_tree, "y")
             new_source = self.yg_font.get_glyph(self.gname)
             new_source["y"] = yamlTree(self.hint_tree, "y").tree
-            self.sig_glyph_source_ready.emit(yaml.dump(new_source, sort_keys=False, Dumper=Dumper))
+            self.sig_glyph_source_ready.emit(yaml.dump(new_source["y"], sort_keys=False, Dumper=Dumper))
         return root
 
     def _flatten_hint_list_from_tree(self, node):
@@ -844,6 +848,16 @@ class ygGlyph(QObject):
             if "points" in pt:
                 self.yaml_strip_parent_nodes(pt["points"])
 
+    def _yaml_get_target(self, node):
+        if "extra" in node and "target" in node["extra"]:
+            return node["extra"]["target"]
+        elif "ptid" in node:
+            pp = node["ptid"]
+            if type(pp) is list:
+                return pp[0]
+            return pp
+        return None
+
     def yaml_supply_refs(self, node):
         """ After "parent" properties have been added, walk the tree supplying
             implicit references. If we can't find a reference, print a message
@@ -859,20 +873,22 @@ class ygGlyph(QObject):
                     hint_type_num = hint_type_nums[n['rel']]
                     if "parent" in n:
                         if hint_type_num in [1, 2, 3]:
-                            pp = n['parent']['ptid']
-                            if type(pp) is list:
-                                n['ref'] = pp[0]
-                            else:
-                                n['ref'] = pp
+                            n['ref'] = self._yaml_get_target(n['parent'])
+                            # pp = n['parent']['ptid']
+                            # if type(pp) is list:
+                            #    n['ref'] = pp[0]
+                            # else:
+                            #    n['ref'] = pp
                             n['extra']['ref-is-implicit'] = True
                             if hint_type_num == 2:
                                 n['ref'] = [n['ref']]
                                 if "parent" in n['parent']:
-                                    ppp = n['parent']['parent']['ptid']
-                                    if type(ppp) is list:
-                                        n['ref'].append(ppp[0])
-                                    else:
-                                        n['ref'].append(ppp)
+                                    n['ref'].append(self._yaml_get_target(n['parent']['parent']))
+                                    # ppp = n['parent']['parent']['ptid']
+                                    # if type(ppp) is list:
+                                    #    n['ref'].append(ppp[0])
+                                    # else:
+                                    #    n['ref'].append(ppp)
                                     n['extra']['ref-is-implicit'] = True
                                 else:
                                     print("Can't supply a reference for " + n['rel'] + ".")
@@ -969,7 +985,7 @@ class ygGlyph(QObject):
 
     def print_hint_tree(self, node, indent=""):
         if node.data:
-            print(indent + str(node.data) + " " + str(node.data.target) + " " + str(node.data.ref))
+            print(indent + str(node.data) + " " + str(node.data.target + " " + str(node.data.ref)))
         else:
             print("root")
         for c in node.children:
@@ -1046,6 +1062,10 @@ class ygHint(QObject):
             return self.yg_glyph.resolve_point_identifier(self.extra["target"])
         elif type(self.target) is ygSet:
             return self.target.main_point()
+        elif type(self.target) is ygParams:
+            # print("ygParams as target:")
+            # print(self.target.point_dict)
+            return self.target
         else:
             return self.target
 
@@ -1059,6 +1079,14 @@ class ygHint(QObject):
         if not pt and "target" in self.extra:
             del self.extra["target"]
         self.hint_changed_signal.emit(self)
+
+    def get_ref(self):
+        if "ref" in self.extra:
+            return self.yg_glyph.resolve_point_identifier(self.extra["ref"])
+        elif type(self.ref) is ygSet:
+            return self.ref.main_point()
+        else:
+            return self.ref
 
     def set_extra_ref(self, pt):
         """ In a function or macro call object. When set, they can behave in a
@@ -1082,20 +1110,15 @@ class ygHint(QObject):
             self.hint_changed_signal.emit(h)
 
     def swap_macfunc_points(self, new_name, old_name):
-        print("Type of new_name: " + str(type(new_name)))
-        print("Type of old_name: " + str(type(old_name)))
         if type(self.target) is dict:
             try:
                 self.target[new_name], self.target[old_name] = self.target[old_name], self.target[new_name]
-                print("Got to (1)")
             except Exception as e:
-                print("In model (1): " + str(e))
                 self.target[new_name] = self.target[old_name]
                 del self.target[old_name]
         elif type(self.target) is ygParams:
             try:
                 self.target.point_dict[new_name], self.target.point_dict[old_name] = self.target.point_dict[old_name], self.target.point_dict[new_name]
-                print("Got to (2)")
             except Exception as e:
                 self.target.point_dict[new_name] = self.target.point_dict[old_name]
                 del self.target.point_dict[old_name]
@@ -1143,7 +1166,7 @@ class ygHint(QObject):
         self.hint_changed_signal.emit(h)
 
     def print(*args, **kwargs):
-        __builtin__.print("Hint target " + str(self.target) + "; ref: " + str(self.ref))
+        __builtin__.print("Hint target " + str(self.target + "; ref: " + str(self.ref)))
         return __builtin__.print(*args, **kwargs)
 
     def __str__(self):

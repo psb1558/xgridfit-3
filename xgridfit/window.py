@@ -1,7 +1,10 @@
 import sys
+from tr import tr
 import ygModel
 import ygEditor
 import ygHintEditor
+import ygPreferences
+from xgridfit import compile_one
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QApplication,
@@ -13,7 +16,7 @@ from PyQt6.QtWidgets import (
     QWidget,
     QMessageBox,
     QInputDialog,
-    QLineEdit
+    QLineEdit, QSizePolicy, QFileDialog
 )
 from PyQt6.QtGui import (
     QPainter,
@@ -41,6 +44,7 @@ class MainWindow(QMainWindow):
         self.yg_font = None
         self.source_editor = None
         self.app = app
+        self.preferences = ygPreferences.ygPreferences()
 
         self.menu = self.menuBar()
 
@@ -60,6 +64,8 @@ class MainWindow(QMainWindow):
 
         self.save_font_action = self.file_menu.addAction("Save Font...")
         self.save_font_action.setShortcut(QKeySequence("Ctrl+e"))
+
+        self.save_current_glyph_action = self.file_menu.addAction("Save Current.")
 
         self.quit_action = self.file_menu.addAction("Quit")
         self.quit_action.setShortcut(QKeySequence.StandardKey.Quit)
@@ -135,6 +141,12 @@ class MainWindow(QMainWindow):
 
         self.setup_file_connections()
 
+    def compile_current_glyph(self):
+        source = self.yg_font.source
+        font = "JunicodeTwoBetaVF-Roman.ttf"
+        glyph = self.preferences["current_glyph"]
+        compile_one(font, source, glyph)
+
     def hint_menu_about_to_show(self):
         print("Got the signal")
         if len(self.glyph_pane.viewer.selectedObjects(True)) != 1:
@@ -202,11 +214,12 @@ class MainWindow(QMainWindow):
 
     def setup_editor_connections(self):
         self.compile_action.triggered.connect(self.source_editor.yaml_source)
-        self.source_editor.setup_error_signal(self.show_error_message)
 
     def setup_file_connections(self):
         self.save_action.triggered.connect(self.save_yaml_file)
-        self.quit_action.triggered.connect(self.app.quit, type=Qt.ConnectionType.QueuedConnection)
+        self.quit_action.triggered.connect(self.quit, type=Qt.ConnectionType.QueuedConnection)
+        self.save_current_glyph_action.triggered.connect(self.compile_current_glyph)
+        self.open_action.triggered.connect(self.open_file)
 
     def setup_hint_connections(self):
         self.black_action.triggered.connect(self.glyph_pane.viewer.make_hint_from_selection)
@@ -295,13 +308,12 @@ class MainWindow(QMainWindow):
         self.setup_nav_connections()
         self.setup_zoom_connections()
         self.source_editor.setup_editor_signals(self.glyph_pane.viewer.yg_glyph.save_editor_source)
-        self.glyph_pane.viewer.yg_glyph.setup_error_signal(self.show_error_message)
-        self.glyph_pane.setup_error_signal(self.show_error_message)
 
     def disconnect_glyph_pane(self):
         self.disconnect_nav()
         self.disconnect_zoom()
         self.disconnect_hint()
+        self.source_editor.disconnect_editor_signals(self.glyph_pane.viewer.yg_glyph.save_editor_source)
 
     def setup_connections(self):
         # This can safely be run when the program has just started, but not
@@ -325,6 +337,23 @@ class MainWindow(QMainWindow):
     def save_yaml_file(self):
         self.glyph_pane.viewer.yg_glyph.save_source()
         self.yg_font.source_file.save_source()
+
+    def open_file(self): # ***
+        filename = QFileDialog.getOpenFileName(self, "Open TrueType font or YAML file",
+                                               "/Users/peterbaker/work/GitHub/",
+                                               "Files (*.ttf *.yaml)")
+        self.source_editor = ygEditor.ygEditor(top_window.preferences)
+        self.add_editor(self.source_editor)
+        self.yg_font = ygModel.ygFont("Junicode-roman.yaml")
+        modelGlyph = ygModel.ygGlyph(top_window.preferences, self.yg_font, "A")
+        modelGlyph.set_yaml_editor(self.source_editor)
+        viewer = ygHintEditor.ygGlyphViewer(self.preferences, modelGlyph)
+        view = ygHintEditor.MyView(self.preferences, viewer, self.yg_font)
+        self.add_glyph_pane(view)
+        self.set_background()
+        self.set_window_title()
+        self.setup_editor_connections()
+        # self.show()
 
     def set_background(self):
         self.glyph_pane.set_background()
@@ -352,6 +381,11 @@ class MainWindow(QMainWindow):
         if ok and text:
             self.glyph_pane.go_to_glyph(text)
 
+    def quit(self):
+        self.preferences.save_config()
+        self.app.quit()
+
+
 
 
 def QTFactory(glyph):
@@ -365,32 +399,32 @@ def QTFactory(glyph):
 if __name__ == "__main__":
     registerRepresentationFactory(Glyph, "NSQTPath", QTFactory)
 
-    print(dir(QLineEdit.EchoMode))
+    print(dir(Qt))
 
     # 1. create the QApplication
     # 2. create the main window
     # 3. create the yaml editor pane and add it to the main window
     # 4. open the yaml file (which should contain font information)
     # 5. create a ygGlyph object for the default character
-    # 6. create a ygGlypnViewer (QGraphicsScene, graphical wrapper for a ygGlyph)
+    # 6. create a ygGlyphViewer (QGraphicsScene, graphical wrapper for a ygGlyph)
     # 7. create a MyView (QGraphicsView) and add it to the main window
     # 8. show the window
     # 9. start the app
 
     app = QApplication([])
     top_window = MainWindow(app)
-    yg_editor = ygEditor.ygEditor()
-    top_window.add_editor(yg_editor)
-    yg_font = ygModel.ygFont("Junicode-roman.yaml")
-    top_window.yg_font = yg_font
-    modelGlyph = ygModel.ygGlyph(yg_font, "w")
-    modelGlyph.set_yaml_editor(yg_editor)
-    viewer = ygHintEditor.ygGlyphViewer(modelGlyph)
-    view = ygHintEditor.MyView(viewer, yg_font)
-    top_window.add_glyph_pane(view)
-    top_window.set_background()
-    top_window.set_window_title()
-    top_window.setup_editor_connections()
-    # top_window.setup_connections()
+    top_window.preferences = ygPreferences.open_config(top_window)
+    # yg_editor = ygEditor.ygEditor(top_window.preferences)
+    # top_window.add_editor(yg_editor)
+    #yg_font = ygModel.ygFont("Junicode-roman.yaml")
+    #top_window.yg_font = yg_font
+    #modelGlyph = ygModel.ygGlyph(top_window.preferences, yg_font, "uni01A3")
+    #modelGlyph.set_yaml_editor(yg_editor)
+    #viewer = ygHintEditor.ygGlyphViewer(top_window.preferences, modelGlyph)
+    #view = ygHintEditor.MyView(top_window.preferences, viewer, yg_font)
+    #top_window.add_glyph_pane(view)
+    #top_window.set_background()
+    #top_window.set_window_title()
+    #top_window.setup_editor_connections()
     top_window.show()
     sys.exit(app.exec())

@@ -4,8 +4,9 @@ from fontTools.ttLib.tables.TupleVariation import TupleVariation
 from fontTools.ufoLib.filenames import userNameToFileName
 from lxml import etree
 from ast import literal_eval
-from .version import __version__
-from .ygridfit import ygridfit_parse
+from version import __version__
+from ygridfit import ygridfit_parse, ygridfit_parse_obj
+from tempfile import mkstemp
 import sys
 import os
 import argparse
@@ -505,6 +506,74 @@ def validate(f, syntax, noval):
         schemapath = get_file_path(schemadir + schemafile)
         schema = etree.RelaxNG(etree.parse(schemapath))
         schema.assertValid(f)
+
+def compile_one(font, yaml, gname):
+    """ A quick and dirty function to support the GUI. It compiles code for a
+        single glyph and generates the font with that code (and supporting
+        stuff--cvt, cvar, prep, fpgm, maxp). This can then be used to display
+        a preview of the glyph.
+    """
+    xgffile = ygridfit_parse_obj(yaml)
+    ns = {"xgf": "http://xgridfit.sourceforge.net/Xgridfit2",
+          "xi": "http://www.w3.org/2001/XInclude",
+          "xsl": "http://www.w3.org/1999/XSL/Transform"}
+    thisFont = ttLib.TTFont(font)
+    functionBase = 0     # Offset to account for functions in existing font
+    cvtBase      = 0     # Offset to account for CVs in existing font
+    storageBase  = 0     # Offset to account for storage in existing font
+    maxStack     = 256   # Our (generous) default stack size
+    twilightBase = 0     # Offset to account for twilight space in existing font
+    wipe_font(thisFont)
+    xslfile = etree.parse(get_file_path("XSL/xgridfit-ft.xsl"))
+    etransform = etree.XSLT(xslfile)
+    glyph_list = [gname]
+    coordinateIndex = make_coordinate_index(glyph_list, thisFont)
+    coordinates_to_points(glyph_list, xgffile, coordinateIndex, ns)
+    safe_calls = etransform(xgffile, **{"stack-safe-list": "'yes'"})
+    safe_calls = literal_eval(str(safe_calls))
+    cvt_list = str(etransform(xgffile, **{"get-cvt-list": "'yes'"}))
+    cvt_list = literal_eval("[" + cvt_list + "]")
+    install_cvt(thisFont, cvt_list, cvtBase)
+    cvar_count = len(xgffile.xpath("/xgf:xgridfit/xgf:cvar", namespaces=ns))
+    if cvar_count > 0:
+        tuple_store = literal_eval(str(etransform(xgffile, **{"get-cvar": "'yes'"})))
+        install_cvar(thisFont, tuple_store, False, cvtBase)
+    predef_functions = int(xslfile.xpath("/xsl:stylesheet/xsl:variable[@name='predefined-functions']",
+                                         namespaces=ns)[0].attrib['select'])
+    maxFunction = etransform(xgffile, **{"function-count": "'yes'"})
+    maxFunction = int(maxFunction) + predef_functions + functionBase
+    thisFont['maxp'].maxSizeOfInstructions = maxInstructions + 50
+    thisFont['maxp'].maxTwilightPoints = twilightBase + 25
+    thisFont['maxp'].maxStorage = storageBase + 64
+    thisFont['maxp'].maxStackElements = maxStack
+    thisFont['maxp'].maxFunctionDefs = maxFunction
+    thisFont['head'].flags |= 0b0000000000001000
+    fpgm_code = etransform(xgffile, **{"fpgm-only": "'yes'"})
+    install_functions(thisFont, fpgm_code, functionBase)
+    prep_code = etransform(xgffile, **{"prep-only": "'yes'"})
+    install_prep(thisFont, prep_code, False, True)
+    for g in glyph_list:
+        try:
+            gt = "'" + g + "'"
+            glyph_args = {'singleGlyphId': gt}
+            #if initgraphics:
+            #    glyph_args['init_graphics'] = "'" + initgraphics + "'"
+            g_inst = etransform(xgffile, **glyph_args)
+        except Exception as e:
+            print(e)
+            for entry in etransform.error_log:
+                print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
+            sys.exit(1)
+        g_inst_final = compact_instructions(str(g_inst), safe_calls)
+        install_glyph_program(g, thisFont, g_inst_final)
+    # tmp_file_name = mkstemp(suffix=".ttf")[1]
+    tmp_file_name = mkstemp(suffix=".ttf")[1]
+    thisFont.save(tmp_file_name, 1)
+    print("Done saving temp font")
+    return tmp_file_name
+
+
+
 
 def main():
 

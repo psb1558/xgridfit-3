@@ -1,5 +1,6 @@
 import sys
 import uuid
+import ygPreferences
 
 from PyQt6.QtCore import (
     Qt,
@@ -34,7 +35,8 @@ from PyQt6.QtWidgets import (
     QGraphicsPathItem,
     QGraphicsPolygonItem,
     QMenu,
-    QLabel
+    QLabel,
+    QSizePolicy
 )
 import ygModel
 import defcon
@@ -138,7 +140,8 @@ class GlyphWidget(QWidget):
         b = self.defcon_glyph.bounds
         w = abs(b[0]) + abs(b[2]) + (GLYPH_WIDGET_MARGIN * 2)
         h = abs(b[1]) + abs(b[3]) + (GLYPH_WIDGET_MARGIN * 2)
-        self.setFixedSize(int(w), int(h))
+        self.setMinimumSize(int(w), int(h))
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding))
         extra_translate = 0
         if b[0] < 0:
             extra_translate = abs(b[0])
@@ -1183,9 +1186,10 @@ class ygGlyphViewer(QGraphicsScene):
     sig_macfunc_ref = pyqtSignal(object)
     sig_toggle_point_numbers = pyqtSignal()
 
-    def __init__(self, yg_glyph):
+    def __init__(self, preferences, yg_glyph):
         """ yg_glyph is a ygGlyph object from ygModel.
         """
+        self.preferences = preferences
         self.yg_point_view_index = {}
         self.yg_point_view_list = []
         self.yg_hint_view_index = {}
@@ -1195,20 +1199,25 @@ class ygGlyphViewer(QGraphicsScene):
         self.yg_glyph = yg_glyph
         self.yg_glyph.glyph_viewer = self
         self.glyphwidget = GlyphWidget(self, self.yg_glyph)
-        self.setMinimumRenderSize = QSizeF(self.glyphwidget.width(), self.glyphwidget.height())
+        # self.setMinimumRenderSize = QSizeF(self.glyphwidget.width(), self.glyphwidget.height())
         self.glyphwidget.move(0,0)
         self.addWidget(self.glyphwidget)
         self.selectionRect = None          # The rubber band. None when no selection is underway.
         self.dragBeginPoint = QPointF(0,0) # Set whenever left mouse button is pressed, in case of rubber band selection
         self.yg_selection = ygSelection(self)
-        self.off_curve_points_showing = True
-        self.point_numbers_showing = False
+        self.off_curve_points_showing = self.preferences.show_off_curve_points()
+        self.point_numbers_showing = self.preferences.show_point_numbers()
         for p in self.yg_glyph.point_list:
             yg_point_view = ygPointView(self, p, self.glyphwidget)
             self.yg_point_view_index[p.id] = yg_point_view
             self.yg_point_view_list.append(yg_point_view)
             yg_point_view._prepare_graphics()
             self.addItem(yg_point_view)
+            if not yg_point_view.yg_point.on_curve and not self.off_curve_points_showing:
+                yg_point_view.hide()
+            if yg_point_view.isVisible() and self.point_numbers_showing:
+                yg_point_view.add_label()
+
 
         self.sig_new_hint.connect(self.add_hint)
         self.sig_change_cv.connect(self.change_cv)
@@ -1237,6 +1246,7 @@ class ygGlyphViewer(QGraphicsScene):
 
     def toggle_off_curve_visibility(self):
         self.off_curve_points_showing = not self.off_curve_points_showing
+        self.preferences.set_show_off_curve_points(self.off_curve_points_showing)
         for p in self.yg_point_view_list:
             if not p.yg_point.on_curve:
                 if self.off_curve_points_showing:
@@ -1318,6 +1328,7 @@ class ygGlyphViewer(QGraphicsScene):
 
     def toggle_point_numbers(self):
         self.point_numbers_showing = not self.point_numbers_showing
+        self.preferences.set_show_point_numbers(self.point_numbers_showing)
         for p in self.yg_point_view_list:
             if self.point_numbers_showing:
                 if p.isVisible():
@@ -1345,7 +1356,9 @@ class ygGlyphViewer(QGraphicsScene):
         hint = _params["hint"]
         pt = _params["pt"]
         if "target" in hint.yg_hint.extra:
-            hint.yg_hint.set_extra_target(None)
+            ppt = self.resolve_point_identifier(hint.yg_hint.extra['target'])
+            hint.yg_hint.set_extra_target(ppt) # ***
+            # hint.yg_hint.set_extra_target(None) # ***
         else:
             hint.yg_hint.set_extra_target(pt)
 
@@ -1353,7 +1366,9 @@ class ygGlyphViewer(QGraphicsScene):
         hint = _params["hint"]
         pt = _params["pt"]
         if "ref" in hint.yg_hint.extra:
-            hint.yg_hint.set_extra_ref(None)
+            ppt = self.resolve_point_identifier(hint.yg_hint.extra['ref'])
+            hint.yg_hint.set_extra_ref(ppt) # ***
+            # hint.yg_hint.set_extra_ref(None)
         else:
             hint.yg_hint.set_extra_ref(pt)
 
@@ -1544,6 +1559,10 @@ class ygGlyphViewer(QGraphicsScene):
             if hint.ref == None:
                 print("Warning: ref is None (target is " + str(target.index) + ")")
             ref = self.resolve_point_identifier(hint.ref)
+            #if type(ref) is ygModel.ygParams:
+            #    print(ref.point_dict)
+            #    if "pt-a" in ref.point_dict:
+            #        print(ref.point_dict["pt-a"].index)
             gref = self.yg_point_view_index[ref.id]
             ha = HintArrowLine(gref, gtarget, 0, hint_type, parent=self)
             ah = ArrowHead(ha.endPoint(), ha.arrowhead_direction, hint_type, ha.id, parent=self)
@@ -1740,7 +1759,7 @@ class ygGlyphViewer(QGraphicsScene):
 
             # And make a ygParams object to hold these parameters
             yg_params = ygModel.ygParams(hint_type, name, pt_dict, other_params)
-            print(pt_dict)
+            # print(pt_dict)
 
             # Build the hint and notify the model of its existence.
             yg_hint = ygModel.ygHint(self.yg_glyph, yg_params, None, other_args=other_params)
@@ -1869,6 +1888,7 @@ class ygGlyphViewer(QGraphicsScene):
 
         set_anchor_cv = cmenu.addMenu("Set control value...")
         cv_list = self.yg_glyph.yg_font.cvt.get_list(None, "anchor", self.vector)
+        cv_list.sort()
         if len(cv_list) > 0:
             for c in cv_list:
                 cv_anchor_action_list.append(set_anchor_cv.addAction(c))
@@ -1884,9 +1904,14 @@ class ygGlyphViewer(QGraphicsScene):
 
         set_stem_cv = cmenu.addMenu("Set control value...")
         cv_list = self.yg_glyph.yg_font.cvt.get_list(None, "dist", self.vector)
+        cv_list.sort()
         if len(cv_list) > 0:
             for c in cv_list:
-                cv_stem_action_list.append(set_stem_cv.addAction(c))
+                ccv = QAction(c, self, checkable=True)
+                if hint and (c == hint.yg_hint.cvt):
+                    ccv.setChecked(True)
+                set_stem_cv.addAction(ccv)
+                cv_stem_action_list.append(ccv)
         if hint == None or ntype != 3:
             for c in cv_stem_action_list:
                 c.setEnabled(False)
@@ -1966,9 +1991,9 @@ class ygGlyphViewer(QGraphicsScene):
                 point_list = self.yg_glyph.yg_font.functions.point_list(hint.yg_hint.name)
             swap_old_name = target_point.name
             point_list.remove(swap_old_name)
-            print("Got target point: " + str(swap_old_name))
+            # print("Got target point: " + str(swap_old_name))
         except Exception as e:
-            print(e)
+            # print(e)
             disable_point_params = True
         point_param_menu = cmenu.addMenu("Point params")
         for p in point_list:
@@ -2122,17 +2147,14 @@ class MyView(QGraphicsView):
         parent: Is this used at all?
     """
 
-    sig_error = pyqtSignal(object)
     sig_goto = pyqtSignal(object)
 
-    def __init__(self, viewer, font, parent=None):
+    def __init__(self, preferences, viewer, font, parent=None):
         super(MyView, self).__init__(viewer, parent=parent)
         self.viewer = viewer
         self.original_transform = self.transform()
         self.yg_font = font
-
-    def setup_error_signal(self, o):
-        self.sig_error.connect(o)
+        self.preferences = preferences
 
     def setup_goto_signal(self, o):
         self.sig_goto.connect(o)
@@ -2141,19 +2163,17 @@ class MyView(QGraphicsView):
         return self.yg_font.glyph_index[self.viewer.yg_glyph.gname]
 
     def go_to_glyph(self, g):
-        # self.parent().parent().disconnect_all()
         self.sender().disconnect()
         self.parent().parent().disconnect_glyph_pane()
         try:
             self.switch_to(g)
         except Exception:
-            self.sig_error.emit(["Warning", "Warning", "Can't load requested glyph."])
+            self.preferences.top_window.show_error_message(["Warning", "Warning", "Can't load requested glyph."])
         self.parent().parent().setup_glyph_pane_connections()
 
     def next_glyph(self, a):
         self.sender().disconnect()
         self.parent().parent().disconnect_glyph_pane()
-        # self.parent().parent().disconnect_all()
         current_index = self._current_index()
         if current_index < len(self.yg_font.glyph_list) - 1:
             gname = self.yg_font.glyph_list[current_index + 1][1]
@@ -2163,7 +2183,6 @@ class MyView(QGraphicsView):
     def previous_glyph(self, a):
         self.parent().parent().disconnect_glyph_pane()
         self.sender().disconnect()
-        # self.parent().parent().disconnect_all()
         current_index = self._current_index()
         if current_index > 0:
             gname = self.yg_font.glyph_list[current_index - 1][1]
@@ -2172,11 +2191,12 @@ class MyView(QGraphicsView):
 
     def switch_to(self, gname):
         self.viewer.yg_glyph.save_source()
-        new_glyph = ygModel.ygGlyph(self.yg_font, gname)
-        self.viewer = ygGlyphViewer(new_glyph)
+        new_glyph = ygModel.ygGlyph(self.preferences, self.yg_font, gname)
+        self.viewer = ygGlyphViewer(self.preferences, new_glyph)
+        self.preferences.set_current_glyph(gname)
         self.setScene(self.viewer)
         self.parent().parent().set_window_title()
-        ed = self.parent().parent().source_editor
+        ed = self.preferences.top_window().source_editor
         new_glyph.set_yaml_editor(ed)
 
     def set_background(self):
