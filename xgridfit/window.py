@@ -1,6 +1,8 @@
 import sys
-from tr import tr
+import os
+import copy
 import ygModel
+from ygPreview import ygPreview
 import ygEditor
 import ygHintEditor
 import ygPreferences
@@ -8,41 +10,30 @@ from xgridfit import compile_one
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QApplication,
-    QGraphicsScene,
-    QGraphicsView,
     QMainWindow,
-    QHBoxLayout,
     QSplitter,
-    QWidget,
     QMessageBox,
     QInputDialog,
-    QLineEdit, QSizePolicy, QFileDialog
+    QLineEdit,
+    QFileDialog, QDialogButtonBox, QComboBox, QDialog, QScrollArea
 )
 from PyQt6.QtGui import (
     QPainter,
-    QPainterPath,
-    QPen,
-    QBrush,
-    QColor,
-    QPolygonF,
     QAction,
-    QFont,
     QKeySequence
-)
-from defcon import (
-    Font,
-    Glyph,
-    registerRepresentationFactory
 )
 
 class MainWindow(QMainWindow):
     def __init__(self, app, parent=None):
         super(MainWindow,self).__init__(parent=parent)
+        self.setAttribute(Qt.WidgetAttribute.WA_AcceptTouchEvents, False)
         self.setWindowTitle("YG")
         self.qs = QSplitter(self)
         self.glyph_pane = None
         self.yg_font = None
         self.source_editor = None
+        self.preview_scroller = None
+        self.yg_preview = None
         self.app = app
         self.preferences = ygPreferences.ygPreferences()
 
@@ -65,8 +56,6 @@ class MainWindow(QMainWindow):
         self.save_font_action = self.file_menu.addAction("Save Font...")
         self.save_font_action.setShortcut(QKeySequence("Ctrl+e"))
 
-        self.save_current_glyph_action = self.file_menu.addAction("Save Current.")
-
         self.quit_action = self.file_menu.addAction("Quit")
         self.quit_action.setShortcut(QKeySequence.StandardKey.Quit)
 
@@ -83,6 +72,23 @@ class MainWindow(QMainWindow):
 
         self.goto_action = self.edit_menu.addAction("Go to...")
         self.goto_action.setShortcut(QKeySequence("Ctrl+G"))
+
+        self.preview_menu = self.menu.addMenu("&Preview")
+
+        self.save_current_glyph_action = self.preview_menu.addAction("Update Preview")
+        self.save_current_glyph_action.setShortcut(QKeySequence("Ctrl+u"))
+
+        self.pv_bigger_one_action = self.preview_menu.addAction("Grow by One")
+        self.pv_bigger_one_action.setShortcut(QKeySequence.StandardKey.MoveToPreviousLine)
+
+        self.pv_bigger_ten_action = self.preview_menu.addAction("Grow by Ten")
+        self.pv_bigger_ten_action.setShortcut(QKeySequence.StandardKey.MoveToStartOfBlock)
+
+        self.pv_smaller_one_action = self.preview_menu.addAction("Shrink by One")
+        self.pv_smaller_one_action.setShortcut(QKeySequence.StandardKey.MoveToNextLine)
+
+        self.pv_smaller_ten_action = self.preview_menu.addAction("Shrink by Ten")
+        self.pv_smaller_ten_action.setShortcut(QKeySequence.StandardKey.MoveToEndOfBlock)
 
         self.view_menu = self.menu.addMenu("&View")
 
@@ -129,7 +135,7 @@ class MainWindow(QMainWindow):
 
         self.hint_menu.addSeparator()
 
-        self.make_set_action = self.hint_menu.addAction("Make Set")
+        # self.make_set_action = self.hint_menu.addAction("Make Set")
 
         self.compile_action = self.hint_menu.addAction("Compile")
         self.compile_action.setShortcut(QKeySequence("Ctrl+r"))
@@ -142,13 +148,17 @@ class MainWindow(QMainWindow):
         self.setup_file_connections()
 
     def compile_current_glyph(self):
+        self.glyph_pane.viewer.yg_glyph.save_source()
         source = self.yg_font.source
-        font = "JunicodeTwoBetaVF-Roman.ttf"
-        glyph = self.preferences["current_glyph"]
-        compile_one(font, source, glyph)
+        font = self.yg_font.font_files.in_font()
+        # glyph = self.preferences["current_glyph"] ***
+        glyph = self.glyph_pane.viewer.yg_glyph.gname
+        glyph_index = self.yg_font.name_to_index[glyph]
+        tmp_font = compile_one(font, source, glyph)
+        self.yg_preview.fetch_glyph(tmp_font, glyph_index)
+        self.yg_preview.update()
 
     def hint_menu_about_to_show(self):
-        print("Got the signal")
         if len(self.glyph_pane.viewer.selectedObjects(True)) != 1:
             self.anchor_action.setEnabled(False)
         else:
@@ -218,7 +228,6 @@ class MainWindow(QMainWindow):
     def setup_file_connections(self):
         self.save_action.triggered.connect(self.save_yaml_file)
         self.quit_action.triggered.connect(self.quit, type=Qt.ConnectionType.QueuedConnection)
-        self.save_current_glyph_action.triggered.connect(self.compile_current_glyph)
         self.open_action.triggered.connect(self.open_file)
 
     def setup_hint_connections(self):
@@ -260,10 +269,17 @@ class MainWindow(QMainWindow):
         except Exception:
             pass
 
+    def setup_preview_connections(self):
+        self.pv_bigger_one_action.triggered.connect(self.yg_preview.bigger_one)
+        self.pv_bigger_ten_action.triggered.connect(self.yg_preview.bigger_ten)
+        self.pv_smaller_one_action.triggered.connect(self.yg_preview.smaller_one)
+        self.pv_smaller_ten_action.triggered.connect(self.yg_preview.smaller_ten)
+
     def setup_zoom_connections(self):
         self.zoom_in_action.triggered.connect(self.glyph_pane.zoom, type=Qt.ConnectionType.SingleShotConnection)
         self.zoom_out_action.triggered.connect(self.glyph_pane.zoom, type=Qt.ConnectionType.SingleShotConnection)
         self.original_size_action.triggered.connect(self.glyph_pane.zoom, type=Qt.ConnectionType.SingleShotConnection)
+        self.save_current_glyph_action.triggered.connect(self.compile_current_glyph)
 
     def disconnect_zoom(self):
         try:
@@ -276,6 +292,10 @@ class MainWindow(QMainWindow):
             pass
         try:
             self.goto_action.triggered.disconnect(self.show_goto_dialog)
+        except Exception:
+            pass
+        try:
+            self.save_current_glyph_action.triggered.disconnect(self.compile_current_glyph)
         except Exception:
             pass
 
@@ -323,6 +343,14 @@ class MainWindow(QMainWindow):
         self.setup_hint_connections()
         self.setup_nav_connections()
         self.setup_zoom_connections()
+        self.setup_preview_connections()
+
+    def add_preview(self, previewer):
+        self.yg_preview = previewer
+        self.preview_scroller = QScrollArea()
+        self.preview_scroller.setWidget(self.yg_preview)
+        self.qs.addWidget(self.preview_scroller)
+        self.setup_preview_connections()
 
     def add_editor(self, editor):
         self.source_editor = editor
@@ -339,20 +367,65 @@ class MainWindow(QMainWindow):
         self.yg_font.source_file.save_source()
 
     def open_file(self): # ***
-        filename = QFileDialog.getOpenFileName(self, "Open TrueType font or YAML file",
-                                               "/Users/peterbaker/work/GitHub/",
+        f = QFileDialog.getOpenFileName(self, "Open TrueType font or YAML file",
+                                               "/Users/peterbaker/work/GitHub/Junicode-New/source/xgf",
                                                "Files (*.ttf *.yaml)")
-        self.source_editor = ygEditor.ygEditor(top_window.preferences)
-        self.add_editor(self.source_editor)
-        self.yg_font = ygModel.ygFont("Junicode-roman.yaml")
-        modelGlyph = ygModel.ygGlyph(top_window.preferences, self.yg_font, "A")
-        modelGlyph.set_yaml_editor(self.source_editor)
-        viewer = ygHintEditor.ygGlyphViewer(self.preferences, modelGlyph)
-        view = ygHintEditor.MyView(self.preferences, viewer, self.yg_font)
-        self.add_glyph_pane(view)
-        self.set_background()
-        self.set_window_title()
-        self.setup_editor_connections()
+        filename = f[0]
+
+        if filename and len(filename) > 0:
+            print(filename)
+            split_fn = os.path.splitext(filename)
+            fn_base = split_fn[0]
+            print("base: " + str(fn_base))
+            extension = split_fn[1]
+            print("ext: " + str(extension))
+            yaml_source = None
+            if extension == ".ttf":
+                yaml_filename = fn_base + ".yaml"
+                yaml_source = {}
+                yaml_source["font"] = {}
+                yaml_source["font"]["in"] = copy.copy(filename)
+                yaml_source["font"]["out"] = fn_base + "-hinted" + extension
+                yaml_source["defaults"] = {}
+                yaml_source["cvt"] = {}
+                yaml_source["prep"] = {}
+                prep_code = """<code xmlns=\"http://xgridfit.sourceforge.net/Xgridfit2\">
+                    <push>4 511</push>
+                    <command nm="SCANCTRL"/>
+                    <command nm="SCANTYPE"/>
+                  </code>"""
+                yaml_source["prep"] = {"code": prep_code}
+                yaml_source["functions"] = {}
+                yaml_source["macros"] = {}
+                yaml_source["glyphs"] = {}
+                filename = yaml_filename
+
+            print("filename: " + str(filename))
+
+            # Wrong. We should use familyname + stylename to index here.
+            top_window.preferences["current_font"] = filename
+
+            self.yg_preview = ygPreview()
+            self.add_preview(self.yg_preview)
+            self.source_editor = ygEditor.ygEditor(top_window.preferences)
+            self.add_editor(self.source_editor)
+            if yaml_source != None:
+                self.yg_font = ygModel.ygFont(yaml_source, yaml_filename=filename)
+            else:
+                self.yg_font = ygModel.ygFont(filename)
+            # This is not working.
+            if "current_glyph" in top_window.preferences and filename in top_window.preferences["current_glyph"]:
+                initGlyph = top_window.preferences["current_glyph"][filename]
+            else:
+                initGlyph = "A"
+            modelGlyph = ygModel.ygGlyph(top_window.preferences, self.yg_font, initGlyph)
+            modelGlyph.set_yaml_editor(self.source_editor)
+            viewer = ygHintEditor.ygGlyphViewer(self.preferences, modelGlyph)
+            view = ygHintEditor.MyView(self.preferences, viewer, self.yg_font)
+            self.add_glyph_pane(view)
+            self.set_background()
+            self.set_window_title()
+            self.setup_editor_connections()
         # self.show()
 
     def set_background(self):
@@ -361,7 +434,7 @@ class MainWindow(QMainWindow):
     def set_window_title(self):
         base = "YG"
         if self.yg_font:
-            base += " -- " + self.yg_font.family_name() + "-" + self.yg_font.style_name()
+            base += " -- " + str(self.yg_font.family_name()) + "-" + str(self.yg_font.style_name())
         if self.glyph_pane:
             base += " -- " + self.glyph_pane.viewer.yg_glyph.gname
         self.setWindowTitle(base)
@@ -375,7 +448,6 @@ class MainWindow(QMainWindow):
         msg.show()
 
     def show_goto_dialog(self):
-        print("Called goto_dialog")
         text, ok = QInputDialog().getText(self, "Go to glyph", "Glyph name:",
                                           QLineEdit.EchoMode.Normal)
         if ok and text:
@@ -387,44 +459,18 @@ class MainWindow(QMainWindow):
 
 
 
-
-def QTFactory(glyph):
-    """ For defcon's drawing of glyph outlines
-    """
-    from fontTools.pens.qtPen import QtPen
-    pen = QtPen(glyph.getParent(), QPainterPath())
-    glyph.draw(pen)
-    return pen.path
-
 if __name__ == "__main__":
-    registerRepresentationFactory(Glyph, "NSQTPath", QTFactory)
 
-    print(dir(Qt))
-
-    # 1. create the QApplication
-    # 2. create the main window
-    # 3. create the yaml editor pane and add it to the main window
-    # 4. open the yaml file (which should contain font information)
-    # 5. create a ygGlyph object for the default character
-    # 6. create a ygGlyphViewer (QGraphicsScene, graphical wrapper for a ygGlyph)
-    # 7. create a MyView (QGraphicsView) and add it to the main window
-    # 8. show the window
-    # 9. start the app
+    # print(dir(QKeySequence.StandardKey))
 
     app = QApplication([])
     top_window = MainWindow(app)
+    qg = top_window.screen().availableGeometry()
+    x = qg.x() + 20
+    y = qg.y() + 20
+    width = qg.width() * 0.66
+    height = qg.height() * 0.75
+    top_window.setGeometry(int(x), int(y), int(width), int(height))
     top_window.preferences = ygPreferences.open_config(top_window)
-    # yg_editor = ygEditor.ygEditor(top_window.preferences)
-    # top_window.add_editor(yg_editor)
-    #yg_font = ygModel.ygFont("Junicode-roman.yaml")
-    #top_window.yg_font = yg_font
-    #modelGlyph = ygModel.ygGlyph(top_window.preferences, yg_font, "uni01A3")
-    #modelGlyph.set_yaml_editor(yg_editor)
-    #viewer = ygHintEditor.ygGlyphViewer(top_window.preferences, modelGlyph)
-    #view = ygHintEditor.MyView(top_window.preferences, viewer, yg_font)
-    #top_window.add_glyph_pane(view)
-    #top_window.set_background()
-    #top_window.set_window_title()
-    #top_window.setup_editor_connections()
     top_window.show()
     sys.exit(app.exec())

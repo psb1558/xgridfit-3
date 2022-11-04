@@ -4,9 +4,15 @@ from fontTools.ttLib.tables.TupleVariation import TupleVariation
 from fontTools.ufoLib.filenames import userNameToFileName
 from lxml import etree
 from ast import literal_eval
-from version import __version__
-from ygridfit import ygridfit_parse, ygridfit_parse_obj
-from tempfile import mkstemp
+try:
+    from .version import __version__
+except ImportError:
+    from version import __version__
+try:
+    from .ygridfit import ygridfit_parse, ygridfit_parse_obj
+except ImportError:
+    from ygridfit import ygridfit_parse, ygridfit_parse_obj
+from tempfile import mkstemp, SpooledTemporaryFile
 import sys
 import os
 import argparse
@@ -433,11 +439,11 @@ def coordinates_to_points(glist, xgffile, coordinateIndex, ns):
     for gn in glist:
         try:
             xoffset = xgffile.xpath(gPathString.format(gnm=gn), namespaces=ns)[0].attrib['xoffset']
-        except KeyError:
+        except (KeyError, IndexError):
             xoffset = "0"
         try:
             yoffset = xgffile.xpath(gPathString.format(gnm=gn), namespaces=ns)[0].attrib['yoffset']
-        except KeyError:
+        except (KeyError, IndexError):
             yoffset = "0"
 
         points = xgffile.xpath((gPathString + "/descendant::xgf:point").format(gnm=gn), namespaces=ns)
@@ -566,10 +572,10 @@ def compile_one(font, yaml, gname):
             sys.exit(1)
         g_inst_final = compact_instructions(str(g_inst), safe_calls)
         install_glyph_program(g, thisFont, g_inst_final)
-    # tmp_file_name = mkstemp(suffix=".ttf")[1]
     tmp_file_name = mkstemp(suffix=".ttf")[1]
+    # tmp_file_name = SpooledTemporaryFile(max_size = 30000000)
     thisFont.save(tmp_file_name, 1)
-    print("Done saving temp font")
+    print("Temp font saved to " + str(tmp_file_name))
     return tmp_file_name
 
 
@@ -649,6 +655,7 @@ def main():
         if quietcount < 1:
             print("Converting yaml source to Xgridfit")
         xgffile = ygridfit_parse(inputfile)
+        print(xgffile)
     else:
         xgffile = etree.parse(inputfile)
 
@@ -660,8 +667,8 @@ def main():
 
     # Do xinclude if this is a multipart file
 
-    if len(xgffile.xpath("/xgf:xgridfit/xi:include", namespaces=ns)):
-        xgffile.xinclude()
+    #if len(xgffile.xpath("/xgf:xgridfit/xi:include", namespaces=ns)):
+    #    xgffile.xinclude()
 
     # Next determine whether we are using long tagnames or short. Best way
     # is to find out which tag is used for the required <pre-program> (<prep>)
@@ -865,6 +872,9 @@ def main():
             for entry in etransform.error_log:
                 print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
             sys.exit(1)
+        # Two lines added for (possible) debugging
+        for entry in etransform.error_log:
+            print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
         if nocompact or g in no_compact_list:
             g_inst_final = str(g_inst)
         else:

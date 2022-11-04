@@ -1,6 +1,7 @@
 import yaml
 from lxml import etree
 import sys
+import uuid
 # import logging
 
 XGF_NAMESPACE = "http://xgridfit.sourceforge.net/Xgridfit2"
@@ -96,7 +97,6 @@ def build_point(source, parent_el, refpt = None):
         move_type = source["rel"]
     except KeyError:
         move_type = "move"
-    # if move_type == "move" or move_type == "whitespace" or move_type == "blackspace" or move_type == "stem" or move_type == "grayspace":
     if move_type in MOVETYPES:
         move_element = etree.SubElement(parent_el, XGF + "move")
         color = None
@@ -344,10 +344,10 @@ def ygridfit_parse(yamlfile):
 
     y_stream = open(yamlfile, 'r')
     y_doc = yaml.safe_load(y_stream)
-    ygridfit_parse_stream(y_doc)
+    return ygridfit_parse_obj(y_doc)
 
 def ygridfit_parse_obj(y_doc):
-
+    print("Starting ygridfit_parse_obj")
     y_keys = y_doc.keys()
 
     xgf_doc = etree.Element(XGF + "xgridfit", nsmap=NSMAP)
@@ -372,4 +372,6 @@ def ygridfit_parse_obj(y_doc):
             for g in g_keys:
                 build_glyph_program(g, y_doc[k][g], xgf_doc)
     # print(etree.tostring(xgf_doc))
+    print("Result ot parse: ")
+    print(xgf_doc)
     return xgf_doc

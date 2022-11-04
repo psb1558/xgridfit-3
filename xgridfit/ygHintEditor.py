@@ -1,6 +1,7 @@
 import sys
 import uuid
 import ygPreferences
+import macfuncDialog
 
 from PyQt6.QtCore import (
     Qt,
@@ -11,6 +12,7 @@ from PyQt6.QtCore import (
     QRect,
     QRectF,
     pyqtSignal,
+    QLine,
     QLineF
 )
 from PyQt6.QtGui import (
@@ -36,16 +38,12 @@ from PyQt6.QtWidgets import (
     QGraphicsPolygonItem,
     QMenu,
     QLabel,
-    QSizePolicy
+    QSizePolicy,
+    QDialog
 )
 import ygModel
-import defcon
-from defcon import (
-    Font,
-    Glyph,
-    registerRepresentationFactory
-)
-from fontTools.pens.qtPen import QtPen
+from fontTools import ttLib
+from fontTools.pens.basePen import BasePen
 import inspect
 
 
@@ -79,6 +77,7 @@ POINT_ONCURVE_FILL =             QColor("white")
 POINT_OFFCURVE_OUTLINE =         QColor(127,127,255,255)
 POINT_OFFCURVE_SELECTED =        QColor(127,127,255,255)
 POINT_ONCURVE_SELECTED =         QColor(127,127,255,255)
+PREVIEW_BASE_COLOR =             QColor(64,33,31,255)
 POINT_OUTLINE_WIDTH =            1
 POINT_ANCHORED_OUTLINE_WIDTH =   3
 CHAR_OUTLINE_WIDTH =             1
@@ -113,6 +112,58 @@ selected_hint_color = {"anchor":      HINT_ANCHOR_SELECT_COLOR,
                        "function":    HINT_FUNC_SELECT_COLOR,
                        "set":         SET_SELECT_COLOR}
 
+# Classes in this file:
+
+# QtPen (BasePen): copied from fontTools so we could drop reference to Qt5.
+# GlyphWidget(QWidget): Displays glyph outline.
+# ygSelectable: inherited by objects that can be selected.
+# ygHintView(QGraphicsItem, ygSelectable): Interface with a hint (ygModel.ygHint)
+# ygGraphicalHintComponent: Visible piece of a hint.
+# ArrowHead(QGraphicsPolygonItem, ygGraphicalHintComponent):
+#                    Arrowhead component of a visible hint.
+# ygBorderLine(QGraphicsLineItem, ygGraphicalHintComponent):
+#                    Borderline around certain hints.
+# HintArrowLine(QGraphicsPathItem, ygGraphicalHintComponent):
+#                    Stem of a visible hint
+# HintPointMarker(QGraphicsEllipseItem, ygGraphicalHintComponent):
+#                    Thickens and adds color to a point.
+# ygPointCollectionView(QGraphicsItem, ygGraphicalHintComponent):
+#                    Visible representation of function or macro params.
+# ygSetView(QGraphicsItem, ygGraphicalHintComponent):
+#                    Visible representation of a set (of points).
+# ygSelection: Keeps track of selected objects.
+# ygPointView(QGraphicsEllipseItem, ygSelectable):
+#                    Visual representation of a point.
+# SelectionRect(QGraphicsRectItem): For making marquee selections.
+# ygGlyphViewer(QGraphicsScene): Visual representation of a glyph (with points,
+#                    ygHintView objects, etc.)
+# MyView(QGraphicsView): Container for ygGlyphViewer; receives (some) events
+
+class QtPen(BasePen):
+    """ Copied from fontTools so we can get rid of the reference to Qt5
+        (we're using Qt6).
+    """
+
+    def __init__(self, glyphSet, path=None):
+        BasePen.__init__(self, glyphSet)
+        if path is None:
+            path = QPainterPath()
+        self.path = path
+
+    def _moveTo(self, p):
+        self.path.moveTo(*p)
+
+    def _lineTo(self, p):
+        self.path.lineTo(*p)
+
+    def _curveToOne(self, p1, p2, p3):
+        self.path.cubicTo(*p1, *p2, *p3)
+
+    def _qCurveToOne(self, p1, p2):
+        self.path.quadTo(*p1, *p2)
+
+    def _closePath(self):
+        self.path.closeSubpath()
 
 # "View" classes are for making visual representations of data from the model.
 # We keep lists and indexes of "View" classes for easy lookup, but otherwise
@@ -126,28 +177,38 @@ class GlyphWidget(QWidget):
     """ Widget for displaying glyph outline.
 
         This is not interactive at all, but displayed like a background. The
-        points and hints you interact with are in ygGlyphViewer (the QGraphicsScene)
+        points and hints you interact with are in ygGlyphViewer (the
+        QGraphicsScene). This class also stores translation info so other
+        widgets can position their stuff correctly, and provides a convenience
+        function for converting font coordinates to Qt coordinates.
 
-        This uses defcon's drawing tools. But maybe it would be better to use
-        fontTools, since we don't make any use of defcon elsewhere, and it would
-        be more convenient to be able to open a ttf instead of converting first
-        to UFO.
+        Redo this so that this widget is sized according to the dimensions in the
+        head table and doesn't change from glyph to glyph.
+
     """
+    def _calc_canvas_size(self, yg_font):
+        f = yg_font.ft_font
+        x_size = abs(f['head'].xMin) + abs(f['head'].xMax) + (GLYPH_WIDGET_MARGIN * 2)
+        y_size = abs(f['head'].yMin) + abs(f['head'].yMax) + (GLYPH_WIDGET_MARGIN * 2)
+        zero_x = abs(f['head'].xMin) + GLYPH_WIDGET_MARGIN
+        zero_y = abs(f['head'].yMax) + GLYPH_WIDGET_MARGIN
+        return x_size, y_size, zero_x, zero_y
 
-    def __init__(self, viewer, yg_glyph):
+    def __init__(self, viewer, yg_font, yg_glyph):
         super().__init__()
-        self.defcon_glyph = yg_glyph.defcon_glyph
-        b = self.defcon_glyph.bounds
-        w = abs(b[0]) + abs(b[2]) + (GLYPH_WIDGET_MARGIN * 2)
-        h = abs(b[1]) + abs(b[3]) + (GLYPH_WIDGET_MARGIN * 2)
-        self.setMinimumSize(int(w), int(h))
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding))
-        extra_translate = 0
-        if b[0] < 0:
-            extra_translate = abs(b[0])
-        self.yTranslate = abs(b[3]) + GLYPH_WIDGET_MARGIN
-        self.xTranslate = GLYPH_WIDGET_MARGIN + extra_translate
-        self.path = self.defcon_glyph.getRepresentation("NSQTPath")
+        self.setAttribute(Qt.WidgetAttribute.WA_AcceptTouchEvents, False)
+        self.preferences = yg_glyph.preferences
+        self.ft_glyph = yg_glyph.ft_glyph
+        self.ft_glyph.recalcBounds(yg_font.ft_font['glyf'])
+        self.canvas_size = self._calc_canvas_size(yg_font)
+        self.adv, self.lsb = yg_font.ft_font['hmtx'].metrics[yg_glyph.glyph_name()]
+        self.setMinimumSize(self.canvas_size[0], self.canvas_size[1])
+        self.xTranslate = self.canvas_size[2]
+        self.yTranslate = self.canvas_size[3]
+        glyph_set = {yg_glyph.glyph_name(): self.ft_glyph}
+        self.path = QPainterPath()
+        self.qt_pen = QtPen(glyph_set, path=self.path)
+        self.ft_glyph.draw(self.qt_pen, yg_font.ft_font['glyf'])
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -160,7 +221,18 @@ class GlyphWidget(QWidget):
 
         painter.scale(1.0, -1.0)
         painter.translate(QPointF(self.xTranslate, self.yTranslate * -1))
+
         pen = painter.pen()
+
+        if self.preferences["show_metrics"]:
+            pen.setWidth(1)
+            pen.setColor(QColor(50,50,50,50))
+            painter.setPen(pen)
+            painter.drawLine(QLine(-abs(self.xTranslate),0,self.width(),0))
+            ya = -abs(self.yTranslate)
+            painter.drawLine(QLine(0,ya,0,self.height()))
+            painter.drawLine(QLine(self.adv,ya,self.adv,self.height()))
+
         pen.setWidth(CHAR_OUTLINE_WIDTH)
         pen.setColor(QColor("gray"))
         painter.setPen(pen)
@@ -239,9 +311,9 @@ class ygHintView(QGraphicsItem, ygSelectable):
                 g.setParentItem(self)
 
     def _set_description(self):
-        result = self.yg_hint.hint_type
+        result = self.yg_hint.hint_type()
         if hasattr(self.yg_hint, "cvt"):
-            result += " (" + str(self.yg_hint.cvt) + ")"
+            result += " (" + str(self.yg_hint.cv()) + ")"
         # Tooltip not yet. By default, the tooltip appears when the mouse is
         # anywhere in a widget's bounding rect. For hints that is not helpful.
         # *** There is a way to change this behavior: figure it out later.
@@ -310,28 +382,63 @@ class ygHintView(QGraphicsItem, ygSelectable):
     def get_scene(self):
         return self.yg_glyph_view
 
-    def target_list(self):
+    def _target_list(self):
         """ Returns a list of target points for this hint.
 
         """
+        mpt = self.yg_glyph_view.resolve_point_identifier(self.yg_hint.main_target())
         mypoints = []
-        if type(self.yg_hint.target) is ygModel.ygSet:
-            for p in self.yg_hint.target.point_list:
-                pp = self.yg_glyph_view.resolve_point_identifier(p)
-                mypoints.append(pp)
-        else:
-            mypoints = [self.yg_glyph_view.resolve_point_identifier(self.yg_hint.target)]
+        if type(mpt) is ygModel.ygSet:
+            for p in mpt.point_list():
+                # pp = self.yg_glyph_view.resolve_point_identifier(p)
+                mypoints.append(p)
+        elif type(mpt) is ygModel.ygParams:
+            mypoints.extend(self._get_macfunc_targets(mpt))
+        elif type(mpt) is not list:
+            mypoints.append(self.yg_glyph_view.resolve_point_identifier(mpt))
         return mypoints
 
     def _update_touches(self):
         self._remove_touches()
         self._touch_all_points()
 
+    def _get_macfunc_targets(self, p):
+        """ p should be the point_dict from a ygParams object. Survey all the
+            point params in a macro or function definition and touch any marked
+            as "target."
+
+        """
+        macfunc_name = self.yg_hint.name
+        plist = []
+        if macfunc_name != None:
+            try:
+                if self.yg_hint.hint_type() == "macro":
+                    macfunc = self.yg_glyph_view.yg_glyph.yg_font.macros[macfunc_name]
+                elif self.yg_hint.hint_type() == "function":
+                    macfunc = self.yg_glyph_view.yg_glyph.yg_font.functions[macfunc_name]
+                else:
+                    raise Exception(str(macfunc_name) + " not function or macro!")
+                k = p.point_dict.keys();
+                for kk in k:
+                    if kk in macfunc and "subtype" in macfunc[kk] and macfunc[kk]["subtype"] == "target":
+                        plist.append(p.point_dict[kk])
+            except Exception as e:
+                print("Exception in _get_macfunc_targets")
+                print(e)
+        return plist
+
     def _touch_untouch(self, point_list, touch):
+        """ Touch or untouch the points in point_list. When touch=False,
+            remove self from the owners list, and mark the point as untouched
+            only if there are no other owners.
+
+        """
         ptindex = self.yg_glyph_view.yg_point_view_index
         for p in point_list:
             if type(p) is ygModel.ygSet:
-                self._touch_untouch(p.point_list, touch)
+                self._touch_untouch(p.point_list(), touch)
+            elif type(p) is ygModel.ygParams:
+                self._touch_untouch(self._get_macfunc_targets(p))
             else:
                 if touch:
                     try:
@@ -347,31 +454,23 @@ class ygHintView(QGraphicsItem, ygSelectable):
                     except Exception:
                         pass
 
-
     def _touch_all_points(self):
         """ Mark each point affected by this hint as 'touched,' and record
             this hint as an owner in its 'owners" list. To orient new hints
             correctly, we need to be accurate about which points are touched.
-            At present, we can't do this for functions or macros, since we
-            have no way to knowing which points passed to them are targets and
-            which refs. Perhaps supply a way later?
 
         """
-        if self.yg_hint.hint_type in ["function", "macro"]:
-            return
-        self._touch_untouch(self.target_list(), True)
+        self._touch_untouch(self._target_list(), True)
 
     def _remove_touches(self):
         """ Remove reference to this hint from the "owners" list for each
             point, and if the owner's list is empty afterwards, mark the
-            point as untouched. Not done for function or macro hints (this
-            will change when we add the ability to mark reference and target
-            points in functions and macros).
+            point as untouched.
 
         """
-        if self.yg_hint.hint_type in ["function", "macro"]:
-            return
-        self._touch_untouch(self.target_list(), False)
+        # if self.yg_hint.hint_type() in ["function", "macro"]:
+        #    return
+        self._touch_untouch(self._target_list(), False)
 
     def _process_click_on_hint(self, obj, with_shift, is_left):
         # Not yet doing different things for shift. Need to take care of that.
@@ -385,7 +484,7 @@ class ygHintView(QGraphicsItem, ygSelectable):
         if len(self.graphical_hint) >= 1:
             for c in self.graphical_hint:
                 if isinstance(c, ygGraphicalHintComponent):
-                    c._prepare_graphics(is_selected=self._is_selected, hint_type=self.yg_hint.hint_type)
+                    c._prepare_graphics(is_selected=self._is_selected, hint_type=self.yg_hint.hint_type())
 
     def _is_yg_selected(self):
         return self._is_selected
@@ -436,8 +535,8 @@ class ArrowHead(QGraphicsPolygonItem, ygGraphicalHintComponent):
         # this as neutral as possible about whether the vector is x or y.
         if direction == "down":
             self.tip = QPointF(8, 8)
-            pt1 = QPointF(self.tip.x() - 8, self.tip.y() - 8)
-            pt2     = QPointF(self.tip.x() + 8, self.tip.y() - 8)
+            pt1 = QPointF(self.tip.x() - 6, self.tip.y() - 8)
+            pt2     = QPointF(self.tip.x() + 6, self.tip.y() - 8)
             qpolygon = QPolygonF([
                 self.tip, # 8,8
                 pt1,
@@ -445,8 +544,8 @@ class ArrowHead(QGraphicsPolygonItem, ygGraphicalHintComponent):
             ])
         elif direction == "up":
             self.tip = QPointF(8, 0)
-            pt1 = QPointF(self.tip.x() - 8, self.tip.y() + 8)
-            pt2 = QPointF(self.tip.x() + 8, self.tip.y() + 8)
+            pt1 = QPointF(self.tip.x() - 6, self.tip.y() + 8)
+            pt2 = QPointF(self.tip.x() + 6, self.tip.y() + 8)
             qpolygon = QPolygonF([
                 self.tip, # 8,0
                 pt1,
@@ -454,8 +553,8 @@ class ArrowHead(QGraphicsPolygonItem, ygGraphicalHintComponent):
             ])
         elif direction == "left":
             self.tip = QPointF(0, 8)
-            pt1 = QPointF(self.tip.x() + 8, self.tip.y() + 8)
-            pt2 = QPointF(self.tip.x() + 8, self.tip.y() - 8)
+            pt1 = QPointF(self.tip.x() + 8, self.tip.y() + 6)
+            pt2 = QPointF(self.tip.x() + 8, self.tip.y() - 6)
             qpolygon = QPolygonF([
                 self.tip, # 0,8
                 pt1,
@@ -463,8 +562,8 @@ class ArrowHead(QGraphicsPolygonItem, ygGraphicalHintComponent):
             ])
         elif direction == "right":
             self.tip = QPointF(8, 8)
-            pt1 = QPointF(self.tip.x() - 8, self.tip.y() - 8)
-            pt2 = QPointF(self.tip.x() - 8, self.tip.y() + 8)
+            pt1 = QPointF(self.tip.x() - 8, self.tip.y() - 6)
+            pt2 = QPointF(self.tip.x() - 8, self.tip.y() + 6)
             qpolygon = QPolygonF([
                 pt1,
                 pt2,
@@ -505,6 +604,8 @@ class ArrowHead(QGraphicsPolygonItem, ygGraphicalHintComponent):
         with_shift = (QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier) == Qt.KeyboardModifier.ShiftModifier
         is_left = event.button() == Qt.MouseButton.LeftButton
         self.parentItem()._process_click_on_hint(self, with_shift, is_left)
+
+
 
 class ygBorderLine(QGraphicsLineItem, ygGraphicalHintComponent):
     def __init__(self, line, hint_type):
@@ -547,12 +648,12 @@ class HintArrowLine(QGraphicsPathItem, ygGraphicalHintComponent):
         #
         # This class looks very messy. Clean it up!
         #
+        # p1 and p2 must be ygPointable objects (ygPointView, ygPointCollectionView).
+        #
         # p1 is the beginning of the line; p2 is the end (where we will put
         # the arrowhead). vector is 0 for y, 1 for x
         # start by figuring out the rectangle that will contain this line.
         #
-        self._p1 = p1
-        self._p2 = p2
         self.vector = vector
         # id setup not needed:
         if id:
@@ -563,10 +664,16 @@ class HintArrowLine(QGraphicsPathItem, ygGraphicalHintComponent):
         self.parent = parent
         self.setCursor(Qt.CursorShape.CrossCursor)
         # measuring the bounding box for the two end-points.
-        begin_x = p1.glocation.x()
-        begin_y = p1.glocation.y()
-        end_x = p2.glocation.x()
-        end_y = p2.glocation.y()
+        # begin_x = p1.glocation.x()
+        # begin_y = p1.glocation.y()
+        # end_x = p2.glocation.x()
+        # end_y = p2.glocation.y()
+        begin_a = p1.attachment_point(p2.center_point)
+        begin_x = begin_a.x()
+        begin_y = begin_a.y()
+        end_a = p2.attachment_point(begin_a)
+        end_x = end_a.x()
+        end_y = end_a.y()
         xdistance = abs(begin_x - end_x)
         ydistance = abs(begin_y - end_y)
         self.hint_type = hint_type
@@ -598,7 +705,7 @@ class HintArrowLine(QGraphicsPathItem, ygGraphicalHintComponent):
         else:
             self.shape = "flattish"
             self.arrow_vector = "x"
-        arrowhead_direction = None
+        self.arrowhead_direction = None
         # Should these direction words be "positive" and "negative"?
         if self.arrow_vector == "x":
             if begin_x < end_x:
@@ -645,11 +752,9 @@ class HintArrowLine(QGraphicsPathItem, ygGraphicalHintComponent):
         partial_x_distance = xdistance * 0.33
         if self.shape == "invisible":
             path = QPainterPath()
-        # elif self.shape == "y only" or self.shape == "x only":
         elif self.shape in ["y only", "x only"]:
             path = QPainterPath(self.lineBegin)
             path.lineTo(self.lineEnd)
-        # elif self.shape == "tall" or self.shape == "tallish":
         elif self.shape in ["tall", "tallish"]:
             handle1 = QPointF(topPoint.x(), topPoint.y() + partial_y_distance)
             handle2 = QPointF(bottomPoint.x(), bottomPoint.y() - partial_y_distance)
@@ -659,7 +764,6 @@ class HintArrowLine(QGraphicsPathItem, ygGraphicalHintComponent):
             else:
                 path = QPainterPath(topPoint)
                 path.cubicTo(handle1, handle2, bottomPoint)
-        # elif self.shape == "flat" or self.shape == "flattish":
         elif self.shape in ["flat", "flattish"]:
             handle1 = QPointF(leftPoint.x() + partial_x_distance, leftPoint.y())
             handle2 = QPointF(rightPoint.x() - partial_x_distance, rightPoint.y())
@@ -704,7 +808,6 @@ class HintArrowLine(QGraphicsPathItem, ygGraphicalHintComponent):
 
 
 
-
 class HintPointMarker(QGraphicsEllipseItem, ygGraphicalHintComponent):
     """ pt has got to be a ygPointView.
     """
@@ -733,7 +836,7 @@ class HintPointMarker(QGraphicsEllipseItem, ygGraphicalHintComponent):
     def _prepare_label(self):
         self.label = QLabel()
         self.label.setStyleSheet("QLabel {background-color: transparent; color: gray;}")
-        self.label.setText(self.name)
+        self.label.setText(str(self.name))
         self.label.move(round(self.x + self.diameter), round(self.y + self.diameter))
 
     def _get_model_point(self):
@@ -773,7 +876,20 @@ class HintPointMarker(QGraphicsEllipseItem, ygGraphicalHintComponent):
 
 
 
-class ygParamsView(QGraphicsItem, ygGraphicalHintComponent):
+class ygPointable:
+    """ For getting the point that a hint line should attach to. For points,
+        this is very simple. For sets, not so much.
+
+    """
+
+    def attachment_point(self, pt):
+        pass
+
+    def center_point(self):
+        pass
+
+
+class ygPointCollectionView(QGraphicsItem, ygGraphicalHintComponent, ygPointable):
     """ A graphical representation of the points that are among the params for
         a macro or function, and also the clickable bounding rectangle.
 
@@ -787,23 +903,34 @@ class ygParamsView(QGraphicsItem, ygGraphicalHintComponent):
         "macro")
 
     """
-    def __init__(self, viewer, yg_params):
+    def __init__(self, viewer, *args):
         super().__init__()
         self.yg_viewer = viewer
-        self.yg_params = yg_params
         self.point_dict = {}
-        kk = self.yg_params.point_dict.keys()
-        for k in kk:
-            self.point_dict[k] = viewer.resolve_point_identifier(self.yg_params.point_dict[k])
+        if type(args[0]) is ygModel.ygParams:
+            self.yg_params = args[0]
+            kk = self.yg_params.point_dict.keys()
+            for k in kk:
+                self.point_dict[k] = viewer.resolve_point_identifier(self.yg_params.point_dict[k])
+            self.hint_type = self.yg_params.hint_type
+        else:
+            point_list = args[0]
+            self.hint_type = args[1]
+            for p in point_list:
+                pp = viewer.resolve_point_identifier(p)
+                if type(pp) is ygModel.ygPoint:
+                    self.point_dict[pp.preferred_label()] = pp
+                elif type(pp) is ybModel.ygSet:
+                    self.point_dict[pp.main_point().preferred_label()] = pp.main_point()
         self.point_markers = self._make_point_markers()
         lines, self.rect = self._boundingLines()
         self.borders = []
         for l in lines:
-            self.borders.append(ygBorderLine(l, self.yg_params.hint_type))
-        self._prepare_graphics(is_selected=False, hint_type=self.yg_params.hint_type)
+            self.borders.append(ygBorderLine(l, self.hint_type))
+        self._prepare_graphics(is_selected=False, hint_type=self.hint_type)
 
     def _prepare_graphics(self, **kwargs):
-        # For ygParamsView
+        # For ygPointCollectionView
         is_selected = kwargs["is_selected"]
         hint_type = kwargs["hint_type"]
         if is_selected:
@@ -834,7 +961,7 @@ class ygParamsView(QGraphicsItem, ygGraphicalHintComponent):
             if type(p) is ygModel.ygSet:
                 p = p.main_point()
             ptv = self.yg_viewer.yg_point_view_index[p.id]
-            h = HintPointMarker(self.yg_viewer, ptv, self.yg_params.hint_type, name=k)
+            h = HintPointMarker(self.yg_viewer, ptv, self.hint_type, name=k)
             # h.setZValue(zcounter)
             zcounter += 1
             marker_list.append(h)
@@ -848,6 +975,12 @@ class ygParamsView(QGraphicsItem, ygGraphicalHintComponent):
 
     def boundingRect(self):
         return self.rect
+
+    def height(self):
+        return self.rect.height()
+
+    def width(self):
+        return self.rect.width()
 
     def _boundingLines(self):
         # Four visible lines for border, plus the bounding rect
@@ -879,8 +1012,35 @@ class ygParamsView(QGraphicsItem, ygGraphicalHintComponent):
         lines.append(QLineF(max_x, min_y, max_x, max_y))
         lines.append(QLineF(max_x, max_y, min_x, max_y))
         lines.append(QLineF(min_x, min_y, min_x, max_y))
-        rect = QRectF(min_x, min_y, max_x, max_y)
+        rect = QRectF(min_x, min_y, max_x - min_x, max_y - min_y)
         return lines, rect
+
+    def attachment_point(self, pt):
+        if pt.x() < self.rect.x() - 1:
+            x = self.rect.x() - 1
+            if pt.y() < self.rect.y() - 1:
+                return QPointF(x, self.rect.y() - 4)
+            elif pt.y() > self.rect.y() + self.rect.height():
+                return QPointF(x, self.rect.y() + self.rect.height() - 3)
+            else:
+                return QPointF(x, self.rect.y() + (self.rect.height() / 2) - 3)
+        elif pt.x() > self.rect.x() + self.rect.width() + 1:
+            x = self.rect.x() + self.rect.width() + 1
+            if pt.y() < self.rect.y() - 1:
+                return QPointF(x, self.rect.y() - 4)
+            elif pt.y() > self.rect.y() + self.rect.height():
+                return QPointF(x, self.rect.y() + self.rect.height() - 3)
+            else:
+                return QPointF(x, self.rect.y() + (self.rect.height() / 2) - 3)
+        else:
+            x = self.rect.x() + self.rect.width() / 2
+            if pt.y() < self.rect.y() + (self.rect.height() / 2):
+                return QPointF(x, self.rect.y() - 4)
+            else:
+                return QPointF(x, self.rect.y() + self.height() - 3)
+
+    def center_point(self):
+        return QPointF(self.x() + (self.width() / 2), self.y() + (self.height() / 2))
 
     def contains(self, pt):
         for p in self.point_markers:
@@ -892,7 +1052,7 @@ class ygParamsView(QGraphicsItem, ygGraphicalHintComponent):
         return False
 
     def mousePressEvent(self, event):
-        # In ygParamsView
+        # In ygPointCollectionView
         with_shift = (QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier) == Qt.KeyboardModifier.ShiftModifier
         is_left = event.button() == Qt.MouseButton.LeftButton
         self.parentItem()._process_click_on_hint(self, with_shift, is_left)
@@ -900,82 +1060,14 @@ class ygParamsView(QGraphicsItem, ygGraphicalHintComponent):
 
 
 
-class ygSetView(QGraphicsItem, ygGraphicalHintComponent):
+class ygSetView(ygPointCollectionView):
     """ A graphical representation of a list of points.
 
     """
-    def __init__(self, viewer, yg_set):
-        super().__init__()
+    def __init__(self, viewer, yg_set, hint_type):
+        super().__init__(viewer, yg_set.point_list(), hint_type)
         self.viewer = viewer
-        self.yg_set = yg_set
-        # for each point in this set, retrieve the ygPointView object.
-        plist = yg_set.point_list
-        self.point_view_list = []
-        for p in plist:
-            if type(p) is ygModel.ygPoint:
-                id = p.id
-            elif type(p) is ygPointView:
-                id= p.yg_point.id
-            else:
-                raise Exception("Couldn't find an id for point while initializing ygSet.")
-            self.point_view_list.append(self.viewer.yg_point_view_index[id])
-        self.main_point = self.viewer.yg_point_view_index[yg_set.main_point().id]
-        self.lines = []
-        ptcounter = 0
-        while True:
-            try:
-                ptv1 = self.point_view_list[ptcounter]
-                ptv2 = self.point_view_list[ptcounter + 1]
-                ptcounter = ptcounter + 1
-                self.lines.append(HintArrowLine(ptv1, ptv2, "y", "set"))
-            except Exception:
-                break
-        for l in self.lines:
-            l.setParentItem(self)
-        self._prepare_graphics(is_selected=False, hint_type="set")
-
-    def contains(self, pt):
-        for l in self.lines:
-            if l.contains(pt):
-                return True
-        return False
-
-    def _prepare_graphics(self, **kwargs):
-        # For ygSetView
-        is_selected = kwargs["is_selected"]
-        hint_type = "set"
-        # if is_selected:
-        #    pen_color = selected_hint_color[hint_type]
-        #else:
-        #    pen_color = hint_color[hint_type]
-        #pen = QPen(pen_color)
-        #pen.setWidth(HINT_ARROWHEAD_WIDTH)
-        for l in self.lines:
-            l._prepare_graphics(is_selected=is_selected, hint_type=hint_type)
-            #l.setPen(pen)
-
-    def paint(self, painter, option, widget):
-        """ Got to be here, but it doesn't have to do anything.
-
-        """
-        pass
-
-    def _process_click_on_hint(self, obj, with_shift, is_left):
-        self.parentItem()._process_click_on_hint(obj, with_shift, is_left)
-
-    def boundingRect(self):
-        x_min = y_min = x_max = y_max = None
-        for p in self.point_view_list:
-            if x_min == None:
-                x_min = x_max = p.glocation.x()
-                y_min = y_max = p.glocation.y()
-            else:
-                x_min = min(x_min, p.glocation.x())
-                x_max = max(x_max, p.glocation.x())
-                y_min = min(y_min, p.glocation.y())
-                y_max = max(y_max, p.glocation.y())
-        return QRectF(x_min, y_min, x_max, y_max)
-
+        self.hint_type = hint_type
 
 
 class ygSelection:
@@ -1056,10 +1148,9 @@ class ygSelection:
 
 
 
-class ygPointView(QGraphicsEllipseItem, ygSelectable):
+class ygPointView(QGraphicsEllipseItem, ygSelectable, ygPointable):
     """ A visible point
 
-        Perhaps it should be possible to hide off-curve points.
     """
 
     def __init__(self, viewer, yg_point, gwidget):
@@ -1085,6 +1176,12 @@ class ygPointView(QGraphicsEllipseItem, ygSelectable):
         # If a hint being removed makes this list empty, remove the "touched"
         # flag from this ygPointView.
         self.owners = []
+
+    def attachment_point(self, pt):
+        return self.glocation
+
+    def center_point(self):
+        return self.glocation
 
     def _prepare_graphics(self):
         if self._is_yg_selected():
@@ -1112,7 +1209,7 @@ class ygPointView(QGraphicsEllipseItem, ygSelectable):
             self.del_label()
         self.point_number_label = QLabel()
         self.point_number_label.setStyleSheet("QLabel {background-color: transparent; color: red; font-size: 90%}")
-        self.point_number_label.setText(str(self.yg_point.index))
+        self.point_number_label.setText(str(self.yg_point.preferred_label()))
         self.point_number_label_proxy = self.viewer.addWidget(self.point_number_label)
         label_x = self.glocation.x() + self.diameter
         label_y = self.glocation.y() - self.point_number_label.height()
@@ -1197,9 +1294,9 @@ class ygGlyphViewer(QGraphicsScene):
         super(ygGlyphViewer, self).__init__()
         self.vector = "y"
         self.yg_glyph = yg_glyph
+        # Try to get rid of ref to this scene in the model's ygGlyph class.
         self.yg_glyph.glyph_viewer = self
-        self.glyphwidget = GlyphWidget(self, self.yg_glyph)
-        # self.setMinimumRenderSize = QSizeF(self.glyphwidget.width(), self.glyphwidget.height())
+        self.glyphwidget = GlyphWidget(self, self.yg_glyph.yg_font, self.yg_glyph)
         self.glyphwidget.move(0,0)
         self.addWidget(self.glyphwidget)
         self.selectionRect = None          # The rubber band. None when no selection is underway.
@@ -1207,7 +1304,7 @@ class ygGlyphViewer(QGraphicsScene):
         self.yg_selection = ygSelection(self)
         self.off_curve_points_showing = self.preferences.show_off_curve_points()
         self.point_numbers_showing = self.preferences.show_point_numbers()
-        for p in self.yg_glyph.point_list:
+        for p in self.yg_glyph.points():
             yg_point_view = ygPointView(self, p, self.glyphwidget)
             self.yg_point_view_index[p.id] = yg_point_view
             self.yg_point_view_list.append(yg_point_view)
@@ -1224,25 +1321,32 @@ class ygGlyphViewer(QGraphicsScene):
         self.sig_reverse_hint.connect(self.reverse_hint)
         self.sig_swap_macfunc_points.connect(self.swap_macfunc_points)
         self.sig_change_hint_color.connect(self.change_hint_color)
+        self.sig_edit_macfunc_params.connect(self.edit_macfunc_params)
         self.sig_off_curve_visibility.connect(self.toggle_off_curve_visibility)
         self.sig_make_set.connect(self.make_set)
         self.sig_make_macfunc.connect(self.make_macfunc)
         self.sig_macfunc_target.connect(self.macfunc_target)
         self.sig_macfunc_ref.connect(self.macfunc_ref)
         self.sig_toggle_point_numbers.connect(self.toggle_point_numbers)
-        self.sig_round_hint.connect(self.round_hint)
+        self.sig_round_hint.connect(self.toggle_hint_rounding)
 
         # We've drawn the points on the screen. Now get and display the hints.
 
-        self.install_hints(self.yg_glyph.hint_tree)
+        self.install_hints(self.yg_glyph.hints())
+
+    def edit_macfunc_params(self, hint):
+        ed_dialog = macfuncDialog.macfuncDialog(hint)
+        r = ed_dialog.exec()
+        if r == QDialog.DialogCode.Accepted:
+            hint.yg_hint.hint_has_changed(hint.yg_hint)
 
     def change_axis(self):
         # And do the things necessary to switch it: make sure the hints for
         # the current vector are stored, and what else?
         if self.vector == "x":
-            self.vector == "y"
+            self.vector = "y"
         else:
-            self.vector == "x"
+            self.vector = "x"
 
     def toggle_off_curve_visibility(self):
         self.off_curve_points_showing = not self.off_curve_points_showing
@@ -1278,7 +1382,7 @@ class ygGlyphViewer(QGraphicsScene):
         sorter.sort(new_list)
         set = ygModel.ygSet(new_list)
         set._main_point = touched_point.yg_point
-        hint_model.target = set
+        hint_model.set_main_target(set.id_list())
         hint._update_touches()
         self.yg_glyph.hint_changed(hint_model)
 
@@ -1323,8 +1427,8 @@ class ygGlyphViewer(QGraphicsScene):
     def change_hint_color(self, _params):
         _params["hint"].yg_hint.change_hint_color(_params["color"])
 
-    def round_hint(self, hint):
-        hint.round_hint()
+    def toggle_hint_rounding(self, hint):
+        self._model_hint(hint).toggle_rounding()
 
     def toggle_point_numbers(self):
         self.point_numbers_showing = not self.point_numbers_showing
@@ -1355,22 +1459,12 @@ class ygGlyphViewer(QGraphicsScene):
     def macfunc_target(self, _params):
         hint = _params["hint"]
         pt = _params["pt"]
-        if "target" in hint.yg_hint.extra:
-            ppt = self.resolve_point_identifier(hint.yg_hint.extra['target'])
-            hint.yg_hint.set_extra_target(ppt) # ***
-            # hint.yg_hint.set_extra_target(None) # ***
-        else:
-            hint.yg_hint.set_extra_target(pt)
+        hint.yg_hint.set_target(pt)
 
     def macfunc_ref(self, _params):
         hint = _params["hint"]
         pt = _params["pt"]
-        if "ref" in hint.yg_hint.extra:
-            ppt = self.resolve_point_identifier(hint.yg_hint.extra['ref'])
-            hint.yg_hint.set_extra_ref(ppt) # ***
-            # hint.yg_hint.set_extra_ref(None)
-        else:
-            hint.yg_hint.set_extra_ref(pt)
+        hint.yg_hint.set_ref(pt)
 
     def change_cv(self, param_dict):
         """ Recipient of a signal for adding or changeing a control value.
@@ -1381,7 +1475,7 @@ class ygGlyphViewer(QGraphicsScene):
 
         """
         if type(param_dict["hint"]) is ygHintView:
-            param_dict["hint"].yg_hint.change_cv(param_dict["cv"])
+            param_dict["hint"].yg_hint.set_cv(param_dict["cv"])
 
     def add_hint(self, h):
         """ Recipient of a signal for adding a hint. Communicates to the model
@@ -1441,29 +1535,7 @@ class ygGlyphViewer(QGraphicsScene):
                 result.append(o)
         return result
 
-    def _survey_hint_tree(self, hint_tree, depth=0):
-        """ Walks the hint tree, building a flat list of the hints. A node's
-            data is the ygModel.ygHint; if it is absent, that is the root
-            node, which should be ignored.
-
-            Parameters:
-            hint_tree (ygModel.ygHintNode): The hint tree sent from the model.
-
-            depth (int): a number for tracking how deep we are in the tree.
-            Doesn't seem to be getting used right now.
-
-            Returns:
-            list: A list of hints
-
-        """
-        result = []
-        if hint_tree.data != None:
-            result.append(hint_tree.data)
-        for c in hint_tree.children:
-            result.extend(self._survey_hint_tree(c, depth=depth + 1))
-        return(result)
-
-    def install_hints(self, hint_tree):
+    def install_hints(self, hint_list):
         """ Installs a collection of hints sent from the model.
 
             Parameters:
@@ -1480,30 +1552,28 @@ class ygGlyphViewer(QGraphicsScene):
                 self.removeItem(h)
         self.yg_hint_view_list.clear()
         # The hints we get from the model are ygModel.ygHint objects, using
-        # any legal Xgridfit identifier for the points. Flatten the tree here,
-        # produce ygHintView objects (wrappers for ygHint with stuff for display)
-        # and store them.
-        hint_list = self._survey_hint_tree(hint_tree)
+        # any legal Xgridfit identifier for the points. Wrap each one in a
+        # ygHintView object.
         for h in hint_list:
             vh = self._make_visible_hint(h)
             self.yg_hint_view_list.append(vh)
         self.update()
 
-    def get_hint_type_num(self, hint_type):
+    def get_hint_type_num(self, htype):
         """ Translates the string description of the hint type (e.g. 'stem')
             into an int used by the program for deciding the shape of the
             visible hint.
 
             Parameters:
-            hint_type (str): The string that describes the hint
+            htype (str): The string that describes the hint
 
             Returns:
             int: 0: no reference point; 1: one reference point; any number of
             targets; 2: two reference points; any number of targets; 3: one
-            reference point; one target
+            reference point; one target; 4:
 
         """
-        return ygModel.hint_type_nums[hint_type]
+        return ygModel.hint_type_nums[htype]
 
     def resolve_point_identifier(self, pt, kwargs=None):
         """ Gets a ygModel.ygPoint object.
@@ -1531,18 +1601,15 @@ class ygGlyphViewer(QGraphicsScene):
 
         """
         # Make sure we've got the hint type
-        if hasattr(hint, "hint_type"):
-            hint_type = hint.hint_type
-        else:
-            raise Exception("ygModel.ygHint lacks hint_type")
+        hint_type = hint.hint_type()
         hint_type_num = self.get_hint_type_num(hint_type)
 
         # Build the visible hints
         if hint_type_num == 0:
             # 0 = draw a circle around a point.
-            target = self.resolve_point_identifier(hint.target)
-            if type(target) is ygModel.ygSet: # It seems wrong that this should be necessary.
-                target = target.main_point()  # make set isn't working. Investigate.
+            target = self.resolve_point_identifier(hint.main_target())
+            if type(target) is ygModel.ygSet:
+                target = target.main_point()
             gtarget = self.yg_point_view_index[target.id]
             hpm = HintPointMarker(self, gtarget, "anchor")
             yg_hint_view = ygHintView(self, hint, hpm)
@@ -1550,49 +1617,47 @@ class ygGlyphViewer(QGraphicsScene):
             yg_hint_view._prepare_graphics()
             self.addItem(yg_hint_view)
         elif hint_type_num in [1, 3]:
-            yg_set = None
-            target = self.resolve_point_identifier(hint.target)
+            # With type 1, the target can be a set.
+            target = self.resolve_point_identifier(hint.main_target())
             if type(target) is ygModel.ygSet:
-                yg_set = target
-                target = yg_set.main_point()
-            gtarget = self.yg_point_view_index[target.id]
-            if hint.ref == None:
+                gtarget = ygSetView(self, target, hint_type)
+            else:
+                gtarget = self.yg_point_view_index[target.id]
+            # If this is going to crash, need to catch it and recover. Maybe
+            # mark the hint as invalid and skip it when drawing or compiling? ***
+            if hint.main_ref() == None:
                 print("Warning: ref is None (target is " + str(target.index) + ")")
-            ref = self.resolve_point_identifier(hint.ref)
-            #if type(ref) is ygModel.ygParams:
-            #    print(ref.point_dict)
-            #    if "pt-a" in ref.point_dict:
-            #        print(ref.point_dict["pt-a"].index)
+            ref = self.resolve_point_identifier(hint.main_ref())
             gref = self.yg_point_view_index[ref.id]
             ha = HintArrowLine(gref, gtarget, 0, hint_type, parent=self)
             ah = ArrowHead(ha.endPoint(), ha.arrowhead_direction, hint_type, ha.id, parent=self)
             ah.setPos(ha.endPoint())
             glist = [ha, ah]
-            if yg_set != None:
-                glist.append(ygSetView(self, yg_set))
+            if type(gtarget) is ygSetView:
+                glist.extend(gtarget.visible_objects())
             yg_hint_view = ygHintView(self, hint, glist)
             yg_hint_view._touch_all_points()
             yg_hint_view._prepare_graphics()
             self.addItem(yg_hint_view)
         elif hint_type_num == 2:
-            # 2 = arrows from two reference points to one interpolated point
-            gtarget = self.resolve_point_identifier(hint.target)
-            yg_set = None
-            if type(gtarget) is ygModel.ygSet:
-                yg_set = gtarget
-                gtarget = gtarget.main_point()
-            gtarget = self.yg_point_view_index[gtarget.id]
-            # If gtarget is a ygSet, make gtarget the main_point of the ygSet,
-            # which will be stored and added to the ygHintView along with the
-            # other stuff.
-            ref_list = hint.ref
+            # 2 = arrows from two reference points to one interpolated point or set
+            target = self.resolve_point_identifier(hint.main_target())
+            if type(target) is ygModel.ygSet:
+                gtarget = ygSetView(self, target, hint_type)
+            else:
+                gtarget = self.yg_point_view_index[target.id]
+            ref_list = hint.main_ref()
             if type(ref_list) is list:
                 ref_list = ygModel.ygSet(ref_list)
-            if len(ref_list.point_list) < 2:
+            if len(ref_list.point_list()) < 2:
+                # This could come up with faulty code from the box, so handle it
+                # with an error dialog.
                 raise Exception("There must be two reference points for an interpolation hint")
             gref = []
-            gref.append(self.yg_point_view_index[ref_list.point_list[0].id])
-            gref.append(self.yg_point_view_index[ref_list.point_list[1].id])
+            ref_one = self.resolve_point_identifier(ref_list.point_list()[0])
+            ref_two = self.resolve_point_identifier(ref_list.point_list()[1])
+            gref.append(self.yg_point_view_index[ref_one.id])
+            gref.append(self.yg_point_view_index[ref_two.id])
             ha1 = HintArrowLine(gref[0], gtarget, 0, hint_type, parent=self)
             ha2 = HintArrowLine(gref[1], gtarget, 0, hint_type, parent=self)
             ah1 = ArrowHead(ha1.endPoint(), ha1.arrowhead_direction, hint_type, ha1.id, parent=self)
@@ -1600,37 +1665,23 @@ class ygGlyphViewer(QGraphicsScene):
             ah1.setPos(ha1.endPoint())
             ah2.setPos(ha2.endPoint())
             glist = [ha1, ah1, ha2, ah2]
-            if yg_set != None:
-                glist.append(ygSetView(self, yg_set))
+            if type(gtarget) is ygSetView:
+                glist.extend(gtarget.visible_objects())
             yg_hint_view = ygHintView(self, hint, glist)
             yg_hint_view._touch_all_points()
             yg_hint_view._prepare_graphics()
             self.addItem(yg_hint_view)
         elif hint_type_num == 4:
             # Green anchors, surrounded by green border
-            if hint_type == "macro":
-                name_plus_other_params = hint.macro
-            else:
-                name_plus_other_params = hint.function
-            if type(name_plus_other_params) is str:
-                obj_name = name_plus_other_params
-                other_params = None
-            elif type(name_plus_other_params) is dict:
-                obj_name = name_plus_other_params['nm']
-                # other_params = {key: val for key, val in name_plus_other_params.items() if key != 'nm'}
-                other_params = {key: val for key, val in name_plus_other_params.items() if not key in ['nm', 'code']}
-                if len(other_params) == 0:
-                    other_params = None
-            else:
-                raise Exception("Something went wrong parsing a function or macro call")
-            gtarget = self.resolve_point_identifier(hint.target)
+            gtarget = self.resolve_point_identifier(hint.main_target())
             if type(gtarget) is ygModel.ygParams:
-                gtarget.name = obj_name
+                gtarget.name = hint.macfunc_name()
                 gtarget.hint_type = hint_type
-                gtarget.other_params = other_params
-                yg_params_view = ygParamsView(self, gtarget)
-                yg_hint_view = ygHintView(self, hint, yg_params_view.visible_objects(), yg_params_view)
-                yg_hint_view._set_name(obj_name)
+                gtarget.other_params = hint.macfunc_other_args()
+                yg_params_view = ygPointCollectionView(self, gtarget)
+                yg_hint_view = ygHintView(self, hint, yg_params_view.visible_objects())
+                yg_hint_view._set_name(gtarget.name)
+                yg_hint_view._touch_all_points()
                 yg_hint_view._prepare_graphics()
                 self.addItem(yg_hint_view)
             else:
@@ -1654,7 +1705,6 @@ class ygGlyphViewer(QGraphicsScene):
         self.make_macfunc_from_selection(hint_type, name=name)
         # Called function will send the signal to the model.
 
-
     def _model_hint(self, h):
         if type(h) is ygHintView:
             return(h.yg_hint)
@@ -1665,12 +1715,15 @@ class ygGlyphViewer(QGraphicsScene):
             return p.yg_point
         return p
 
-    def test_menu_signal(self, a):
-        print(self.sender().text())
-
     def make_hint_from_selection(self, a):
         """ Make a hint based on selection in the editing panel.
+
+            Should we be making ygModel.ygHint instances here? Since
+            we're making valid yaml source, wouldn't it be better to
+            pass that with the signal?
         """
+        # num of points and hint type are correct, bjut interpolate hints
+        # displaying wrong!
         menu_to_hint_type = {"Anchor": "anchor",
                              "Align": "align",
                              "Shift": "shift",
@@ -1685,15 +1738,19 @@ class ygGlyphViewer(QGraphicsScene):
         new_yg_hint = None
         if hint_type_num == 0:
             if pplen >= 1:
-                new_yg_hint = ygModel.ygHint(self.yg_glyph, self._model_point(pp[0]), None)
+                h = {"ptid": self._model_point(pp[0]).preferred_label()}
+                new_yg_hint = ygModel.ygHint(self.yg_glyph, h)
                 self.sig_new_hint.emit(new_yg_hint)
         if hint_type_num in [1, 3]:
             if pplen >= 2:
                 # ref should be a touched point and target an untouched point.
                 # If it's the other way around, reverse them.
-                if pp[0].touched and not pp[1].touched:
+                if pp[1].touched and not pp[0].touched:
                     pp[0], pp[1] = pp[1], pp[0]
-                new_yg_hint = ygModel.ygHint(self.yg_glyph, self._model_point(pp[0]), self._model_point(pp[1]), {'rel': hint_type})
+                target_name = self._model_point(pp[1]).preferred_label()
+                ref_name = self._model_point(pp[0]).preferred_label()
+                h = {"ptid": target_name, "ref": ref_name, "rel": hint_type}
+                new_yg_hint = ygModel.ygHint(self.yg_glyph, h)
                 self.sig_new_hint.emit(new_yg_hint)
         if hint_type_num == 2:
             if pplen >= 3:
@@ -1714,17 +1771,23 @@ class ygGlyphViewer(QGraphicsScene):
                         else:
                             untouched_points.append(self._model_point(t))
                 if len(touched_points) == 2 and len(untouched_points) == 1:
-                    new_yg_hint = ygModel.ygHint(self.yg_glyph, untouched_points[0],
-                                                 touched_points, {'rel': hint_type})
+                    touched_names  = [touched_points[0].preferred_label(),
+                                      touched_points[1].preferred_label()]
+                    untouched_name = untouched_points[0].preferred_label()
+                    h = {"ptid": untouched_name, "ref": touched_names, "rel": hint_type}
+                    new_yg_hint = ygModel.ygHint(self.yg_glyph, h)
                 else:
                     newlist = []
                     for p in pp:
                         newlist.append(self._model_point(p))
-                    sorter = ygModel.ygPointSorter("y")
+                    sorter = ygModel.ygPointSorter(self.yg_glyph.current_vector())
                     sorter.sort(newlist)
                     target = newlist.pop(1)
-                    new_yg_hint = ygModel.ygHint(self.yg_glyph, target, newlist,
-                                                 {'rel': hint_type})
+                    ref_names = [newlist[0].preferred_label(),
+                                 newlist[1].preferred_label()]
+                    target_name = target.preferred_label()
+                    h = {"ptid": target_name, "ref": ref_names, "rel": hint_type}
+                    new_yg_hint = ygModel.ygHint(self.yg_glyph, h)
                 self.sig_new_hint.emit(new_yg_hint)
 
     def make_macfunc_from_selection(self, hint_type, **kwargs):
@@ -1733,37 +1796,40 @@ class ygGlyphViewer(QGraphicsScene):
         if hint_type_num == 4:
             name = kwargs["name"]
             if hint_type == "function":
-                pt_names = self.yg_glyph.yg_font.functions.required_point_list(name) + self.yg_glyph.yg_font.functions.optional_point_list(name)
-                other_params = {"function": self.yg_glyph.yg_font.functions.non_point_params(name)}
-                other_params["function"]["nm"] = name
+                fu = ygModel.ygFunction(name, self.yg_glyph.yg_font)
+                pt_names = fu.required_point_list() + fu.optional_point_list()
+                other_params = {"nm": name}
             else:
-                pt_names = self.yg_glyph.yg_font.macros.required_point_list(name) + self.yg_glyph.yg_font.macros.optional_point_list(name)
-                other_params = {"macro": self.yg_glyph.yg_font.macros.non_point_params(name)}
-                other_params["macro"]["nm"] = name
+                ma = ygModel.ygMacro(name, self.yg_glyph.yg_font)
+                pt_names = ma.required_point_list() + ma.optional_point_list()
+                other_params = {"nm": name}
 
             # Got to have param names associated with these points. Gonna make
-            # arbitrary assignments, which user must clean up.
+            # arbitrary assignments, which user must clean up. First assign the
+            # required params, then the optional ones.
             pt_dict = {}
             counter = 0
             for p in pt_names:
                 try:
                     ppp = pp[counter]
                     if type(ppp) is ygPointView:
-                        ppp = ppp.yg_point
-                    if type(ppp) is ygSetView:
-                        ppp = ppp.yg_set
+                        ppp = self.yg_glyph.points_to_labels(ppp.yg_point)
+                    #if type(ppp) is ygSetView: # Is this needed? Try without it.
+                    #    ppp = ppp.yg_set
                     pt_dict[p] = ppp
                     counter += 1
                 except IndexError:
                     break
 
+            h = {"ptid": pt_dict, hint_type: other_params}
+            yg_hint = ygModel.ygHint(self.yg_glyph, h)
+
             # And make a ygParams object to hold these parameters
-            yg_params = ygModel.ygParams(hint_type, name, pt_dict, other_params)
-            # print(pt_dict)
+            # yg_params = ygModel.ygParams(hint_type, name, pt_dict, other_params)
 
             # Build the hint and notify the model of its existence.
-            yg_hint = ygModel.ygHint(self.yg_glyph, yg_params, None, other_args=other_params)
-            yg_hint.hint_type = hint_type
+            # yg_hint = ygModel.ygHint(self.yg_glyph, yg_params, None, other_args=other_params)
+            # yg_hint.hint_type() = hint_type
             self.sig_new_hint.emit(yg_hint)
 
 
@@ -1827,10 +1893,10 @@ class ygGlyphViewer(QGraphicsScene):
                 Toggle visibility of off-curve poihts: Done
                 Toggle point numbers: Done
                 Round touched point: Done
-                Set control value: alphabetize list and add checkmarks
+                Set control value: Done
                 Set distance type for stem hints: Done
                 Reverse stem hint: Done
-                Additional parameters for functions and macros: To do
+                Additional parameters for functions and macros: Done
                 Rearrange function/macro point params: Done
                 Add point to function call: Not yet started
                 Convert target point to target set in function/macro: Not yet started
@@ -1862,7 +1928,7 @@ class ygGlyphViewer(QGraphicsScene):
 
         hint = self._mouse_over_hint(QPointF(event.scenePos()))
         try:
-            ntype = ygModel.hint_type_nums[hint.yg_hint.hint_type]
+            ntype = ygModel.hint_type_nums[hint.yg_hint.hint_type()]
         except Exception:
             ntype = 10
 
@@ -1881,13 +1947,13 @@ class ygGlyphViewer(QGraphicsScene):
             round_hint.setEnabled(False)
             round_hint.setVisible(False)
         else:
-            if self._model_hint(hint).round:
+            if self._model_hint(hint).rounded():
                 round_hint.setChecked(True)
 
         # Set control value for anchor hint (ntype == 0)
 
         set_anchor_cv = cmenu.addMenu("Set control value...")
-        cv_list = self.yg_glyph.yg_font.cvt.get_list(None, "anchor", self.vector)
+        cv_list = self.yg_glyph.yg_font.cvt.get_list("pos", self.vector)
         cv_list.sort()
         if len(cv_list) > 0:
             for c in cv_list:
@@ -1903,12 +1969,12 @@ class ygGlyphViewer(QGraphicsScene):
         # Set control value for stem hint (ntype == 3)
 
         set_stem_cv = cmenu.addMenu("Set control value...")
-        cv_list = self.yg_glyph.yg_font.cvt.get_list(None, "dist", self.vector)
+        cv_list = self.yg_glyph.yg_font.cvt.get_list("dist", self.vector)
         cv_list.sort()
         if len(cv_list) > 0:
             for c in cv_list:
                 ccv = QAction(c, self, checkable=True)
-                if hint and (c == hint.yg_hint.cvt):
+                if hint and (c == hint.yg_hint.cv()):
                     ccv.setChecked(True)
                 set_stem_cv.addAction(ccv)
                 cv_stem_action_list.append(ccv)
@@ -1929,7 +1995,7 @@ class ygGlyphViewer(QGraphicsScene):
 
         black_space = QAction("Black", self, checkable=True)
         if hint != None:
-            if hint.yg_hint.hint_type in ["stem", "blackspace"]:
+            if hint.yg_hint.hint_type() in ["stem", "blackspace"]:
                 black_space.setChecked(True)
         hint_color_menu.addAction(black_space)
         if no_color_menu:
@@ -1938,7 +2004,7 @@ class ygGlyphViewer(QGraphicsScene):
 
         white_space = QAction("White", self, checkable=True)
         if hint != None:
-            if hint.yg_hint.hint_type == "whitespace":
+            if hint.yg_hint.hint_type() == "whitespace":
                 white_space.setChecked(True)
         hint_color_menu.addAction(white_space)
         if no_color_menu:
@@ -1947,7 +2013,7 @@ class ygGlyphViewer(QGraphicsScene):
 
         gray_space = QAction("Gray", self, checkable=True)
         if hint != None:
-            if hint.yg_hint.hint_type == "grayspace":
+            if hint.yg_hint.hint_type() == "grayspace":
                 gray_space.setChecked(True)
         hint_color_menu.addAction(gray_space)
         if no_color_menu:
@@ -1967,10 +2033,14 @@ class ygGlyphViewer(QGraphicsScene):
             reverse_hint.setEnabled(False)
             reverse_hint.setVisible(False)
 
-        # Additional (non-point) parameters for functions and macros
+        # Other (non-point) parameters for functions and macros
 
-        add_params = cmenu.addAction("Additional parameters...")
-        if hint == None or ntype != 4:
+        add_params = cmenu.addAction("Other parameters...")
+        # Hide if no hint selected or hint is the wrong type or it has no non-
+        # point parameters.
+        if hint == None or ntype != 4 or len(ygModel.ygCalling(hint.yg_hint.hint_type(),
+                                                                hint.yg_hint.name,
+                                                                self.yg_glyph.yg_font).non_point_params()) == 0:
             add_params.setEnabled(False)
             add_params.setVisible(False)
 
@@ -1985,23 +2055,26 @@ class ygGlyphViewer(QGraphicsScene):
         try:
             # mouse_over_point actually returns a HintPointMarker.
             target_point = hint.mouse_over_point(QPointF(event.scenePos()))
-            if hint.yg_hint.hint_type == "macro":
-                point_list = self.yg_glyph.yg_font.macros.point_list(hint.yg_hint.name)
+            if hint.yg_hint.hint_type() == "macro":
+                mafu = ygModel.ygMacro(hint.yg_hint.name, self.yg_glyph.yg_font)
+                point_list = mafu.point_list()
             else:
-                point_list = self.yg_glyph.yg_font.functions.point_list(hint.yg_hint.name)
+                mafu = ygModel.ygFunction(hint.yg_hint.name, self.yg_glyph.yg_font)
+                point_list = mafu.point_list()
             swap_old_name = target_point.name
             point_list.remove(swap_old_name)
-            # print("Got target point: " + str(swap_old_name))
         except Exception as e:
-            # print(e)
             disable_point_params = True
         point_param_menu = cmenu.addMenu("Point params")
         for p in point_list:
             point_param_list.append(point_param_menu.addAction(p))
         if hint == None or disable_point_params or ntype != 4 or len(point_list) == 0:
             for p in point_list:
-                p.setEnabled(False)
-                p.setVisible(False)
+                try:
+                    p.setEnabled(False)
+                    p.setVisible(False)
+                except Exception as e:
+                    pass
             a = point_param_menu.menuAction()
             a.setEnabled(False)
             a.setVisible(False)
@@ -2015,14 +2088,23 @@ class ygGlyphViewer(QGraphicsScene):
                 target_point = target_point._get_model_point()
         else:
             target_point = None
+        new_target = target_point
         macfunc_target = QAction("Target", checkable=True)
         cmenu.addAction(macfunc_target)
         macfunc_ref = QAction("Reference point", checkable=True)
         cmenu.addAction(macfunc_ref)
-        if hint and ("target" in hint.yg_hint.extra) and hint.yg_hint.extra["target"] == target_point:
+
+        def tgt_pt_check(pt):
+            if pt == None:
+                return False
+            return self.resolve_point_identifier(pt) == target_point
+
+        if hint and tgt_pt_check(self._model_hint(hint).alt_target()):
             macfunc_target.setChecked(True)
-        if hint and ("ref" in hint.yg_hint.extra) and hint.yg_hint.extra["ref"] == target_point:
+            new_target = None
+        if hint and tgt_pt_check(self._model_hint(hint).alt_ref()):
             macfunc_ref.setChecked(True)
+            new_target = None
         if hint == None or ntype != 4:
             macfunc_target.setEnabled(False)
             macfunc_target.setVisible(False)
@@ -2035,14 +2117,14 @@ class ygGlyphViewer(QGraphicsScene):
         #    1. More than one point must be selected.
         #    2. One selected point must be touched by a shift, align or
         #       interpolate instruction (types 1 and 2). This becomes the
-        #       main point.
+        #       main point.***
         touched_point = None
         num_of_selected_points = len(selected_points)
         try:
             if num_of_selected_points >= 2:
                 for p in selected_points:
                     if p.touched and len(p.owners) >= 1:
-                        if ygModel.hint_type_nums[p.owners[0].yg_hint.hint_type] in [1, 2]:
+                        if ygModel.hint_type_nums[p.owners[0].yg_hint.hint_type()] in [1, 2]:
                             touched_point = p
                             break
         except Exception:
@@ -2056,17 +2138,17 @@ class ygGlyphViewer(QGraphicsScene):
 
         # Functions and macros. Each is marked for which params are points, which are control
         # values, and which are others. For each count up the point params and show only those
-        # for which that number matches the number of selected points.
+        # for which that number falls within the range of possible point counts.
 
         functions = []
-        all_functions = self.yg_glyph.yg_font.functions.complete_list()
+        all_functions = self.yg_glyph.yg_font.functions.keys()
         for f in all_functions:
-            if num_of_selected_points in self.yg_glyph.yg_font.functions.point_params_range(f):
+            if num_of_selected_points in ygModel.ygFunction(f, self.yg_glyph.yg_font).point_params_range():
                 functions.append(f)
         macros = []
-        all_macros = self.yg_glyph.yg_font.macros.complete_list()
+        all_macros = self.yg_glyph.yg_font.macros.keys()
         for f in all_macros:
-            if num_of_selected_points in self.yg_glyph.yg_font.macros.point_params_range(f):
+            if num_of_selected_points in ygModel.ygMacro(f, self.yg_glyph.yg_font).point_params_range():
                 macros.append(f)
 
         function_menu = cmenu.addMenu("Functions")
@@ -2102,7 +2184,6 @@ class ygGlyphViewer(QGraphicsScene):
             self.sig_toggle_point_numbers.emit()
         if touched_point and (action == make_set):
             self.sig_make_set.emit({"selected_points": selected_points, "touched_point": touched_point})
-            # self.make_set(selected_points, touched_point)
         if hint and (action == reverse_hint):
             self.sig_reverse_hint.emit(hint.yg_hint)
         if hint and action in cv_anchor_action_list:
@@ -2115,19 +2196,21 @@ class ygGlyphViewer(QGraphicsScene):
             self.sig_change_hint_color.emit({"hint":  hint, "color": "whitespace"})
         if hint and ntype == 3 and (action == gray_space):
             self.sig_change_hint_color.emit({"hint":  hint, "color": "grayspace"})
+        if hint and ntype == 4 and (action == add_params):
+            self.sig_edit_macfunc_params.emit(hint)
         if action in macro_actions:
             self.sig_make_macfunc.emit({"hint_type": "macro", "name": action.text()})
         if action in function_actions:
             self.sig_make_macfunc.emit({"hint_type": "function", "name": action.text()})
         if action in point_param_list:
             self.sig_swap_macfunc_points.emit({"hint": hint, "new_pt": action.text(), "old_pt": swap_old_name})
-        # Need to make functions for these
         if action == macfunc_target:
-            self.sig_macfunc_target.emit({"hint": hint, "pt": target_point})
+            self.sig_macfunc_target.emit({"hint": hint, "pt": new_target})
         if action == macfunc_ref:
-            self.sig_macfunc_ref.emit({"hint": hint, "pt": target_point})
+            self.sig_macfunc_ref.emit({"hint": hint, "pt": new_target})
         if hint != None and action == round_hint:
-            self.sig_round_hint.emit(self._model_hint(hint))
+            self.sig_round_hint.emit(hint)
+
 
 
 class MyView(QGraphicsView):
@@ -2139,7 +2222,7 @@ class MyView(QGraphicsView):
         Parameters:
         viewer (ygGlyphView): The QGraphicsScene that the user interacts with.
 
-        font (ygModel.ygFont): The font object, including both a defcon Font
+        font (ygModel.ygFont): The font object, including both a fontTools Font
         object and the yaml file (as read by the Python yaml module). Has
         convenience functions supplying various kinds of information about the
         font.
@@ -2151,6 +2234,7 @@ class MyView(QGraphicsView):
 
     def __init__(self, preferences, viewer, font, parent=None):
         super(MyView, self).__init__(viewer, parent=parent)
+        self.setAttribute(Qt.WidgetAttribute.WA_AcceptTouchEvents, False)
         self.viewer = viewer
         self.original_transform = self.transform()
         self.yg_font = font
@@ -2166,9 +2250,10 @@ class MyView(QGraphicsView):
         self.sender().disconnect()
         self.parent().parent().disconnect_glyph_pane()
         try:
+            self.yg_font.glyph_index[g]
             self.switch_to(g)
         except Exception:
-            self.preferences.top_window.show_error_message(["Warning", "Warning", "Can't load requested glyph."])
+            self.preferences.top_window().show_error_message(["Warning", "Warning", "Can't load requested glyph."])
         self.parent().parent().setup_glyph_pane_connections()
 
     def next_glyph(self, a):
@@ -2193,7 +2278,7 @@ class MyView(QGraphicsView):
         self.viewer.yg_glyph.save_source()
         new_glyph = ygModel.ygGlyph(self.preferences, self.yg_font, gname)
         self.viewer = ygGlyphViewer(self.preferences, new_glyph)
-        self.preferences.set_current_glyph(gname)
+        self.preferences.set_current_glyph(self.preferences["current_font"], gname)
         self.setScene(self.viewer)
         self.parent().parent().set_window_title()
         ed = self.preferences.top_window().source_editor
@@ -2216,40 +2301,5 @@ class MyView(QGraphicsView):
         self.parent().parent().setup_zoom_connections()
 
     def keyPressEvent(self, event):
-        # print(event.key())
-        #if event.key() == Qt.Key.Key_A:
-        #    self.viewer.make_hint_from_selection("anchor")
-        #if event.key() == Qt.Key.Key_S:
-        #    self.viewer.make_hint_from_selection("stem")
-        #if event.key() == Qt.Key.Key_H:
-        #    self.viewer.make_hint_from_selection("shift")
-        #if event.key() == Qt.Key.Key_L:
-        #    self.viewer.make_hint_from_selection("align")
-        #if event.key() == Qt.Key.Key_I:
-        #    self.viewer.make_hint_from_selection("interpolate")
-        #if event.key() == 48: # zero. I can't find the mnemonic for it.
-        #    modifier = QApplication.keyboardModifiers()
-        #    if (modifier & Qt.KeyboardModifier.ControlModifier) == Qt.KeyboardModifier.ControlModifier:
-        #        self.setTransform(self.original_transform)
-        #if event.key() == 45: # "Key_hyphen" seems not to be working
-        #    modifier = QApplication.keyboardModifiers()
-        #    if (modifier & Qt.KeyboardModifier.ControlModifier) == Qt.KeyboardModifier.ControlModifier:
-        #        self.scale(0.75, 0.75)
-        #if event.key() == Qt.Key.Key_Equal:
-        #    modifier = QApplication.keyboardModifiers()
-        #    if (modifier & Qt.KeyboardModifier.ControlModifier) == Qt.KeyboardModifier.ControlModifier:
-        #        self.scale(1.5, 1.5)
         if event.key() in [16777219, 16777223]:
             self.viewer.delete_selected_hints()
-        #if event.key() == 16777236: # right arrow key
-        #    # print(self.parent().parent())
-        #    current_index = self.yg_font.glyph_index[self.viewer.yg_glyph.gname]
-        #    if current_index < len(self.yg_font.glyph_list) - 1:
-        #        self.switch_to(self.yg_font.glyph_list[current_index + 1][1])
-        #if event.key() == 16777234: # left arrow key
-        #    current_index = self.yg_font.glyph_index[self.viewer.yg_glyph.gname]
-        #    if current_index > 0:
-        #        self.switch_to(self.yg_font.glyph_list[current_index - 1][1])
-
-    # def mousePressEvent(self, event):
-    #    event.ignore()
