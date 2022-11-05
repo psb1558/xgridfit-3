@@ -573,11 +573,13 @@ def compile_one(font, yaml, gname):
         g_inst_final = compact_instructions(str(g_inst), safe_calls)
         install_glyph_program(g, thisFont, g_inst_final)
     tmp_file_name = mkstemp(suffix=".ttf")[1]
-    # tmp_file_name = SpooledTemporaryFile(max_size = 30000000)
-    with thisFont as f:
-        f.save(tmp_file_name, 1)
-    # thisFont.save(tmp_file_name, 1)
-    print("Temp font saved to " + str(tmp_file_name))
+    # with thisFont as f:
+    #    f.save(tmp_file_name, 1)
+    try:
+        thisFont.save(tmp_file_name, 1)
+    finally:
+        thisFont.close()
+        print("Temp font saved to " + str(tmp_file_name))
     return tmp_file_name
 
 

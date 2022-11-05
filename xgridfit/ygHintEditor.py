@@ -1282,7 +1282,7 @@ class SelectionRect(QGraphicsRectItem):
 
 
 class ygGlyphViewer(QGraphicsScene):
-    """ The workspace
+    """ The workspace.
 
     Holds all the visible items and a good bit of the data required for editing
     hints.
@@ -1886,6 +1886,8 @@ class ygGlyphViewer(QGraphicsScene):
                     self.yg_selection._cancel_selection()
                 self.dragBeginPoint = event.scenePos()
                 self.selectionRect = SelectionRect(QRectF(self.dragBeginPoint, QSizeF(0,0)))
+                # print(self.parent())
+                # self.parent().setCursor(Qt.CursorShape.ArrowCursor)
                 self.addItem(self.selectionRect)
 
     def mouseMoveEvent(self, event):
@@ -2272,6 +2274,8 @@ class MyView(QGraphicsView):
         self.original_transform = self.transform()
         self.yg_font = font
         self.preferences = preferences
+        # self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
+        # self.setDragMode(QGraphicsView.DragMode.NoDrag)
 
     def setup_goto_signal(self, o):
         self.sig_goto.connect(o)

@@ -18,14 +18,16 @@ from PyQt6.QtWidgets import (
     QInputDialog,
     QLineEdit,
     QFileDialog, QDialogButtonBox, QComboBox, QDialog, QScrollArea,
-    QSizePolicy
+    QSizePolicy,
+    QGraphicsView
 )
 from PyQt6.QtGui import (
     QPainter,
     QAction,
     QKeySequence,
     QIcon,
-    QPixmap
+    QPixmap,
+    QActionGroup
 )
 
 class MainWindow(QMainWindow):
@@ -131,39 +133,70 @@ class MainWindow(QMainWindow):
 
         self.hint_menu = self.menu.addMenu("&Hints")
 
+        cursor_action_group = QActionGroup(self.toolbar)
+        cursor_action_group.setExclusive(True)
+
+        self.cursor_action = self.toolbar.addAction("Cursor (Edit hints)")
+        cursor_icon = QIcon()
+        cursor_icon.addPixmap(QPixmap("./cursor-icon-on.png"), state=QIcon.State.On)
+        cursor_icon.addPixmap(QPixmap("./cursor-icon-off.png"), state=QIcon.State.Off)
+        self.cursor_action.setIcon(cursor_icon)
+        self.cursor_action.setCheckable(True)
+        # self.cursor_action.setChecked(True)
+
+        self.hand_action = self.toolbar.addAction("Hand (Pan the canvas)")
+        hand_icon = QIcon()
+        hand_icon.addPixmap(QPixmap("./hand-icon-on.png"), state=QIcon.State.On)
+        hand_icon.addPixmap(QPixmap("./hand-icon-off.png"), state=QIcon.State.Off)
+        self.hand_action.setIcon(hand_icon)
+        self.hand_action.setCheckable(True)
+        # self.hand_action.setChecked(False)
+
+        cursor_action_group.addAction(self.cursor_action)
+        cursor_action_group.addAction(self.hand_action)
+        self.cursor_action.setChecked(True)
+
         self.black_action = self.toolbar.addAction("Black Distance (B)")
         self.black_action.setIcon(QIcon(QPixmap("./black_distance.png")))
         self.black_action.setShortcut(QKeySequence(Qt.Key.Key_B))
+        self.black_action.setEnabled(False)
 
-        # self.black_action.setShortcut(QKeySequence("Ctrl+b"))
+        self.toolbar.insertSeparator(self.black_action)
 
         self.white_action = self.toolbar.addAction("White Distance (W)")
         self.white_action.setIcon(QIcon(QPixmap("./white_distance.png")))
         self.white_action.setShortcut(QKeySequence(Qt.Key.Key_W))
+        self.white_action.setEnabled(False)
 
         self.gray_action = self.toolbar.addAction("Gray Distance (G)")
         self.gray_action.setIcon(QIcon(QPixmap("./gray_distance.png")))
         self.gray_action.setShortcut(QKeySequence(Qt.Key.Key_G))
+        self.gray_action.setEnabled(False)
 
         self.shift_action = self.toolbar.addAction("Shift (S)")
         self.shift_action.setIcon(QIcon(QPixmap("./shift.png")))
         self.shift_action.setShortcut(QKeySequence(Qt.Key.Key_S))
+        self.shift_action.setEnabled(False)
 
         self.align_action = self.toolbar.addAction("Align (L)")
         self.align_action.setIcon(QIcon(QPixmap("./align.png")))
         self.align_action.setShortcut(QKeySequence(Qt.Key.Key_L))
+        self.align_action.setEnabled(False)
 
         self.interpolate_action = self.toolbar.addAction("Interpolate (I)")
         self.interpolate_action.setIcon(QIcon(QPixmap("./interpolate.png")))
         self.interpolate_action.setShortcut(QKeySequence(Qt.Key.Key_I))
+        self.interpolate_action.setEnabled(False)
 
         self.anchor_action = self.toolbar.addAction("Anchor (A)")
         self.anchor_action.setIcon(QIcon(QPixmap("./anchor.png")))
         self.anchor_action.setShortcut(QKeySequence(Qt.Key.Key_A))
+        self.anchor_action.setEnabled(False)
 
         self.make_set_action = self.toolbar.addAction("Make Set (K)")
         self.make_set_action.setIcon(QIcon(QPixmap("./make_set.png")))
         self.make_set_action.setShortcut(QKeySequence(Qt.Key.Key_K))
+        self.make_set_action.setEnabled(False)
 
         # self.hint_menu.addSeparator()
 
@@ -178,6 +211,22 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         self.setup_file_connections()
+
+    def set_mouse_panning(self, panning_on):
+        if self.glyph_pane:
+            if panning_on:
+                self.glyph_pane.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
+                # self.glyph_pane.setCursor(Qt.CursorShape.OpenHandCursor)
+            #else:
+            #    self.glyph_pane.setDragMode(QGraphicsView.DragMode.NoDrag)
+
+    def set_mouse_editing(self, editing_on):
+        if self.glyph_pane:
+            if editing_on:
+                self.glyph_pane.setDragMode(QGraphicsView.DragMode.NoDrag)
+                # self.glyph_pane.setCursor(Qt.CursorShape.ArrowCursor)
+            # else:
+            #    self.glyph_pane.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
 
     def compile_current_glyph(self):
         self.glyph_pane.viewer.yg_glyph.save_source()
@@ -365,6 +414,14 @@ class MainWindow(QMainWindow):
         except Exception:
             pass
 
+    def setup_cursor_connections(self):
+        self.hand_action.toggled.connect(self.set_mouse_panning)
+        self.cursor_action.toggled.connect(self.set_mouse_editing)
+
+    def disconnect_cursor(self):
+        self.hand_action.toggled.connect(self.set_mouse_panning)
+        self.cursor_action.toggled.connect(self.set_mouse_editing)
+
 
     def setup_glyph_pane_connections(self):
         # These get destroyed whenever we move from one glyph to another, and so the connections
@@ -374,12 +431,14 @@ class MainWindow(QMainWindow):
         self.setup_nav_connections()
         self.setup_zoom_connections()
         self.source_editor.setup_editor_signals(self.glyph_pane.viewer.yg_glyph.save_editor_source)
+        self.setup_cursor_connections()
 
     def disconnect_glyph_pane(self):
         self.disconnect_nav()
         self.disconnect_zoom()
         self.disconnect_hint()
         self.source_editor.disconnect_editor_signals(self.glyph_pane.viewer.yg_glyph.save_editor_source)
+        self.disconnect_cursor()
 
     def setup_connections(self):
         # This can safely be run when the program has just started, but not
@@ -417,6 +476,15 @@ class MainWindow(QMainWindow):
                                                "/Users/peterbaker/work/GitHub/Junicode-New/source/xgf",
                                                "Files (*.ttf *.yaml)")
         filename = f[0]
+        self.black_action.setEnabled(True)
+        self.white_action.setEnabled(True)
+        self.gray_action.setEnabled(True)
+        self.shift_action.setEnabled(True)
+        self.align_action.setEnabled(True)
+        self.interpolate_action.setEnabled(True)
+        self.anchor_action.setEnabled(True)
+        self.make_set_action.setEnabled(True)
+
 
         if filename and len(filename) > 0:
             # print(filename)
@@ -513,7 +581,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
 
-    # print(dir(QSizePolicy.Policy))
+    print(dir(Qt.CursorShape))
 
     app = QApplication([])
     top_window = MainWindow(app)
