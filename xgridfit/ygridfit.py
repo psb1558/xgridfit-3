@@ -215,7 +215,7 @@ def build_xy_block(nm, source, glyph_element, axis):
                     build_point(p, glyph_element)
     except KeyError:
         if axis == "y":
-            print("Warning: no y points in glyph " + nm) #***
+            print("Warning: no y points in glyph " + nm)
 
 def build_glyph_program(nm, source, xgf_doc):
     glyph_element = etree.SubElement(xgf_doc, XGF + "glyph")
@@ -347,7 +347,7 @@ def ygridfit_parse(yamlfile):
     return ygridfit_parse_obj(y_doc)
 
 def ygridfit_parse_obj(y_doc):
-    print("Starting ygridfit_parse_obj")
+    # print("Starting ygridfit_parse_obj")
     y_keys = y_doc.keys()
 
     xgf_doc = etree.Element(XGF + "xgridfit", nsmap=NSMAP)
@@ -372,6 +372,6 @@ def ygridfit_parse_obj(y_doc):
             for g in g_keys:
                 build_glyph_program(g, y_doc[k][g], xgf_doc)
     # print(etree.tostring(xgf_doc))
-    print("Result ot parse: ")
-    print(xgf_doc)
+    # print("Result ot parse: ")
+    # print(xgf_doc)
     return xgf_doc

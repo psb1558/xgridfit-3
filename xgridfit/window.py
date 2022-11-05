@@ -2,25 +2,30 @@ import sys
 import os
 import copy
 import ygModel
+import freetype
 from ygPreview import ygPreview
 import ygEditor
 import ygHintEditor
 import ygPreferences
 from xgridfit import compile_one
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtWidgets import (
+    QWidget,
     QApplication,
     QMainWindow,
     QSplitter,
     QMessageBox,
     QInputDialog,
     QLineEdit,
-    QFileDialog, QDialogButtonBox, QComboBox, QDialog, QScrollArea
+    QFileDialog, QDialogButtonBox, QComboBox, QDialog, QScrollArea,
+    QSizePolicy
 )
 from PyQt6.QtGui import (
     QPainter,
     QAction,
-    QKeySequence
+    QKeySequence,
+    QIcon,
+    QPixmap
 )
 
 class MainWindow(QMainWindow):
@@ -28,6 +33,11 @@ class MainWindow(QMainWindow):
         super(MainWindow,self).__init__(parent=parent)
         self.setAttribute(Qt.WidgetAttribute.WA_AcceptTouchEvents, False)
         self.setWindowTitle("YG")
+        self.toolbar = self.addToolBar("Tools")
+        self.toolbar.setIconSize(QSize(32,32))
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.toolbar.addWidget(spacer)
         self.qs = QSplitter(self)
         self.glyph_pane = None
         self.yg_font = None
@@ -90,6 +100,16 @@ class MainWindow(QMainWindow):
         self.pv_smaller_ten_action = self.preview_menu.addAction("Shrink by Ten")
         self.pv_smaller_ten_action.setShortcut(QKeySequence.StandardKey.MoveToEndOfBlock)
 
+        self.preview_menu.addSeparator()
+
+        self.pv_set_size_action = self.preview_menu.addAction("Points per Em...")
+        self.pv_set_size_action.setShortcut(QKeySequence("Ctrl+p"))
+
+        # self.pv_toggle_hinting_action = QAction("Show hinting", checkable=True)
+        # self.preview_menu.addAction(self.pv_toggle_hinting_action)
+
+        # self.preview_menu.aboutToShow.connect(self.preview_menu_about_to_show)
+
         self.view_menu = self.menu.addMenu("&View")
 
         self.zoom_in_action = self.view_menu.addAction("Zoom In")
@@ -111,29 +131,41 @@ class MainWindow(QMainWindow):
 
         self.hint_menu = self.menu.addMenu("&Hints")
 
-        self.black_action = self.hint_menu.addAction("Black Distance")
+        self.black_action = self.toolbar.addAction("Black Distance (B)")
+        self.black_action.setIcon(QIcon(QPixmap("./black_distance.png")))
         self.black_action.setShortcut(QKeySequence(Qt.Key.Key_B))
+
         # self.black_action.setShortcut(QKeySequence("Ctrl+b"))
 
-        self.white_action = self.hint_menu.addAction("White Distance")
+        self.white_action = self.toolbar.addAction("White Distance (W)")
+        self.white_action.setIcon(QIcon(QPixmap("./white_distance.png")))
         self.white_action.setShortcut(QKeySequence(Qt.Key.Key_W))
 
-        self.gray_action = self.hint_menu.addAction("Gray Distance")
+        self.gray_action = self.toolbar.addAction("Gray Distance (G)")
+        self.gray_action.setIcon(QIcon(QPixmap("./gray_distance.png")))
         self.gray_action.setShortcut(QKeySequence(Qt.Key.Key_G))
 
-        self.anchor_action = self.hint_menu.addAction("Anchor")
-        self.anchor_action.setShortcut(QKeySequence(Qt.Key.Key_A))
-
-        self.shift_action = self.hint_menu.addAction("Shift")
+        self.shift_action = self.toolbar.addAction("Shift (S)")
+        self.shift_action.setIcon(QIcon(QPixmap("./shift.png")))
         self.shift_action.setShortcut(QKeySequence(Qt.Key.Key_S))
 
-        self.align_action = self.hint_menu.addAction("Align")
+        self.align_action = self.toolbar.addAction("Align (L)")
+        self.align_action.setIcon(QIcon(QPixmap("./align.png")))
         self.align_action.setShortcut(QKeySequence(Qt.Key.Key_L))
 
-        self.interpolate_action = self.hint_menu.addAction("Interpolate")
+        self.interpolate_action = self.toolbar.addAction("Interpolate (I)")
+        self.interpolate_action.setIcon(QIcon(QPixmap("./interpolate.png")))
         self.interpolate_action.setShortcut(QKeySequence(Qt.Key.Key_I))
 
-        self.hint_menu.addSeparator()
+        self.anchor_action = self.toolbar.addAction("Anchor (A)")
+        self.anchor_action.setIcon(QIcon(QPixmap("./anchor.png")))
+        self.anchor_action.setShortcut(QKeySequence(Qt.Key.Key_A))
+
+        self.make_set_action = self.toolbar.addAction("Make Set (K)")
+        self.make_set_action.setIcon(QIcon(QPixmap("./make_set.png")))
+        self.make_set_action.setShortcut(QKeySequence(Qt.Key.Key_K))
+
+        # self.hint_menu.addSeparator()
 
         # self.make_set_action = self.hint_menu.addAction("Make Set")
 
@@ -157,6 +189,17 @@ class MainWindow(QMainWindow):
         tmp_font = compile_one(font, source, glyph)
         self.yg_preview.fetch_glyph(tmp_font, glyph_index)
         self.yg_preview.update()
+
+    # def preview_menu_about_to_show(self):
+    #    if self.yg_preview.face == None or self.yg_preview.glyph_index == 0:
+    #        self.pv_toggle_hinting_action.setEnabled(False)
+    #        return
+    #    else:
+    #        self.pv_toggle_hinting_action.setEnabled(True)
+    #    if self.yg_preview.hinting == "on":
+    #        self.preview_menu.setChecked(True)
+    #    else:
+    #        self.preview_menu.setChecked(False)
 
     def hint_menu_about_to_show(self):
         if len(self.glyph_pane.viewer.selectedObjects(True)) != 1:
@@ -238,6 +281,7 @@ class MainWindow(QMainWindow):
         self.interpolate_action.triggered.connect(self.glyph_pane.viewer.make_hint_from_selection)
         self.shift_action.triggered.connect(self.glyph_pane.viewer.make_hint_from_selection)
         self.align_action.triggered.connect(self.glyph_pane.viewer.make_hint_from_selection)
+        self.make_set_action.triggered.connect(self.glyph_pane.viewer.make_set)
 
     def disconnect_hint(self):
         try:
@@ -274,6 +318,8 @@ class MainWindow(QMainWindow):
         self.pv_bigger_ten_action.triggered.connect(self.yg_preview.bigger_ten)
         self.pv_smaller_one_action.triggered.connect(self.yg_preview.smaller_one)
         self.pv_smaller_ten_action.triggered.connect(self.yg_preview.smaller_ten)
+        self.pv_set_size_action.triggered.connect(self.show_ppem_dialog)
+        # self.pv_toggle_hinting_action.triggered.connect(self.yg_preview.toggle_hinting)
 
     def setup_zoom_connections(self):
         self.zoom_in_action.triggered.connect(self.glyph_pane.zoom, type=Qt.ConnectionType.SingleShotConnection)
@@ -373,12 +419,12 @@ class MainWindow(QMainWindow):
         filename = f[0]
 
         if filename and len(filename) > 0:
-            print(filename)
+            # print(filename)
             split_fn = os.path.splitext(filename)
             fn_base = split_fn[0]
-            print("base: " + str(fn_base))
+            # print("base: " + str(fn_base))
             extension = split_fn[1]
-            print("ext: " + str(extension))
+            # print("ext: " + str(extension))
             yaml_source = None
             if extension == ".ttf":
                 yaml_filename = fn_base + ".yaml"
@@ -400,7 +446,7 @@ class MainWindow(QMainWindow):
                 yaml_source["glyphs"] = {}
                 filename = yaml_filename
 
-            print("filename: " + str(filename))
+            # print("filename: " + str(filename))
 
             # Wrong. We should use familyname + stylename to index here.
             top_window.preferences["current_font"] = filename
@@ -453,6 +499,12 @@ class MainWindow(QMainWindow):
         if ok and text:
             self.glyph_pane.go_to_glyph(text)
 
+    def show_ppem_dialog(self):
+        text, ok = QInputDialog().getText(self, "Set Points per Em", "Points per em:",
+                                          QLineEdit.EchoMode.Normal)
+        if ok and text:
+            self.yg_preview.set_size(text)
+
     def quit(self):
         self.preferences.save_config()
         self.app.quit()
@@ -461,7 +513,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
 
-    # print(dir(QKeySequence.StandardKey))
+    # print(dir(QSizePolicy.Policy))
 
     app = QApplication([])
     top_window = MainWindow(app)

@@ -114,7 +114,7 @@ selected_hint_color = {"anchor":      HINT_ANCHOR_SELECT_COLOR,
 
 # Classes in this file:
 
-# QtPen (BasePen): copied from fontTools so we could drop reference to Qt5.
+# QtPen (BasePen): copied from fontTools so we could drop a reference to Qt5.
 # GlyphWidget(QWidget): Displays glyph outline.
 # ygSelectable: inherited by objects that can be selected.
 # ygHintView(QGraphicsItem, ygSelectable): Interface with a hint (ygModel.ygHint)
@@ -128,7 +128,7 @@ selected_hint_color = {"anchor":      HINT_ANCHOR_SELECT_COLOR,
 # HintPointMarker(QGraphicsEllipseItem, ygGraphicalHintComponent):
 #                    Thickens and adds color to a point.
 # ygPointCollectionView(QGraphicsItem, ygGraphicalHintComponent):
-#                    Visible representation of function or macro params.
+#                    Visible representation of a collection of points.
 # ygSetView(QGraphicsItem, ygGraphicalHintComponent):
 #                    Visible representation of a set (of points).
 # ygSelection: Keeps track of selected objects.
@@ -141,7 +141,29 @@ selected_hint_color = {"anchor":      HINT_ANCHOR_SELECT_COLOR,
 
 class QtPen(BasePen):
     """ Copied from fontTools so we can get rid of the reference to Qt5
-        (we're using Qt6).
+        (we're using Qt6). The fontTools library was issued under the MIT license:
+
+        MIT License
+
+        Copyright (c) 2017 Just van Rossum
+
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
     """
 
     def __init__(self, glyphSet, path=None):
@@ -1272,7 +1294,7 @@ class ygGlyphViewer(QGraphicsScene):
     sig_reverse_hint = pyqtSignal(object) # was rev_hint
     sig_change_hint_color = pyqtSignal(object)
     sig_off_curve_visibility = pyqtSignal()
-    sig_make_set = pyqtSignal(object)
+    #sig_make_set = pyqtSignal(object)
     sig_make_macfunc = pyqtSignal(object)
     sig_assign_macfunc_point = pyqtSignal(object)
     sig_edit_macfunc_params = pyqtSignal(object)
@@ -1323,7 +1345,7 @@ class ygGlyphViewer(QGraphicsScene):
         self.sig_change_hint_color.connect(self.change_hint_color)
         self.sig_edit_macfunc_params.connect(self.edit_macfunc_params)
         self.sig_off_curve_visibility.connect(self.toggle_off_curve_visibility)
-        self.sig_make_set.connect(self.make_set)
+        # self.sig_make_set.connect(self.make_set)
         self.sig_make_macfunc.connect(self.make_macfunc)
         self.sig_macfunc_target.connect(self.macfunc_target)
         self.sig_macfunc_ref.connect(self.macfunc_ref)
@@ -1362,19 +1384,32 @@ class ygGlyphViewer(QGraphicsScene):
                     if self.point_numbers_showing:
                         p.del_label()
 
-    def make_set(self, _params):
+    def make_set(self):
         """ In the hint model, the target can be either a ygPoint or a ygSet.
             This function takes the current selection, a ygPoint, and turns it
             into a ygSet, which it substitutes for the ygPoint. Note that
-            touched_point must then be designated the _main_point in the ygSet,
-            and all the points in the set must be marked as touched, with the
-            owner as in touched_point.
+            exactly one selected point must be touched, and at least one
+            selected point must be untouched.
 
         """
-        selected_points = _params["selected_points"]
-        touched_point = _params["touched_point"]
+        selected_points = self.selectedObjects(True)
+        # print("selected_points: " + str(len(selected_points)))
+        touched_points = []
+        untouched_points = []
+        for s in selected_points:
+            if s.touched:
+                touched_points.append(s)
+            else:
+                untouched_points.append(s)
+        if len(untouched_points) < 1 or len(touched_points) != 1:
+            # print("touched: " + str(len(touched_points)) + "; untouched: " + str(len(untouched_points)))
+            return
+        touched_point = touched_points[0]
         hint = touched_point.owners[0]
         hint_model = hint.yg_hint
+        if not hint_model.hint_type() in ["shift", "align", "interpolate"]:
+            # print(str(hint_model.hint_type()))
+            return
         new_list = []
         for p in selected_points:
             new_list.append(self._model_point(p))
@@ -1722,15 +1757,13 @@ class ygGlyphViewer(QGraphicsScene):
             we're making valid yaml source, wouldn't it be better to
             pass that with the signal?
         """
-        # num of points and hint type are correct, bjut interpolate hints
-        # displaying wrong!
-        menu_to_hint_type = {"Anchor": "anchor",
-                             "Align": "align",
-                             "Shift": "shift",
-                             "Interpolate": "interpolate",
-                             "White Distance": "whitespace",
-                             "Black Distance": "blackspace",
-                             "Gray Distance": "grayspace"}
+        menu_to_hint_type = {"Anchor (A)": "anchor",
+                             "Align (L)": "align",
+                             "Shift (S)": "shift",
+                             "Interpolate (I)": "interpolate",
+                             "White Distance (W)": "whitespace",
+                             "Black Distance (B)": "blackspace",
+                             "Gray Distance (G)": "grayspace"}
         hint_type = menu_to_hint_type[self.sender().text()]
         hint_type_num = self.get_hint_type_num(hint_type)
         pp = self.selectedObjects(True)
@@ -2130,11 +2163,11 @@ class ygGlyphViewer(QGraphicsScene):
         except Exception:
             pass
 
-        cmenu.addSeparator()
-        make_set = cmenu.addAction("Make set")
-        if not touched_point:
-            make_set.setEnabled(False)
-            make_set.setVisible(False)
+        #cmenu.addSeparator()
+        #make_set = cmenu.addAction("Make set")
+        #if not touched_point:
+        #    make_set.setEnabled(False)
+        #    make_set.setVisible(False)
 
         # Functions and macros. Each is marked for which params are points, which are control
         # values, and which are others. For each count up the point params and show only those
@@ -2182,8 +2215,8 @@ class ygGlyphViewer(QGraphicsScene):
             # self.toggle_off_curve_visibility()
         if action == toggle_point_number_visibility:
             self.sig_toggle_point_numbers.emit()
-        if touched_point and (action == make_set):
-            self.sig_make_set.emit({"selected_points": selected_points, "touched_point": touched_point})
+        #if touched_point and (action == make_set):
+        #    self.sig_make_set.emit({"selected_points": selected_points, "touched_point": touched_point})
         if hint and (action == reverse_hint):
             self.sig_reverse_hint.emit(hint.yg_hint)
         if hint and action in cv_anchor_action_list:

@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
     QWidget,
+    QLabel
 )
 from PyQt6.QtGui import (
     QPainter,
@@ -27,8 +28,14 @@ class ygPreview(QWidget):
     def __init__(self):
         super().__init__()
         self.face = None
+        self.hinting = "on"
         self.glyph_index = 0
-        self.char_size = 50
+        self.char_size = 40
+        self.label = QLabel()
+        self.label.setStyleSheet("QLabel {background-color: transparent; color: red;}")
+        self.label.setText(str(self.char_size) + "ppem")
+        self.label.setParent(self)
+        self.label.move(50, 30)
         self.setMinimumSize(800, 1000)
         self.vertical_margin = 50
         self.horizontal_margin = 50
@@ -43,6 +50,12 @@ class ygPreview(QWidget):
         self._build_glyph()
 
     def _build_glyph(self):
+        # if self.face == None or self.glyph_index == 0:
+        #    return
+        #if self.hinting == "on":
+        #    flags=freetype.FT_LOAD_DEFAULT
+        #else:
+        #    flags=freetype.FT_LOAD_NO_HINTING
         self.face.set_char_size(self.char_size * 64)
         self.face.load_glyph(self.glyph_index)
         ft_slot = self.face.glyph
@@ -58,12 +71,35 @@ class ygPreview(QWidget):
         if self.pixel_size < 1:
             self.pixel_size = 1
         data = []
+        # print(type(ft_bitmap.buffer))
         for i in range(ft_rows):
             data.extend(ft_bitmap.buffer[i*ft_pitch:i*ft_pitch+ft_width])
         self.Z = numpy.array(data,dtype=numpy.ubyte).reshape(ft_rows, ft_width)
 
+    def toggle_hinting(self):
+        if self.glyph_index != 0 and self.face != None:
+            if self.hinting == "on":
+                self.hinting = "off"
+            else:
+                self.hinting = "on"
+            self._build_glyph()
+            self.update()
+
+    def set_size(self, n):
+        if self.face != None and self.glyph_index != 0:
+            try:
+                self.char_size = int(n)
+                if self.char_size < 10:
+                    self.char_size = 10
+            except Exception as e:
+                return
+            self.label.setText(str(self.char_size) + "ppem")
+            self._build_glyph()
+            self.update()
+
     def resize_by(self, n):
         if self.face != None and self.glyph_index != 0:
+            self.label.setText(str(self.char_size) + "ppem")
             self.char_size += n
             self._build_glyph()
             self.update()
@@ -104,3 +140,8 @@ class ygPreview(QWidget):
             yposition += self.pixel_size
             xposition = self.horizontal_margin
         painter.end()
+
+class ygSizeLabel(QLabel):
+    def __init__():
+        super().__init__()
+        self.current_size = 40

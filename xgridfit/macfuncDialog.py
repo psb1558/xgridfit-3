@@ -16,15 +16,15 @@ class macfuncDialog(QDialog):
         try:
             self.yg_callable = self.yg_font.functions[self.yg_hint.name]
         except Exception as e:
-            print("in function dialog:")
-            print("Error: " + str(e))
+            #print("in function dialog:")
+            #print("Error: " + str(e))
             pass
         if self.yg_callable == None:
             try:
                 self.yg_callable = self.yg_font.macros[self.yg_hint.name]
             except Exception as e:
-                print("in function dialog:")
-                print("Error: " + str(e))
+                #print("in function dialog:")
+                #print("Error: " + str(e))
                 pass
         self.hint_type = _hint.yg_hint.hint_type()
         self.layout = QVBoxLayout()
@@ -33,7 +33,7 @@ class macfuncDialog(QDialog):
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
         self.params = self.yg_hint._get_macfunc()
-        print("same as? " + str(self.params is self.yg_hint._get_macfunc()))
+        # print("same as? " + str(self.params is self.yg_hint._get_macfunc()))
         self.widgets = []
         k = self.yg_callable.keys()
         for kk in k:
@@ -86,12 +86,12 @@ class macfuncDialog(QDialog):
         self.setLayout(self.layout)
 
     def accept(self):
-        print("In accept")
+        # print("In accept")
         param_list = {"nm": self.yg_hint.macfunc_name()}
         for w in self.widgets:
             param_list[w.itemAt(0).widget().text()] = w.itemAt(1).widget().text()
         self.yg_hint._source[self.yg_hint.hint_type()] = param_list
-        print(self.yg_hint._source[self.yg_hint.hint_type()])
+        # print(self.yg_hint._source[self.yg_hint.hint_type()])
         super().accept()
 
 
