@@ -32,4 +32,4 @@ class ygEditor(QPlainTextEdit):
 
     def text_changed(self):
         if len(self.toPlainText()) == 0:
-            self.setPlainText("points: []\n")
+            self.setPlainText("[]\n")

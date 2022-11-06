@@ -105,7 +105,7 @@ class ygFont:
         self.functions   = self.source["functions"]
         self.macros      = self.source["macros"]
         self.glyph_list  = []
-        self.clean       = True
+        self._clean       = True
         glyph_names = self.ft_font.getGlyphNames()
         cmap = self.ft_font['cmap'].buildReversed()
         # This dict is for using a glyph name to look up a glyph's index.
@@ -146,6 +146,15 @@ class ygFont:
 
     def style_name(self):
         return self.ft_font['name'].getName(2,3,1,0x409)
+
+    def set_dirty(self):
+        self._clean = False
+
+    def set_clean(self):
+        self._clean = True
+
+    def clean(self):
+        return self._clean
 
     def get_glyph(self, gname):
         """ Get the source for a glyph's hints. If the glyph has no hints yet,
@@ -484,7 +493,7 @@ class ygGlyph(QObject):
             self.x_block = self.combine_point_blocks(copy.deepcopy(self.gsource["x"]))
         else:
             self.x_block = []
-        self.clean = True
+        self.set_clean()
         try:
             self.ft_glyph = yg_font.ft_font['glyf'][gname]
         except KeyError:
@@ -660,12 +669,13 @@ class ygGlyph(QObject):
             disk.
 
         """
-        if not self.clean:
+        if not self.clean():
             tcopy = copy.deepcopy(self.current_block())
             self.yaml_strip_extraneous_nodes(tcopy)
             self.yg_font.save_glyph_source({"points": tcopy},
                                            self.current_vector(),
                                            self.gname)
+            self.set_clean()
         # Also save the other things (cvt, etc.) if dirty.
 
     def set_yaml_editor(self, ed):
@@ -683,11 +693,21 @@ class ygGlyph(QObject):
         self.yaml_strip_extraneous_nodes(new_yaml)
         self.sig_glyph_source_ready.emit(yaml.dump(new_yaml, sort_keys=False, Dumper=Dumper))
 
+    def set_dirty(self):
+        self._clean = False
+        self.yg_font.set_dirty()
+
+    def set_clean(self):
+        self._clean = True
+
+    def clean(self):
+        return self._clean
+
     def hint_changed(self, h):
         """ Called by signal from ygHint. Rebuilds the hint tree in response.
 
         """
-        self.clean = False
+        self.set_dirty()
         self.sig_hints_changed.emit(self.hints())
         self.send_yaml_to_editor()
 
@@ -698,7 +718,7 @@ class ygGlyph(QObject):
             anything).
 
         """
-        self.clean = False
+        self.set_dirty()
         from ygHintEditor import ygGlyphViewer
         if self.glyph_viewer:
             self.glyph_viewer.install_hints(hint_list)

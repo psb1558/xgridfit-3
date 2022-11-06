@@ -64,9 +64,11 @@ class MainWindow(QMainWindow):
 
         self.save_as_action = self.file_menu.addAction("Save As...")
         self.save_as_action.setShortcut(QKeySequence.StandardKey.SaveAs)
+        self.save_as_action.setEnabled(False)
 
         self.save_font_action = self.file_menu.addAction("Save Font...")
         self.save_font_action.setShortcut(QKeySequence("Ctrl+e"))
+        self.save_font_action.setEnabled(False)
 
         self.quit_action = self.file_menu.addAction("Quit")
         self.quit_action.setShortcut(QKeySequence.StandardKey.Quit)
@@ -75,12 +77,15 @@ class MainWindow(QMainWindow):
 
         self.cut_action = self.edit_menu.addAction("Cut")
         self.cut_action.setShortcut(QKeySequence.StandardKey.Cut)
+        self.cut_action.setEnabled(False)
 
         self.copy_action = self.edit_menu.addAction("Copy")
         self.copy_action.setShortcut(QKeySequence.StandardKey.Copy)
+        self.copy_action.setEnabled(False)
 
         self.paste_action = self.edit_menu.addAction("Paste")
         self.paste_action.setShortcut(QKeySequence.StandardKey.Paste)
+        self.paste_action.setEnabled(False)
 
         self.goto_action = self.edit_menu.addAction("Go to...")
         self.goto_action.setShortcut(QKeySequence("Ctrl+G"))
@@ -363,6 +368,7 @@ class MainWindow(QMainWindow):
             pass
 
     def setup_preview_connections(self):
+        self.save_current_glyph_action.triggered.connect(self.compile_current_glyph)
         self.pv_bigger_one_action.triggered.connect(self.yg_preview.bigger_one)
         self.pv_bigger_ten_action.triggered.connect(self.yg_preview.bigger_ten)
         self.pv_smaller_one_action.triggered.connect(self.yg_preview.smaller_one)
@@ -374,7 +380,7 @@ class MainWindow(QMainWindow):
         self.zoom_in_action.triggered.connect(self.glyph_pane.zoom, type=Qt.ConnectionType.SingleShotConnection)
         self.zoom_out_action.triggered.connect(self.glyph_pane.zoom, type=Qt.ConnectionType.SingleShotConnection)
         self.original_size_action.triggered.connect(self.glyph_pane.zoom, type=Qt.ConnectionType.SingleShotConnection)
-        self.save_current_glyph_action.triggered.connect(self.compile_current_glyph)
+        # self.save_current_glyph_action.triggered.connect(self.compile_current_glyph)
 
     def disconnect_zoom(self):
         try:
@@ -389,10 +395,10 @@ class MainWindow(QMainWindow):
             self.goto_action.triggered.disconnect(self.show_goto_dialog)
         except Exception:
             pass
-        try:
-            self.save_current_glyph_action.triggered.disconnect(self.compile_current_glyph)
-        except Exception:
-            pass
+        #try:
+        #    self.save_current_glyph_action.triggered.disconnect(self.compile_current_glyph)
+        #except Exception:
+        #    pass
 
     def setup_nav_connections(self):
         self.next_glyph_action.triggered.connect(self.glyph_pane.next_glyph, type=Qt.ConnectionType.SingleShotConnection)
@@ -468,8 +474,10 @@ class MainWindow(QMainWindow):
         self.setup_glyph_pane_connections()
 
     def save_yaml_file(self):
-        self.glyph_pane.viewer.yg_glyph.save_source()
-        self.yg_font.source_file.save_source()
+        if not self.yg_font.clean():
+            self.glyph_pane.viewer.yg_glyph.save_source()
+            self.yg_font.source_file.save_source()
+            self.yg_font.set_clean()
 
     def open_file(self): # ***
         f = QFileDialog.getOpenFileName(self, "Open TrueType font or YAML file",
@@ -574,14 +582,29 @@ class MainWindow(QMainWindow):
             self.yg_preview.set_size(text)
 
     def quit(self):
-        self.preferences.save_config()
-        self.app.quit()
-
+        if self.yg_font.clean():
+            self.preferences.save_config()
+            self.app.quit()
+        else:
+            msg_box = QMessageBox()
+            msg_box.setText("The YAML source has been modified.")
+            msg_box.setInformativeText("Do you want to save it?")
+            msg_box.setStandardButtons(QMessageBox.StandardButton.Discard |
+                                       QMessageBox.StandardButton.Cancel |
+                                       QMessageBox.StandardButton.Save)
+            msg_box.setDefaultButton(QMessageBox.StandardButton.Save)
+            ret = msg_box.exec()
+            if ret == QMessageBox.StandardButton.Cancel:
+                return
+            if ret == QMessageBox.StandardButton.Save:
+                self.save_yaml_file()
+            self.preferences.save_config()
+            self.app.quit()
 
 
 if __name__ == "__main__":
 
-    print(dir(Qt.CursorShape))
+    print(dir(QMessageBox))
 
     app = QApplication([])
     top_window = MainWindow(app)
