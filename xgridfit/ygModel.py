@@ -84,6 +84,28 @@ class FontFiles:
             return self.data["out"]
         return None
 
+class ygSourceable:
+    def __init__(self, font, source):
+        self.data = source
+        self.font = font
+        self._clean = True
+
+    def clean(self):
+        return self._clean
+
+    def set_clean(self, c):
+        self._clean = c
+        if not self._clean:
+            self.font.set_dirty()
+
+    def source(self):
+        return self.data
+
+    def save(self, c):
+        self.data = c
+        self.set_clean(True)
+
+
 class ygFont:
     """ Keeps all the font's data, including a fontTools representation of the
         font, the "source" structure built from the yaml file, and a structure
@@ -99,11 +121,20 @@ class ygFont:
         self.font_files  = FontFiles(self.source)
         self.ft_font     = ttLib.TTFont(self.font_files.in_font())
         self.glyphs      = ygGlyphs(self.source).data
-        self.defaults    = ygDefaults(self.source)
-        self.cvt         = ygcvt(self.source)
-        self.cvar        = ygcvar(self.source)
-        self.functions   = self.source["functions"]
-        self.macros      = self.source["macros"]
+        self.defaults    = ygDefaults(self, self.source)
+        self.cvt         = ygcvt(self, self.source)
+        self.cvar        = ygcvar(self, self.source)
+        self.prep        = ygprep(self, self.source)
+        if "functions" in self.source:
+            self.functions = self.source["functions"]
+        else:
+            self.functions = {}
+        self.functions_func = ygFunctions(self, self.functions)
+        if "macros" in self.source:
+            self.macros = self.source["macros"]
+        else:
+            self.macros = {}
+        self.macros_func = ygMacros(self, self.macros)
         self.glyph_list  = []
         self._clean       = True
         glyph_names = self.ft_font.getGlyphNames()
@@ -147,6 +178,9 @@ class ygFont:
     def style_name(self):
         return self.ft_font['name'].getName(2,3,1,0x409)
 
+    def full_name(self):
+        return str(self.family_name()) + "-" + str(self.style_name())
+
     def set_dirty(self):
         self._clean = False
 
@@ -178,10 +212,23 @@ class ygFont:
 
 
 
+class ygprep(ygSourceable):
+    def __init__(self, font, source):
+        if "prep" in source:
+            data = source["prep"]
+        else:
+            data = {}
+        super().__init__(font, data)
 
-class ygDefaults:
-    def __init__(self, source):
-        self.data = source["defaults"]
+
+
+class ygDefaults(ygSourceable):
+    def __init__(self, font, source):
+        if "defaults" in source:
+            data = source["defaults"]
+        else:
+            data = {}
+        super().__init__(font, data)
 
     def get_default(self, *args):
         if args[0] in self.data:
@@ -194,9 +241,13 @@ class ygDefaults:
 
 
 
-class ygcvt:
-    def __init__(self, source):
-        self.data = source["cvt"]
+class ygcvt(ygSourceable):
+    def __init__(self, font, source):
+        if "cvt" in source:
+            data = source["cvt"]
+        else:
+            data = {}
+        super().__init__(font, data)
 
     def get_cvs(self, cvtype, vector):
         """ Get a list of control values filtered by type and vector.
@@ -230,13 +281,25 @@ class ygcvt:
         return None
 
 
+class ygFunctions(ygSourceable):
+    def __init__(self, font, source):
+        super().__init__(font, source)
 
-class ygcvar:
-    def __init__(self, source):
+
+
+class ygMacros(ygSourceable):
+    def __init__(self, font, source):
+        super().__init__(font, source)
+
+
+
+class ygcvar(ygSourceable):
+    def __init__(self, font, source):
         try:
-            self.data = source["cvar"]
+            data = source["cvar"]
         except Exception as e:
-            self.data = []
+            data = []
+        super().__init__(font, data)
 
 
 

@@ -231,6 +231,7 @@ class GlyphWidget(QWidget):
         self.path = QPainterPath()
         self.qt_pen = QtPen(glyph_set, path=self.path)
         self.ft_glyph.draw(self.qt_pen, yg_font.ft_font['glyf'])
+        self.center_x = self.xTranslate + round(self.adv / 2)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -1314,8 +1315,8 @@ class ygGlyphViewer(QGraphicsScene):
         self.yg_hint_view_index = {}
         self.yg_hint_view_list = []
         super(ygGlyphViewer, self).__init__()
-        self.vector = "y"
         self.yg_glyph = yg_glyph
+        self.vector = self.yg_glyph.current_vector
         # Try to get rid of ref to this scene in the model's ygGlyph class.
         self.yg_glyph.glyph_viewer = self
         self.glyphwidget = GlyphWidget(self, self.yg_glyph.yg_font, self.yg_glyph)
@@ -1413,7 +1414,7 @@ class ygGlyphViewer(QGraphicsScene):
         new_list = []
         for p in selected_points:
             new_list.append(self._model_point(p))
-        sorter = ygModel.ygPointSorter("y")
+        sorter = ygModel.ygPointSorter(self.vector)
         sorter.sort(new_list)
         set = ygModel.ygSet(new_list)
         set._main_point = touched_point.yg_point
@@ -1728,8 +1729,7 @@ class ygGlyphViewer(QGraphicsScene):
         return yg_hint_view
 
     def _ptcoords(self, p):
-        vector = "y"
-        if vector == "y":
+        if self.vector == "y":
             return p.yg_point.font_y
         else:
             return p.yg_point.font_x
@@ -2289,7 +2289,8 @@ class MyView(QGraphicsView):
         try:
             self.yg_font.glyph_index[g]
             self.switch_to(g)
-        except Exception:
+        except Exception as e:
+            print(e)
             self.preferences.top_window().show_error_message(["Warning", "Warning", "Can't load requested glyph."])
         self.parent().parent().setup_glyph_pane_connections()
 
@@ -2315,8 +2316,10 @@ class MyView(QGraphicsView):
         self.viewer.yg_glyph.save_source()
         new_glyph = ygModel.ygGlyph(self.preferences, self.yg_font, gname)
         self.viewer = ygGlyphViewer(self.preferences, new_glyph)
-        self.preferences.set_current_glyph(self.preferences["current_font"], gname)
+        # self.preferences.set_current_glyph(self.preferences[self.yg_font.full_name()], gname)
+        self.preferences.set_current_glyph(self.yg_font.full_name(), gname)
         self.setScene(self.viewer)
+        self.centerOn(self.viewer.glyphwidget.center_x, self.sceneRect().center().y())
         self.parent().parent().set_window_title()
         ed = self.preferences.top_window().source_editor
         new_glyph.set_yaml_editor(ed)

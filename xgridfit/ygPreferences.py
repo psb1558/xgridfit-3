@@ -13,6 +13,16 @@ class ygPreferences(dict):
         self["save_points_as"] = "indices"
         self["current_font"] = None
         self["show_metrics"] = True
+        self["recents"] = []
+
+    def add_recent(self, f):
+        fl = self["recents"]
+        if not f in fl:
+            fl = [f] + fl
+        if len(fl) > 5:
+            fl.pop()
+        self["recents"] = fl
+        print(self["recents"])
 
     def top_window(self):
         return self["top_window"]
@@ -35,8 +45,8 @@ class ygPreferences(dict):
         except Exception:
             return "A"
 
-    def set_current_glyph(self, fontfile, gname):
-        self["current_glyph"][fontfile] = gname
+    def set_current_glyph(self, k, gname):
+        self["current_glyph"][k] = gname
 
     def current_font(self):
         return self["current_font"]
@@ -52,25 +62,31 @@ class ygPreferences(dict):
             self["points_as"] = val
 
     def save_config(self):
-        w = self["top_window"]
-        del self["top_window"]
-        f = open("yg_config.yaml", "w")
-        f.write(yaml.dump(self, sort_keys=False, Dumper=Dumper))
-        f.close()
-        self["top_window"] = w
+        save_dict = {}
+        k = self.keys()
+        for kk in k:
+            if not kk in ["top_window", "current_font"]:
+                save_dict[kk] = self[kk]
+        with open("yg_config.yaml", "w") as f:
+            f.write(yaml.dump(save_dict, sort_keys=False, Dumper=Dumper))
 
 def open_config(top_window):
     try:
-        pstream = open("yg_config.yaml", 'r')
-        pref_dict = yaml.safe_load(y_stream)
-        y_stream.close()
+        with open("yg_config.yaml", 'r') as pstream:
+            pref_dict = yaml.safe_load(pstream)
+        print(pref_dict)
+        #pstream = open("yg_config.yaml", 'r')
+        #pref_dict = yaml.safe_load(pstream)
+        #pstream.close()
         p = ygPreferences()
         k = pref_dict.keys()
         for kk in k:
             p[kk] = pref_dict[kk]
         p["top_window"] = top_window
         return p
-    except Exception:
+    except Exception as e:
+        print("Exception in open_config:")
+        print(e)
         p = ygPreferences()
         p["top_window"] = top_window
         return p

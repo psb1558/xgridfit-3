@@ -71,12 +71,14 @@ class ygPreview(QWidget):
         if self.pixel_size < 1:
             self.pixel_size = 1
         data = []
-        # print(type(ft_bitmap.buffer))
         for i in range(ft_rows):
             data.extend(ft_bitmap.buffer[i*ft_pitch:i*ft_pitch+ft_width])
         self.Z = numpy.array(data,dtype=numpy.ubyte).reshape(ft_rows, ft_width)
 
     def toggle_hinting(self):
+        """ This can't be used right now, since including the no hinting flag
+            in a call to load_glyph causes a crash.
+        """
         if self.glyph_index != 0 and self.face != None:
             if self.hinting == "on":
                 self.hinting = "off"
