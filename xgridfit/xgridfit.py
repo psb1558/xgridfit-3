@@ -12,7 +12,7 @@ try:
     from .ygridfit import ygridfit_parse, ygridfit_parse_obj
 except ImportError:
     from ygridfit import ygridfit_parse, ygridfit_parse_obj
-from tempfile import mkstemp, SpooledTemporaryFile
+from tempfile import mkstemp
 import sys
 import os
 import argparse
@@ -555,6 +555,7 @@ def compile_all(font, yaml, new_file_name):
     install_functions(thisFont, fpgm_code, functionBase)
     prep_code = etransform(xgffile, **{"prep-only": "'yes'"})
     install_prep(thisFont, prep_code, False, True)
+    failed_glyph_list = []
     for g in glyph_list:
         try:
             gt = "'" + g + "'"
@@ -562,15 +563,17 @@ def compile_all(font, yaml, new_file_name):
             #if initgraphics:
             #    glyph_args['init_graphics'] = "'" + initgraphics + "'"
             g_inst = etransform(xgffile, **glyph_args)
+            g_inst_final = compact_instructions(str(g_inst), safe_calls)
+            install_glyph_program(g, thisFont, g_inst_final)
         except Exception as e:
             print(e)
             for entry in etransform.error_log:
                 print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
-            sys.exit(1)
-        g_inst_final = compact_instructions(str(g_inst), safe_calls)
-        install_glyph_program(g, thisFont, g_inst_final)
+            # sys.exit(1)
+            failed_glyph_list.append(g)
     with thisFont as f:
         f.save(new_file_name, 1)
+    return failed_glyph_list
 
 def compile_one(font, yaml, gname):
     """ A quick and dirty function to support the GUI. It compiles code for a
@@ -621,6 +624,7 @@ def compile_one(font, yaml, gname):
     install_functions(thisFont, fpgm_code, functionBase)
     prep_code = etransform(xgffile, **{"prep-only": "'yes'"})
     install_prep(thisFont, prep_code, False, True)
+    failed_glyph_list = []
     for g in glyph_list:
         try:
             gt = "'" + g + "'"
@@ -628,22 +632,18 @@ def compile_one(font, yaml, gname):
             #if initgraphics:
             #    glyph_args['init_graphics'] = "'" + initgraphics + "'"
             g_inst = etransform(xgffile, **glyph_args)
+            g_inst_final = compact_instructions(str(g_inst), safe_calls)
+            install_glyph_program(g, thisFont, g_inst_final)
         except Exception as e:
             print(e)
             for entry in etransform.error_log:
                 print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
-            sys.exit(1)
-        g_inst_final = compact_instructions(str(g_inst), safe_calls)
-        install_glyph_program(g, thisFont, g_inst_final)
+            failed_glyph_list.append(g)
     tmp_file_name = mkstemp(suffix=".ttf")[1]
     with thisFont as f:
         f.save(tmp_file_name, 1)
-    #try:
-    #    thisFont.save(tmp_file_name, 1)
-    #finally:
-    #    thisFont.close()
     print("Temp font saved to " + str(tmp_file_name))
-    return tmp_file_name
+    return tmp_file_name, failed_glyph_list
 
 
 
