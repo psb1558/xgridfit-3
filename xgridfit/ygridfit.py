@@ -222,6 +222,8 @@ def build_glyph_program(nm, source, xgf_doc):
     glyph_element.set("ps-name", nm)
     if "props" in source:
         p = source['props']
+        if "assume-y" in p:
+            glyph_element.set("assume-y", translate_bool(p['assume-y']))
         if "init-graphics" in p:
             glyph_element.set("init-graphics", translate_bool(p['init-graphics']))
         if "xoffset" in p:
@@ -230,6 +232,8 @@ def build_glyph_program(nm, source, xgf_doc):
             glyph_element.set("yoffset", str(p['yoffset']))
         if "compact" in p:
             glyph_element.set("compact", translate_bool(p['compact']))
+    if "y" in source and "x" in source:
+        glyph_element.set("assume-y", translate_bool(False))
     try:
         names = source["names"]
         nk = names.keys()
