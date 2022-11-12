@@ -146,7 +146,7 @@
     been hooked up.
   -->
   <xsl:param name="mp-containers"
-             select="//xgf:call-macro[not(param-set)]|
+             select="//xgf:call-macro[not(xgf:param-set)]|
                      //xgf:call-macro/xgf:param-set|
                      //xgf:call-glyph"/>
 
@@ -473,10 +473,6 @@
         <xsl:apply-templates select="/xgf:xgridfit/xgf:cvar"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:message terminate="no">
-          <xsl:text>In otherwise clause. ID is </xsl:text>
-          <xsl:value-of select="$singleGlyphId"/>
-        </xsl:message>
         <xsl:apply-templates select="xgf:glyph[@ps-name=$singleGlyphId]"/>
       </xsl:otherwise>
     </xsl:choose>
@@ -613,7 +609,6 @@
   </xsl:template>
 
   <xsl:template match="xgf:pre-program">
-    <xsl:message terminate="no">pre-program called</xsl:message>
     <xsl:variable name="all-defaults" select="/xgf:xgridfit/xgf:default"/>
     <xsl:variable name="use-tt-defaults"
                   select="boolean($all-defaults[@type =
