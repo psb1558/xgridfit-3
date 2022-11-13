@@ -1,0 +1,5 @@
+include src/xgridfit/XSL/*.x[ms]l
+include src/xgridfit/Schemas/*.rn[cg]
+include src/xgridfit/Schemas/*.xsd
+exclude build/ scripts/ doc/ src/xgridfit/__pycache__
+global-exclude xgridfit.egg-info
