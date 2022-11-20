@@ -86,8 +86,11 @@ def build_dependent_moves(source, parent_el, move_type, refpt = None):
             # point_element = etree.SubElement(move_el, XGF + "point")
             # point_element.set("num", str(p))
     else:
-        ancestor_point = source['ptid']
-        build_point_el(move_el, source['ptid'])
+        if "alt-ptid" in source:
+            ancestor_point = source["alt-ptid"]
+        else:
+            ancestor_point = source['ptid']
+        build_point_el(move_el, ancestor_point)
         # point_element = etree.SubElement(move_el, XGF + "point")
         # point_element.set("num", str(source['ptid']))
     return ancestor_point
@@ -135,7 +138,7 @@ def build_point(source, parent_el, refpt = None):
         if move_type == "interpolate":
             refpt = None
         # logging.info("In else clause of build_point; refpt is " + str(refpt))
-        ancestor_point = build_dependent_moves(source, parent_el, move_type, refpt )
+        ancestor_point = build_dependent_moves(source, parent_el, move_type, refpt)
         if 'points' in source:
             # source['points'].sort(key=point_key)
             for pp in source['points']:
@@ -175,6 +178,7 @@ def build_macro_function_call(source, glyph_el):
     # macro, the value in such a pair can be a list (translated into an Xgridfit
     # set).
     keylist = source["ptid"].keys()
+    ancestor_point = None
     for k in keylist:
         param_el = etree.SubElement(call_el, XGF + "with-param")
         param_el.set("name", k)
@@ -182,12 +186,21 @@ def build_macro_function_call(source, glyph_el):
         if type(content) is list:
             assert call_type == "macro"
             set_el = etree.SubElement(param_el, XGF + "set")
+            get_ancestor_point = (len(content) == 1)
             for p in content:
                 build_point_el(set_el, str(p))
+                if get_ancestor_point:
+                    ancestor_point = str(p)
                 # point_el = etree.SubElement(set_el, XGF + "point")
                 # point_el.set("num", str(p))
         else:
             param_el.set("value", str(content))
+            ancestor_point = str(content)
+    if 'points' in source:
+        # source['points'].sort(key=point_key)
+        for pp in source['points']:
+            # logging.info("About to recurse: " + str(pp))
+            build_point(pp, glyph_el, ancestor_point)
 
 def build_point_el(parent_el, point_num):
     point_el = etree.SubElement(parent_el, XGF + "point")
