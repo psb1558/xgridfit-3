@@ -585,10 +585,6 @@ def compile_one(font, yaml, gname):
     ns = {"xgf": "http://xgridfit.sourceforge.net/Xgridfit2",
           "xi": "http://www.w3.org/2001/XInclude",
           "xsl": "http://www.w3.org/1999/XSL/Transform"}
-    # Can we just use the ft_font object from yg? Save a little bit of time.
-    # But we close the font at the end of this, so much will have to be
-    # rethought if we want to do it that way.
-    # thisFont = font
     thisFont = ttLib.TTFont(font)
     functionBase = 0     # Offset to account for functions in existing font
     cvtBase      = 0     # Offset to account for CVs in existing font
@@ -642,7 +638,7 @@ def compile_one(font, yaml, gname):
     tmp_file_name = mkstemp(suffix=".ttf")[1]
     with thisFont as f:
         f.save(tmp_file_name, 1)
-    print("Temp font saved to " + str(tmp_file_name))
+    # print("Temp font saved to " + str(tmp_file_name))
     return tmp_file_name, failed_glyph_list
 
 
