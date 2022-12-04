@@ -333,7 +333,10 @@ def install_cvar(fo, cvarstore, keepold, cvtbase):
         fo['cvar'].variations = ts
 
 def make_coordinate_index(glist, fo):
-    """ glyph list, the font object. """
+    """ Make an index for lookup by coordinates. The key will look like:
+        glyphname@123x456
+     glyph list, the font object. 
+    """
     coordinateIndex = {}
     for gn in glist:
         currentGlyph = fo['glyf'][gn]
@@ -346,6 +349,10 @@ def make_coordinate_index(glist, fo):
                     coordinateIndex[pp] = pointIndex
                 pointIndex += 1
     return coordinateIndex
+
+def make_reverse_coordinate_index(glist, fo):
+    idx = make_coordinate_index(glist, fo)
+    return {val: key for key, val in idx.items()}
 
 def rewrite_point_string(original_point_string, coordinateIndex, coord_pattern, glyph_name,
                          xoffset, yoffset, crash=True):
