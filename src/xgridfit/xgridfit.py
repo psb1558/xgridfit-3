@@ -12,7 +12,7 @@ try:
     from .ygridfit import ygridfit_parse, ygridfit_parse_obj
 except ImportError:
     from ygridfit import ygridfit_parse, ygridfit_parse_obj
-from tempfile import mkstemp
+from tempfile import mkstemp, NamedTemporaryFile
 import sys
 import os
 import argparse
@@ -642,9 +642,16 @@ def compile_one(font, yaml, gname):
             for entry in etransform.error_log:
                 print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
             failed_glyph_list.append(g)
-    tmp_file_name = mkstemp(suffix=".ttf")[1]
-    with thisFont as f:
-        f.save(tmp_file_name, 1)
+    try:
+        tf = NamedTemporaryFile(delete=False)
+        tmp_file_name = tf.name
+        thisFont.save(tmp_file_name, 1)
+        tf.close()
+    except Exception as e:
+        print(e)
+    # tmp_file_name = mkstemp(suffix=".ttf")[1]
+    # with thisFont as f:
+    #     f.save(tmp_file_name, 1)
     # print("Temp font saved to " + str(tmp_file_name))
     return tmp_file_name, failed_glyph_list
 
