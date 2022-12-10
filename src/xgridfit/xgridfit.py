@@ -1,5 +1,6 @@
 from fontTools import ttLib
-from fontTools.ttLib import ttFont, tables
+from fontTools import subset
+from fontTools.ttLib import ttFont, tables, newTable, TTFont
 from fontTools.ttLib.tables.TupleVariation import TupleVariation
 from fontTools.ufoLib.filenames import userNameToFileName
 from lxml import etree
@@ -12,7 +13,7 @@ try:
     from .ygridfit import ygridfit_parse, ygridfit_parse_obj
 except ImportError:
     from ygridfit import ygridfit_parse, ygridfit_parse_obj
-from tempfile import mkstemp, NamedTemporaryFile
+from tempfile import mkstemp, NamedTemporaryFile, SpooledTemporaryFile
 import sys
 import os
 import argparse
@@ -592,7 +593,8 @@ def compile_one(font, yaml, gname):
     ns = {"xgf": "http://xgridfit.sourceforge.net/Xgridfit2",
           "xi": "http://www.w3.org/2001/XInclude",
           "xsl": "http://www.w3.org/1999/XSL/Transform"}
-    thisFont = ttLib.TTFont(font)
+    # thisFont = ttLib.TTFont(font)
+    thisFont = font
     functionBase = 0     # Offset to account for functions in existing font
     cvtBase      = 0     # Offset to account for CVs in existing font
     storageBase  = 0     # Offset to account for storage in existing font
@@ -643,17 +645,24 @@ def compile_one(font, yaml, gname):
                 print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
             failed_glyph_list.append(g)
     try:
-        tf = NamedTemporaryFile(delete=False)
-        tmp_file_name = tf.name
-        thisFont.save(tmp_file_name, 1)
-        tf.close()
+        # New procedure: grab the font (can we have a copy always in memory for this purpose?),
+        # subset it with just the one glyph we're previewing, and write it to a spooled temporary
+        # file.
+        tf = SpooledTemporaryFile(max_size=3000000, mode='b')
+        import time
+        start_time = time.time()
+        options = subset.Options()
+        options.layout_features = []
+        subsetter = subset.Subsetter(options)
+        subsetter.populate(glyphs=[gname])
+        subsetter.subset(thisFont)
+        print("Elapsed in subsetting: " + str(time.time() - start_time))
+        glyph_id = thisFont.getGlyphID(gname)
+        thisFont.save(tf, 1)
+        tf.seek(0)
     except Exception as e:
         print(e)
-    # tmp_file_name = mkstemp(suffix=".ttf")[1]
-    # with thisFont as f:
-    #     f.save(tmp_file_name, 1)
-    # print("Temp font saved to " + str(tmp_file_name))
-    return tmp_file_name, failed_glyph_list
+    return tf, glyph_id, failed_glyph_list
 
 
 
