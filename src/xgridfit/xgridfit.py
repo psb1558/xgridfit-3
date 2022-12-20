@@ -645,23 +645,21 @@ def compile_one(font, yaml, gname):
                 print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
             failed_glyph_list.append(g)
     try:
-        # New procedure: grab the font (can we have a copy always in memory for this purpose?),
-        # subset it with just the one glyph we're previewing, and write it to a spooled temporary
-        # file.
-        tf = SpooledTemporaryFile(max_size=3000000, mode='b')
-        import time
-        start_time = time.time()
+        # New procedure: grab the font, subset it with just the one glyph we're
+        # previewing, and write it to a spooled temporary file.
+        tf = SpooledTemporaryFile(max_size=1000000, mode='b')
         options = subset.Options()
         options.layout_features = []
         subsetter = subset.Subsetter(options)
         subsetter.populate(glyphs=[gname])
         subsetter.subset(thisFont)
-        print("Elapsed in subsetting: " + str(time.time() - start_time))
         glyph_id = thisFont.getGlyphID(gname)
         thisFont.save(tf, 1)
         tf.seek(0)
     except Exception as e:
         print(e)
+    # Return: a handle to the temp file, the index of the target glyph, a list of
+    # glyphs for which complilation failed
     return tf, glyph_id, failed_glyph_list
 
 
