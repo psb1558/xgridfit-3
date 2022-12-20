@@ -294,13 +294,46 @@ def build_defaults(source, xgf_doc):
             valstring = str(v)
         default_el.set("value", valstring)
 
-def build_cvt_settings(source, xgf_doc):
+def build_cvt_settings(source, cvt_source, xgf_doc):
     prep_el = etree.SubElement(xgf_doc, XGF + "pre-program")
     if "code" in source:
         newcode = source['code'].replace("\n", "")
         newxml = etree.XML(newcode)
         for n in newxml:
             prep_el.append(n)
+    size_blocks = {}
+    k = cvt_source.keys()
+    for kk in k:
+        cvt_entry = cvt_source[kk]
+        if "same-as" in cvt_entry:
+            sa = cvt_entry["same-as"]
+            if "below" in sa:
+                below_key = (sa["below"]["ppem"], "<")
+                if not below_key in size_blocks:
+                    size_blocks[below_key] = []
+                block = {}
+                block["name"] = kk
+                block["value"] = f"control-value({sa['below']['cv']})"
+                size_blocks[below_key].append(block)
+            if "above" in sa:
+                above_key = (sa["above"]["ppem"], ">")
+                if not above_key in size_blocks:
+                    size_blocks[above_key] = []
+                block = {}
+                block["name"] = kk
+                block["value"] = f"control-value({sa['above']['cv']})"
+                size_blocks[above_key].append(block)
+    s = size_blocks.keys()
+    for ss in s:
+        _size = ss[0]
+        _op   = ss[1]
+        if_el = etree.SubElement(prep_el, XGF + "if")
+        if_el.set("test", "pixels-per-em " + _op + " " + str(_size))
+        for b in size_blocks[ss]:
+            set_cv_el = etree.SubElement(if_el, XGF + "set-control-value")
+            set_cv_el.set("name", b["name"])
+            set_cv_el.set("unit", "pixel")
+            set_cv_el.set("value", b["value"])
 
 def translate_bool(b):
     if b:
@@ -364,7 +397,6 @@ def ygridfit_parse(yamlfile):
     return ygridfit_parse_obj(y_doc)
 
 def ygridfit_parse_obj(y_doc):
-    # print("Starting ygridfit_parse_obj")
     y_keys = y_doc.keys()
 
     xgf_doc = etree.Element(XGF + "xgridfit", nsmap=NSMAP)
@@ -375,7 +407,7 @@ def ygridfit_parse_obj(y_doc):
         elif k == "defaults":
             build_defaults(y_doc[k], xgf_doc)
         elif k == "prep":
-            build_cvt_settings(y_doc[k], xgf_doc)
+            build_cvt_settings(y_doc[k], y_doc["cvt"], xgf_doc)
         elif k == "cvt":
             build_cvt(y_doc[k], xgf_doc)
         elif k == "cvar":
@@ -388,7 +420,4 @@ def ygridfit_parse_obj(y_doc):
             g_keys = y_doc[k].keys()
             for g in g_keys:
                 build_glyph_program(g, y_doc[k][g], xgf_doc)
-    # print(etree.tostring(xgf_doc))
-    # print("Result ot parse: ")
-    # print(xgf_doc)
     return xgf_doc
