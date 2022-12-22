@@ -589,7 +589,7 @@ def compile_one(font, yaml, gname):
         stuff--cvt, cvar, prep, fpgm, maxp). This can then be used to display
         a preview of the glyph.
     """
-    xgffile = ygridfit_parse_obj(yaml)
+    xgffile = ygridfit_parse_obj(yaml, single_glyph=gname)
     ns = {"xgf": "http://xgridfit.sourceforge.net/Xgridfit2",
           "xi": "http://www.w3.org/2001/XInclude",
           "xsl": "http://www.w3.org/1999/XSL/Transform"}

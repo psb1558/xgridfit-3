@@ -56,8 +56,11 @@ def point_key(p):
 
 def is_rounded(source, dflt):
     if 'round' in source:
-        return(source['round'])
-    return(dflt)
+        if type(source['round']) is bool:
+            return(source['round'])
+        else:
+            return True
+    return dflt
 
 def install_refs(ref, parent_el):
     ref_element = etree.SubElement(parent_el, XGF + "reference")
@@ -74,7 +77,11 @@ def install_refs(ref, parent_el):
 def build_dependent_moves(source, parent_el, move_type, refpt = None):
     move_el = etree.SubElement(parent_el, XGF + move_type)
     if is_rounded(source, False):
-        move_el.set("round", "yes")
+        b = source["round"]
+        if type(b) is bool:
+            b = translate_bool(b)
+        move_el.set("round", b)
+        # move_el.set("round", "yes")
     if 'ref' in source:
         install_refs(source['ref'], move_el)
     elif refpt != None:
@@ -121,6 +128,12 @@ def build_point(source, parent_el, refpt = None):
             move_element.set("distance", distance)
         if not is_rounded(source, True):
             move_element.set("round", "no")
+        else:
+            try:
+                if type(source['round']) is str:
+                    move_element.set("round", source['round'])
+            except Exception:
+                pass
         if 'ref' in source:
             install_refs(source['ref'], move_element)
         elif refpt != None:
@@ -261,7 +274,8 @@ def build_glyph_program(nm, source, xgf_doc):
                 set_element.set("name", n)
                 for p in names[n]:
                   build_point_el(set_element, str(p))
-    except KeyError:
+    except KeyError as e:
+        print(e)
         pass
     build_xy_block(nm, source, glyph_element, "x")
     build_xy_block(nm, source, glyph_element, "y")
@@ -396,7 +410,7 @@ def ygridfit_parse(yamlfile):
     y_doc = yaml.safe_load(y_stream)
     return ygridfit_parse_obj(y_doc)
 
-def ygridfit_parse_obj(y_doc):
+def ygridfit_parse_obj(y_doc, single_glyph=None):
     y_keys = y_doc.keys()
 
     xgf_doc = etree.Element(XGF + "xgridfit", nsmap=NSMAP)
@@ -417,7 +431,17 @@ def ygridfit_parse_obj(y_doc):
         elif k == "macros":
             build_macros(y_doc[k], xgf_doc)
         elif k == "glyphs":
-            g_keys = y_doc[k].keys()
+            if not single_glyph:
+                g_keys = y_doc[k].keys()
+            else:
+                g_keys = [single_glyph]
             for g in g_keys:
-                build_glyph_program(g, y_doc[k][g], xgf_doc)
+                try:
+                    build_glyph_program(g, y_doc[k][g], xgf_doc)
+                except KeyError:
+                    build_glyph_program(g, {}, xgf_doc)
+                except Exception as e:
+                    print("Exception in build_glyph_program:")
+                    print(type(e))
+                    print(e)
     return xgf_doc
