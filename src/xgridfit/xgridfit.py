@@ -526,7 +526,8 @@ def compile_all(font, yaml, new_file_name):
     ns = {"xgf": "http://xgridfit.sourceforge.net/Xgridfit2",
           "xi": "http://www.w3.org/2001/XInclude",
           "xsl": "http://www.w3.org/1999/XSL/Transform"}
-    thisFont = ttLib.TTFont(font)
+    # thisFont = ttLib.TTFont(font)
+    thisFont = font
     functionBase = 0     # Offset to account for functions in existing font
     cvtBase      = 0     # Offset to account for CVs in existing font
     storageBase  = 0     # Offset to account for storage in existing font

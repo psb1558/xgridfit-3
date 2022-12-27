@@ -275,7 +275,8 @@ def build_glyph_program(nm, source, xgf_doc):
                 for p in names[n]:
                   build_point_el(set_element, str(p))
     except KeyError as e:
-        print(e)
+        # An Exception here just means there is no "names" block for this glyph.
+        # print(e)
         pass
     build_xy_block(nm, source, glyph_element, "x")
     build_xy_block(nm, source, glyph_element, "y")
