@@ -20,6 +20,7 @@ import argparse
 import array
 import re
 import pkg_resources
+import unicodedata
 
 #      This file is part of xgridfit, version 3.
 #      Licensed under the Apache License, Version 2.0.
@@ -586,15 +587,17 @@ def compile_all(font, yaml, new_file_name):
 
 def compile_one(font, yaml, gname):
     """ A quick and dirty function to support the GUI. It compiles code for a
-        single glyph and generates the font with that code (and supporting
+        single glyph (or a list) and generates the font with that code (and supporting
         stuff--cvt, cvar, prep, fpgm, maxp). This can then be used to display
         a preview of the glyph.
     """
-    xgffile = ygridfit_parse_obj(yaml, single_glyph=gname)
+    if type(gname) is list:
+        xgffile = ygridfit_parse_obj(yaml, glyph_list=gname)
+    else:
+        xgffile = ygridfit_parse_obj(yaml, single_glyph=gname)
     ns = {"xgf": "http://xgridfit.sourceforge.net/Xgridfit2",
           "xi": "http://www.w3.org/2001/XInclude",
           "xsl": "http://www.w3.org/1999/XSL/Transform"}
-    # thisFont = ttLib.TTFont(font)
     thisFont = font
     functionBase = 0     # Offset to account for functions in existing font
     cvtBase      = 0     # Offset to account for CVs in existing font
@@ -604,7 +607,10 @@ def compile_one(font, yaml, gname):
     wipe_font(thisFont)
     xslfile = etree.parse(get_file_path("XSL/xgridfit-ft.xsl"))
     etransform = etree.XSLT(xslfile)
-    glyph_list = [gname]
+    if type(gname) is str:
+        glyph_list = [gname]
+    else:
+        glyph_list = gname
     coordinateIndex = make_coordinate_index(glyph_list, thisFont)
     coordinates_to_points(glyph_list, xgffile, coordinateIndex, ns)
     safe_calls = etransform(xgffile, **{"stack-safe-list": "'yes'"})
@@ -652,9 +658,11 @@ def compile_one(font, yaml, gname):
         options = subset.Options()
         options.layout_features = []
         subsetter = subset.Subsetter(options)
-        subsetter.populate(glyphs=[gname])
+        subsetter.populate(glyphs=glyph_list)
         subsetter.subset(thisFont)
-        glyph_id = thisFont.getGlyphID(gname)
+        glyph_id = {}
+        for g in glyph_list:
+            glyph_id[g] = thisFont.getGlyphID(g)
         thisFont.save(tf, 1)
         tf.seek(0)
     except Exception as e:

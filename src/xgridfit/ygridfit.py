@@ -411,7 +411,7 @@ def ygridfit_parse(yamlfile):
     y_doc = yaml.safe_load(y_stream)
     return ygridfit_parse_obj(y_doc)
 
-def ygridfit_parse_obj(y_doc, single_glyph=None):
+def ygridfit_parse_obj(y_doc, single_glyph=None, glyph_list=None):
     y_keys = y_doc.keys()
 
     xgf_doc = etree.Element(XGF + "xgridfit", nsmap=NSMAP)
@@ -432,8 +432,10 @@ def ygridfit_parse_obj(y_doc, single_glyph=None):
         elif k == "macros":
             build_macros(y_doc[k], xgf_doc)
         elif k == "glyphs":
-            if not single_glyph:
+            if not single_glyph and not glyph_list:
                 g_keys = y_doc[k].keys()
+            elif glyph_list and not single_glyph:
+                g_keys = glyph_list
             else:
                 g_keys = [single_glyph]
             for g in g_keys:
