@@ -655,7 +655,7 @@ def compile_one(font, yaml, gname):
         # New procedure: grab the font, subset it with just the one glyph we're
         # previewing, and write it to a spooled temporary file.
         tf = SpooledTemporaryFile(max_size=1000000, mode='b')
-        options = subset.Options()
+        options = subset.Options(glyph_names=True)
         options.layout_features = []
         subsetter = subset.Subsetter(options)
         subsetter.populate(glyphs=glyph_list)
