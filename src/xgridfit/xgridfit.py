@@ -578,7 +578,8 @@ def compile_all(font, yaml, new_file_name):
         except Exception as e:
             print(e)
             for entry in etransform.error_log:
-                print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
+                if quietcount < 3:
+                    print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
             # sys.exit(1)
             failed_glyph_list.append(g)
     with thisFont as f:
@@ -591,6 +592,8 @@ def compile_one(font, yaml, gname):
         stuff--cvt, cvar, prep, fpgm, maxp). This can then be used to display
         a preview of the glyph.
     """
+    global quietcount
+    quietcount = 3
     if type(gname) is list:
         xgffile = ygridfit_parse_obj(yaml, glyph_list=gname)
     else:
@@ -644,12 +647,15 @@ def compile_one(font, yaml, gname):
             #if initgraphics:
             #    glyph_args['init_graphics'] = "'" + initgraphics + "'"
             g_inst = etransform(xgffile, **glyph_args)
-            g_inst_final = compact_instructions(str(g_inst), safe_calls)
+            # g_inst_final = compact_instructions(str(g_inst), safe_calls)
+            # install_glyph_program(g, thisFont, g_inst_final)
+            g_inst_final = str(g_inst)
             install_glyph_program(g, thisFont, g_inst_final)
         except Exception as e:
             print(e)
             for entry in etransform.error_log:
-                print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
+                if quietcount < 3:
+                    print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
             failed_glyph_list.append(g)
     try:
         # New procedure: grab the font, subset it with just the one glyph we're
@@ -663,6 +669,8 @@ def compile_one(font, yaml, gname):
         glyph_id = {}
         for g in glyph_list:
             glyph_id[g] = thisFont.getGlyphID(g)
+        # temp diagnostic:
+        # thisFont.save("temp_font.ttf", 1)
         thisFont.save(tf, 1)
         tf.seek(0)
     except Exception as e:
@@ -963,11 +971,14 @@ def main():
         except Exception as e:
             print(e)
             for entry in etransform.error_log:
-                print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
-            sys.exit(1)
+                if quietcount < 3:
+                    print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
+            # sys.exit(1)
+            continue
         # Two lines added for (possible) debugging
         for entry in etransform.error_log:
-            print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
+            if quietcount < 3:
+                print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
         if nocompact or g in no_compact_list:
             g_inst_final = str(g_inst)
         else:

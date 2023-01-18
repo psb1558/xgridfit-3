@@ -126,6 +126,10 @@ def build_point(source, parent_el, refpt = None):
             distance = str(source['pos'])
         if distance:
             move_element.set("distance", distance)
+        if 'min' in source:
+            min_dist = source['min']
+            if type(min_dist) is bool:
+                move_element.set("min-distance", translate_bool(min_dist))
         if not is_rounded(source, True):
             move_element.set("round", "no")
         else:
@@ -301,10 +305,7 @@ def build_defaults(source, xgf_doc):
         default_el.set("type", d)
         v = source[d]
         if type(v) is bool:
-            if v:
-                valstring = "yes"
-            else:
-                valstring = "no"
+            valstring = translate_bool(v)
         else:
             valstring = str(v)
         default_el.set("value", valstring)
