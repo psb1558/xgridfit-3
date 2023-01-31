@@ -38,9 +38,9 @@ def build_cvar(source, xgf_doc):
         for r in c["regions"]:
             region_element = etree.SubElement(tuple_element, XGF + "region")
             region_element.set("tag", r["tag"])
-            region_element.set("bot", str(r["bot"]))
-            region_element.set("top", str(r["top"]))
-            region_element.set("peak", str(r["peak"]))
+            # region_element.set("bot", str(r["bot"]))
+            # region_element.set("top", str(r["top"]))
+            region_element.set("peak", str(r["val"]))
         for v in c["vals"]:
             value_element = etree.SubElement(tuple_element, XGF + "cvv")
             value_element.set("name", v["nm"])
