@@ -499,13 +499,14 @@
   <xsl:template match="xgf:region">
     <xsl:text> '</xsl:text>
     <xsl:value-of select="@tag"/>
-    <xsl:text>': (</xsl:text>
+    <xsl:text>': (0, </xsl:text>
+    <!-- <xsl:text>0, </xsl:text>
     <xsl:value-of select="@bot"/>
-    <xsl:text>, </xsl:text>
+    <xsl:text>, </xsl:text> -->
     <xsl:value-of select="@peak"/>
-    <xsl:text>, </xsl:text>
-    <xsl:value-of select="@top"/>
-    <xsl:text>), </xsl:text>
+    <xsl:text>, 0),</xsl:text>
+    <!-- <xsl:value-of select="@top"/>
+    <xsl:text>), </xsl:text> -->
   </xsl:template>
 
   <xsl:template name="get-cvar-coordinates">
