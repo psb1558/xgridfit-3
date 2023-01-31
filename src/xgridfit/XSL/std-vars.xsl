@@ -10,7 +10,7 @@
       Copyright (c) 2006-20 by Peter S. Baker
   -->
 
-  <xsl:variable name="xgf-version" select="'3.2.9'"/>
+  <xsl:variable name="xgf-version" select="'3.2.10'"/>
   <!--
       First in the Storage Area is a block of locations used by legacy
       code (e.g. from ttfautohint). Next come some
