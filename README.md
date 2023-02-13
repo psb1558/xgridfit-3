@@ -15,6 +15,8 @@ Alternatively, download the code from GitHub, change to the project's root direc
 ```
 pip install .
 ```
+Version 3.2.12 changes from fontTools.ufoLib to ufoLib2 for editing UFOs.
+
 Version 3.2.11 adds the ability to save instructions and associated data to a UFO (version 3)
 
 Version 3.2.10 supports "min" (minimum distance) attribute for hints and emits fewer messages when run from ygt.
