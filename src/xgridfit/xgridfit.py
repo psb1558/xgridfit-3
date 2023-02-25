@@ -32,14 +32,14 @@ neutral_instructions = [ 'IUP', 'RDTG', 'ROFF', 'RTDG', 'RTG', 'RTHG', 'RUTG',
 
 # How many numbers popped by each instruction (-1 means a variable number)
 
-pop_instructions = { 'ALIGNPTS': 2, 'ALIGNRP': -1, 'IP': -1, 'MDAP': 1,
-                     'MIAP': 2, 'MIRP': 2, 'MDRP': 1, 'SHP': -1, 'SLOOP': 1,
-                     'SRP0': 1, 'SRP1': 1, 'SRP2': 1, 'CALL': 1, 'SFVTL': 2,
-                     'SPVTL': 2, 'SDPVTL': 2, 'ISECT': 5, 'MSIRP': 2, 'SCFS': 2,
-                     'SCVTCI': 1, 'SFVFS': 2, 'SHC': 1, 'SHZ': 1, 'SMD': 1,
-                     'SPVFS': 2, 'SROUND': 1, 'SSW': 1, 'SSWCI': 1, 'SZP0': 1,
-                     'SZP1': 1, 'SZP2': 1, 'SZPS': 1, 'UTP': 1, 'WCVTF': 2,
-                     'WCVTP': 2, 'WS': 2 }
+pop_instructions = { 'ALIGNPTS': 2, 'ALIGNRP': -1, 'IP': -1,   'MDAP': 1,
+                     'MIAP': 2,     'MIRP': 2,     'MDRP': 1,  'SHP': -1,  'SLOOP': 1,
+                     'SRP0': 1,     'SRP1': 1,     'SRP2': 1,  'CALL': 1,  'SFVTL': 2,
+                     'SPVTL': 2,    'SDPVTL': 2,   'ISECT': 5, 'MSIRP': 2, 'SCFS': 2,
+                     'SCVTCI': 1,   'SFVFS': 2,    'SHC': 1,   'SHZ': 1,   'SMD': 1,
+                     'SPVFS': 2,    'SROUND': 1,   'SSW': 1,   'SSWCI': 1, 'SZP0': 1,
+                     'SZP1': 1,     'SZP2': 1,     'SZPS': 1,  'UTP': 1,   'WCVTF': 2,
+                     'WCVTP': 2,    'WS': 2 }
 
 byte_push_instructions = [ 'PUSHB', 'NPUSHB' ]
 
@@ -619,7 +619,7 @@ def validate(f, syntax, noval):
         schema = etree.RelaxNG(etree.parse(schemapath))
         schema.assertValid(f)
 
-def compile_all(font, yaml, new_file_name):
+def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
     global ufo_mode
     xgffile = ygridfit_parse_obj(yaml)
     ns = {"xgf": "http://xgridfit.sourceforge.net/Xgridfit2",
@@ -713,12 +713,14 @@ def compile_all(font, yaml, new_file_name):
             f.save(new_file_name, 1)
     return failed_glyph_list
 
-def compile_one(font, yaml, gname):
-    """ A quick and dirty function to support the GUI. It compiles code for a
-        single glyph (or a list) and generates the font with that code (and supporting
-        stuff--cvt, cvar, prep, fpgm, maxp). This can then be used to display
-        a preview of the glyph.
+def compile_list(font: ttFont, yaml: dict, gname: str) -> tuple:
     """
+        Compile code either for a single glyph or a list of glyphs. This will
+        generate a hinted font (as a SpooledTemporaryFile) with *only* those glyphs
+        in it. It returns this open file, plus a name:gid dict and a list of
+        glyphs that failed to compile.
+    """
+    # No output to console.
     global quietcount
     quietcount = 3
     if type(gname) is list:
@@ -729,11 +731,6 @@ def compile_one(font, yaml, gname):
           "xi": "http://www.w3.org/2001/XInclude",
           "xsl": "http://www.w3.org/1999/XSL/Transform"}
     thisFont = font
-    functionBase = 0     # Offset to account for functions in existing font
-    cvtBase      = 0     # Offset to account for CVs in existing font
-    storageBase  = 0     # Offset to account for storage in existing font
-    maxStack     = 256   # Our (generous) default stack size
-    twilightBase = 0     # Offset to account for twilight space in existing font
     wipe_font(thisFont)
     xslfile = etree.parse(get_file_path("XSL/xgridfit-ft.xsl"))
     etransform = etree.XSLT(xslfile)
@@ -747,23 +744,23 @@ def compile_one(font, yaml, gname):
     safe_calls = literal_eval(str(safe_calls))
     cvt_list = str(etransform(xgffile, **{"get-cvt-list": "'yes'"}))
     cvt_list = literal_eval("[" + cvt_list + "]")
-    install_cvt(thisFont, cvt_list, cvtBase)
+    install_cvt(thisFont, cvt_list, 0)
     cvar_count = len(xgffile.xpath("/xgf:xgridfit/xgf:cvar", namespaces=ns))
     if cvar_count > 0:
         tuple_store = literal_eval(str(etransform(xgffile, **{"get-cvar": "'yes'"})))
-        install_cvar(thisFont, tuple_store, False, cvtBase)
+        install_cvar(thisFont, tuple_store, False, 0)
     predef_functions = int(xslfile.xpath("/xsl:stylesheet/xsl:variable[@name='predefined-functions']",
                                          namespaces=ns)[0].attrib['select'])
     maxFunction = etransform(xgffile, **{"function-count": "'yes'"})
-    maxFunction = int(maxFunction) + predef_functions + functionBase
+    maxFunction = int(maxFunction) + predef_functions
     thisFont['maxp'].maxSizeOfInstructions = maxInstructions + 50
-    thisFont['maxp'].maxTwilightPoints = twilightBase + 25
-    thisFont['maxp'].maxStorage = storageBase + 64
-    thisFont['maxp'].maxStackElements = maxStack
+    thisFont['maxp'].maxTwilightPoints = 25
+    thisFont['maxp'].maxStorage = 64
+    thisFont['maxp'].maxStackElements = 256
     thisFont['maxp'].maxFunctionDefs = maxFunction
     thisFont['head'].flags |= 0b0000000000001000
     fpgm_code = etransform(xgffile, **{"fpgm-only": "'yes'"})
-    install_functions(thisFont, fpgm_code, functionBase)
+    install_functions(thisFont, fpgm_code, 0)
     prep_code = etransform(xgffile, **{"prep-only": "'yes'"})
     install_prep(thisFont, prep_code, False, True)
     failed_glyph_list = []
