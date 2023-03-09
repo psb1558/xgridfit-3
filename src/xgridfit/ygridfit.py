@@ -31,6 +31,40 @@ def build_cvt(source, xgf_doc):
         else:
             cvt_element.set("value", str(cvt_entry))
 
+def build_cvar_from_masters(source, xgf_doc):
+    # First survey cvt, gathering all var entries in a dict:
+    # {master-id: {cv-id: val}}
+    # Then iterate through the masters, plugging in the variant
+    # CVs. Should end in exactly the same place as with
+    # build_cvar.
+    cvt_source = source["cvt"]
+    masters_source = source["masters"]
+    cvar_list = []
+    k = masters_source.keys()
+    # kk is an id that identifies a master internally. It associates variant
+    # CVs with their masters.
+    for kk in k:
+        new_cvar_entry = {"regions": [], "vals": []}
+        vars = masters_source[kk]["vars"]
+        tag_k = vars.keys()
+        for tag_kk in tag_k:
+            new_cvar_entry["regions"].append({"tag": tag_kk, "val": vars[tag_kk]})
+        # Search the cvt for variant CVs with kk as the "nm" key.
+        # This could be way more efficient. Make a dict before embarking on this loop?
+        cv_list = new_cvar_entry["vals"]
+        cvt_k = cvt_source.keys()
+        for cvt_kk in cvt_k:
+            cvt_entry = cvt_source[cvt_kk]
+            if "var" in cvt_entry:
+                var = cvt_entry["var"]
+                tags = var.keys()
+                for tags_k in tags:
+                    if tags_k == kk:
+                        cv_list.append({"nm": cvt_kk, "val": var[tags_k]})
+        if len(cv_list) > 0:
+            cvar_list.append(new_cvar_entry)
+    build_cvar(cvar_list, xgf_doc)
+
 def build_cvar(source, xgf_doc):
     cvar_element = etree.SubElement(xgf_doc, XGF + "cvar")
     for c in source:
@@ -426,8 +460,16 @@ def ygridfit_parse_obj(y_doc, single_glyph=None, glyph_list=None):
             build_cvt_settings(y_doc[k], y_doc["cvt"], xgf_doc)
         elif k == "cvt":
             build_cvt(y_doc[k], xgf_doc)
+        elif k == "masters":
+            try:
+                build_cvar_from_masters(y_doc, xgf_doc)
+            except Exception as e:
+                # pass
+                print("Not yet caught:")
+                print(e)
         elif k == "cvar":
-            build_cvar(y_doc[k], xgf_doc)
+            if not "masters" in y_doc:
+                build_cvar(y_doc[k], xgf_doc)
         elif k == "functions":
             build_functions(y_doc[k], xgf_doc)
         elif k == "macros":
