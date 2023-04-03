@@ -7,7 +7,7 @@ Xgridfit is an language for hinting TrueType fonts. It is an XML-based language,
 
 Documentation of the XML-based language (both full and compact syntax), is available at the [GitHub development site](https://github.com/psb1558/xgridfit-3).
 
-There is no release for the current version (3.2.10) at GitHub. Instead, install by downloading from PyPi:
+There is no release for the current version (3.2.15) at GitHub. Instead, install by downloading from PyPi:
 ```
 pip install xgridfit
 ```
@@ -15,6 +15,10 @@ Alternatively, download the code from GitHub, change to the project's root direc
 ```
 pip install .
 ```
+Version 3.2.16 adds support for deltas in the YAML notation.
+
+Version 3.2.15 fixes a bug that made a muddle of the cvar table, and removes an obnoxious message.
+
 Version 3.2.14 is revised to accommmodate the new organization of cvar data in ygt.
 
 Version 3.2.13 has small changes to maintain compatibility with ygt
