@@ -8,7 +8,45 @@ XGF_NAMESPACE = "http://xgridfit.sourceforge.net/Xgridfit2"
 XGF = "{%s}" % XGF_NAMESPACE
 NSMAP = {None: XGF_NAMESPACE}
 
-MOVETYPES = ["move", "whitespace", "blackspace", "stem", "grayspace"]
+MOVETYPES = ["move", "whitedist", "blackdist", "stem", "graydist"]
+
+DELTA_TRANSLATE = {
+    4.0:    "8/2",
+    3.5:    "7/2",
+    3.0:    "6/2",
+    2.5:    "5/2",
+    2.0:    "4/2",
+    1.5:    "3/2",
+    1.0:    "8/8",
+    0.875:  "7/8",
+    0.75:   "6/8",
+    0.625:  "5/8",
+    0.5:    "4/8",
+    0.375:  "3/8",
+    0.25:   "2/8",
+    0.125:  "1/8",
+    -0.125: "-1/8",
+    -0.25:  "-2/8",
+    -0.375: "-3/8",
+    -0.5:   "-4/8",
+    -0.625: "-5/8",
+    -0.75:  "-6/8",
+    -0.875: "-7/8",
+    -1.0:   "-8/8",
+    -1.5:   "-3/2",
+    -2.0:   "-4.2",
+    -2.5:   "-5/2",
+    -3.0:   "-6/2",
+    -3.5:   "-7/2",
+    -4.0:   "-8/2",
+}
+
+def closest_cv_delta(val):
+    if val:
+        l = list(DELTA_TRANSLATE.keys())
+        return l[min(range(len(l)), key = lambda i: abs(l[i] - val))]
+    return 
+
 
 # logging.basicConfig(filename='ygridfit.log', encoding='utf-8', level=logging.DEBUG)
 
@@ -45,7 +83,7 @@ def build_cvar_from_masters(source, xgf_doc):
     # CVs with their masters.
     for kk in k:
         new_cvar_entry = {"regions": [], "vals": []}
-        vars = masters_source[kk]["vars"]
+        vars = masters_source[kk]["vals"]
         tag_k = vars.keys()
         for tag_kk in tag_k:
             new_cvar_entry["regions"].append({"tag": tag_kk, "val": vars[tag_kk]})
@@ -81,7 +119,7 @@ def build_cvar(source, xgf_doc):
             value_element.set("value", str(v["val"]))
 
 def point_key(p):
-    lk = {"align": 0, "interpolate": 1, "shift": 2, "stem": 3, "whitespace": 3, "blackspace": 3, "grayspace": 3, "move": 3}
+    lk = {"align": 0, "interpolate": 1, "shift": 2, "stem": 3, "whitedist": 3, "blackdist": 3, "graydist": 3, "move": 3}
     try:
         k = lk[p['rel']]
     except (ValueError, KeyError):
@@ -147,9 +185,9 @@ def build_point(source, parent_el, refpt = None):
         if "col" in source:
             color = source['col']
         else:
-            if move_type == "whitespace":
+            if move_type == "whitedist":
                 color = "white"
-            elif move_type == "stem" or move_type == "blackspace":
+            elif move_type == "stem" or move_type == "blackdist":
                 color = "black"
         if color:
             move_element.set("color", color)
@@ -278,8 +316,9 @@ def build_xy_block(nm, source, glyph_element, axis):
                 else:
                     build_point(p, glyph_element)
     except KeyError:
-        if axis == "y":
-            print("Warning: no y points in glyph " + nm)
+        pass
+        #if axis == "y":
+        #    print("Warning: no y points in glyph " + nm)
 
 def build_glyph_program(nm, source, xgf_doc):
     glyph_element = etree.SubElement(xgf_doc, XGF + "glyph")
@@ -351,10 +390,69 @@ def build_cvt_settings(source, cvt_source, xgf_doc):
         newxml = etree.XML(newcode)
         for n in newxml:
             prep_el.append(n)
-    size_blocks = {}
     k = cvt_source.keys()
+    # Round the CVs for which rounding has been requested.
     for kk in k:
         cvt_entry = cvt_source[kk]
+        if "round" in cvt_entry and cvt_entry["round"]:
+            round_el = etree.SubElement(prep_el, XGF + "round")
+            round_el.set("value", kk)
+    # Next the deltas. First sort first into blocks by "delta-shift" value.
+    shift_blocks = {}
+    for kk in k:
+        cvt_entry = cvt_source[kk]
+        if "deltas" in cvt_entry:
+            delta_list = cvt_entry["deltas"]
+            # Rem each entry in the delta_list has a size and a distance. The
+            # distance encapsulates two values: dist and shift.
+            for d in delta_list:
+                val = d["distance"]
+                dist = 0.0
+                sh =   8
+                if type(val) is str and "/" in val:
+                    r = val.split("/", 1)
+                    try:
+                        dist = int(r[0])
+                        sh   = int(r[1])
+                    except Exception:
+                        pass
+                else:
+                    try:
+                        val = DELTA_TRANSLATE[closest_cv_delta(float(val))]
+                        r = val.split("/", 1)
+                        dist = int(r[0])
+                        sh   = int(r[1])
+                    except Exception as e:
+                        pass
+                if dist != 0 and dist >= -8 and dist <= 8:
+                    if not sh in shift_blocks:
+                        shift_blocks[sh] = []
+                    shift_blocks[sh].append({"name": kk, "size": d["size"], "distance": dist})
+    if len(shift_blocks) > 0:
+        s = shift_blocks.keys()
+        for ss in s:
+            dshift = etree.SubElement(prep_el, XGF + "set-delta-shift")
+            dshift.set("units-per-pixel", str(ss))
+            cv_delta = etree.SubElement(prep_el, XGF + "control-value-delta")
+            dblock = shift_blocks[ss]
+            for dd in dblock:
+                try:
+                    dset_el = etree.SubElement(cv_delta, XGF + "delta-set")
+                    dset_el.set("cv", dd["name"])
+                    # Subtract the delta base. This can't be changed in ygt.
+                    dset_el.set("size", str(int(dd["size"]) - 9))
+                    dset_el.set("distance", str(int(dd["distance"])))
+                except Exception as e:
+                    pass
+        dshift = etree.SubElement(prep_el, XGF + "set-delta-shift")
+        dshift.set("units-per-pixel", str(8))
+    # Now the "same as" entries. First sort into blocks by size, then go through
+    # each block, creating "set-control-value" commands.
+    size_blocks = {}
+    for kk in k:
+        cvt_entry = cvt_source[kk]
+        # Surveying "same as" properties in CV list. First sort into blocks
+        # by size.
         if "same-as" in cvt_entry:
             sa = cvt_entry["same-as"]
             if "below" in sa:
@@ -464,9 +562,7 @@ def ygridfit_parse_obj(y_doc, single_glyph=None, glyph_list=None):
             try:
                 build_cvar_from_masters(y_doc, xgf_doc)
             except Exception as e:
-                # pass
-                print("Not yet caught:")
-                print(e)
+                pass
         elif k == "cvar":
             if not "masters" in y_doc:
                 build_cvar(y_doc[k], xgf_doc)
