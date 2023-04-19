@@ -2,6 +2,8 @@ from fontTools import ttLib
 from fontTools import subset
 from fontTools.ttLib import ttFont, tables, newTable, TTFont
 from fontTools.ttLib.tables.TupleVariation import TupleVariation
+from fontTools.ufoLib.filenames import userNameToFileName
+from fontTools.pens.hashPointPen import HashPointPen
 import ufoLib2.objects as ufol
 from lxml import etree
 from ast import literal_eval
@@ -13,7 +15,8 @@ try:
     from .ygridfit import ygridfit_parse, ygridfit_parse_obj
 except ImportError:
     from ygridfit import ygridfit_parse, ygridfit_parse_obj
-from tempfile import mkstemp, NamedTemporaryFile, SpooledTemporaryFile
+from .xgfUFOWriter import xgfUFOWriter
+from tempfile import SpooledTemporaryFile
 import sys
 import os
 import argparse
@@ -97,7 +100,7 @@ def install_glyph_program(nm, fo, asm):
         print("name is correct and that it exists in the font.")
         sys.exit(1)
 
-def install_glyph_program_ufo(ufo, nm, asm):
+def install_glyph_program_ufo(uw, gnm, asm, hash):
     try:
         global maxInstructions
         p = tables.ttProgram.Program()
@@ -105,11 +108,12 @@ def install_glyph_program_ufo(ufo, nm, asm):
         b = len(p.getBytecode())
         if b > maxInstructions:
             maxInstructions = b
-        glyph = ufo[nm]
-        if not "public.truetype.instructions" in glyph.lib:
-            glyph.lib["public.truetype.instructions"] = {}
-        glyph.lib["public.truetype.instructions"]["formatVersion"] = "1"
-        glyph.lib["public.truetype.instructions"]["assembly"] = str(asm)
+        uw.install_glyph_program(gnm, hash, asm)
+        #glyph = ufo[nm]
+        #if not "public.truetype.instructions" in glyph.lib:
+        #    glyph.lib["public.truetype.instructions"] = {}
+        #glyph.lib["public.truetype.instructions"]["formatVersion"] = "1"
+        #glyph.lib["public.truetype.instructions"]["assembly"] = str(asm)
     except Exception as e:
         print("error in install_glyph_program_ufo:")
         print(e.args)
@@ -220,25 +224,26 @@ def install_cvt(fo, cvs, base):
         fo['cvt '] = ttFont.newTable('cvt ')
         setattr(fo['cvt '],'values',array.array('h', cvs))
 
-def install_cvt_ufo(ufo, cvs, base):
-    cvt_dict = {}
-    if base > 0:
-        cvt_index = base
-        try:
-            old_cvt_dict = ufo.lib["public.truetype.instructions"]["controlValue"]
-        except Exception:
-            old_cvt_dict = {}
-    else:
-        cvt_index = 0
-    for c in cvs:
-        cvt_dict[str(cvt_index)] = c
-        cvt_index += 1
-    if base > 0:
-        cvt_dict.update(old_cvt_dict)
-    if not "public.truetype.instructions" in ufo.lib:
-        ufo.lib["public.truetype.instructions"] = {}
-    ufo.lib["public.truetype.instructions"]["formatVersion"] = "1"
-    ufo.lib["public.truetype.instructions"]["controlValue"] = cvt_dict
+def install_cvt_ufo(uw, ufo_lib_tree, cvs, base):
+    #cvt_dict = {}
+    #if base > 0:
+    #    cvt_index = base
+    #    try:
+    #        old_cvt_dict = ufo.lib["public.truetype.instructions"]["controlValue"]
+    #    except Exception:
+    #        old_cvt_dict = {}
+    #else:
+    #    cvt_index = 0
+    #for c in cvs:
+    #    cvt_dict[str(cvt_index)] = c
+    #    cvt_index += 1
+    #if base > 0:
+    #    cvt_dict.update(old_cvt_dict)
+    uw.install_cvt(ufo_lib_tree, cvs)
+    #if base == 0 or not "public.truetype.instructions" in ufo.lib:
+    #    ufo.lib["public.truetype.instructions"] = {}
+    #ufo.lib["public.truetype.instructions"]["formatVersion"] = "1"
+    #ufo.lib["public.truetype.instructions"]["controlValue"] = cvt_dict
 
 def install_functions(fo, fns, base):
     """If base greater than zero, we append our own functions to those already
@@ -253,21 +258,22 @@ def install_functions(fo, fns, base):
         fo['fpgm'].program = tables.ttProgram.Program()
         fo['fpgm'].program.fromAssembly(str(fns))
 
-def install_functions_ufo(ufo, fns, base):
-    oldfpgm = ""
-    if base > 0:
-        try:
-            oldfpgm = "\n".join(ufo.lib["public.truetype.instructions"]["fontProgram"])
-        except Exception as e:
-            print("error in install_functions_ufo:")
-            print(e.args)
-            print(e)
-            pass
-    newfpgm = oldfpgm + str(fns)
-    if not "public.truetype.instructions" in ufo.lib:
-        ufo.lib["public.truetype.instructions"] = {}
-    ufo.lib["public.truetype.instructions"]["formatVersion"] = "1"
-    ufo.lib["public.truetype.instructions"]["fontProgram"] = newfpgm
+def install_functions_ufo(uw, ufo_lib_tree, fns, base):
+    #oldfpgm = ""
+    #if base > 0:
+    #    try:
+    #        oldfpgm = "\n".join(ufo.lib["public.truetype.instructions"]["fontProgram"])
+    #    except Exception as e:
+    #        print("error in install_functions_ufo:")
+    #        print(e.args)
+    #        print(e)
+    #        pass
+    #newfpgm = oldfpgm + str(fns)
+    uw.install_lib_item(ufo_lib_tree, "fontProgram", fns)
+    #if not "public.truetype.instructions" in ufo.lib:
+    #    ufo.lib["public.truetype.instructions"] = {}
+    #ufo.lib["public.truetype.instructions"]["formatVersion"] = "1"
+    #ufo.lib["public.truetype.instructions"]["fontProgram"] = newfpgm
 
 
 def install_prep(fo, pr, keepold, replace):
@@ -285,23 +291,24 @@ def install_prep(fo, pr, keepold, replace):
         fo['prep'].program = tables.ttProgram.Program()
         fo['prep'].program.fromAssembly(str(pr))
 
-def install_prep_ufo(ufo, pr, keepold, replace):
-    oldprep = ""
-    if keepold and not replace:
-        try:
-            oldprep = "\n".join(ufo.lib["public.truetype.instructions"]["controlValueProgram"])
-        except Exception as e:
-            print("error in install_prep_ufo:")
-            print(e.args)
-            print(e)
-            # pass
-    newprep = oldprep + str(pr)
-    if not "public.truetype.instructions" in ufo.lib:
-        ufo.lib["public.truetype.instructions"] = {}
-    ufo.lib["public.truetype.instructions"]["formatVersion"] = "1"
-    ufo.lib["public.truetype.instructions"]["controlValueProgram"] = newprep
+def install_prep_ufo(uw, ufo_lib_tree, pr, keepold, replace):
+    #oldprep = ""
+    #if keepold and not replace:
+    #    try:
+    #        oldprep = "\n".join(ufo.lib["public.truetype.instructions"]["controlValueProgram"])
+    #    except Exception as e:
+    #        print("error in install_prep_ufo:")
+    #        print(e.args)
+    #        print(e)
+    #        # pass
+    #newprep = oldprep + str(pr)
+    uw.install_lib_item(ufo_lib_tree, "controlValueProgram", pr)
+    #if not "public.truetype.instructions" in ufo.lib:
+    #    ufo.lib["public.truetype.instructions"] = {}
+    #ufo.lib["public.truetype.instructions"]["formatVersion"] = "1"
+    #ufo.lib["public.truetype.instructions"]["controlValueProgram"] = newprep
 
-def install_properties_ufo(ufo, d):
+def install_properties_ufo(uw, ufo_lib_tree, d):
     # keys can be:
     # maxFunctionDefs: int
     # maxInstructionDefs: int
@@ -310,12 +317,13 @@ def install_properties_ufo(ufo, d):
     # maxSizeOfInstructions: int
     # maxTwilightPoints: int
     # maxZones: int
-    if not "public.truetype.instructions" in ufo.lib:
-        ufo.lib["public.truetype.instructions"] = {}
-    ufo.lib["public.truetype.instructions"]["formatVersion"] = "1"
+    #if not "public.truetype.instructions" in ufo.lib:
+    #    ufo.lib["public.truetype.instructions"] = {}
+    #ufo.lib["public.truetype.instructions"]["formatVersion"] = "1"
     k = d.keys()
     for kk in k:
-        ufo.lib["public.truetype.instructions"][kk] = d[kk]
+        uw.install_lib_item(ufo_lib_tree, kk, d[kk])
+        # ufo.lib["public.truetype.instructions"][kk] = d[kk]
     
 
 # Compare two dictionaries. It would be easier to do an equality test, but
@@ -563,7 +571,6 @@ def coordinates_to_points(glist, xgffile, coordinateIndex, ns):
         wparams = xgffile.xpath((gPathString + "/descendant::xgf:with-param").format(gnm=gn), namespaces=ns)
         for p in wparams:
             try:
-                # print(gn + ": converting " + p.attrib['value'])
                 p.attrib['value'] = rewrite_point_string(p.attrib['value'],
                                                          coordinateIndex,
                                                          coord_pattern,
@@ -628,9 +635,6 @@ def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
     split_fn = os.path.splitext(new_file_name)
     extension = split_fn[1]
     ufo_mode = (extension == ".ufo")
-    ufo = None
-    if ufo_mode:
-        ufo = ufol.Font.open(new_file_name)
     thisFont = font
     functionBase = 0     # Offset to account for functions in existing font
     cvtBase      = 0     # Offset to account for CVs in existing font
@@ -648,8 +652,14 @@ def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
     safe_calls = literal_eval(str(safe_calls))
     cvt_list = str(etransform(xgffile, **{"get-cvt-list": "'yes'"}))
     cvt_list = literal_eval("[" + cvt_list + "]")
+    uw = None
     if ufo_mode:
-        install_cvt_ufo(ufo, cvt_list, cvtBase)
+        uw = xgfUFOWriter(new_file_name)
+    ufo_lib_tree = None
+    if ufo_mode:
+        ufo_lib_tree = uw.open_lib()
+        uw.install_cvt(ufo_lib_tree, cvt_list)
+        # install_cvt_ufo(uw, ufo_lib_tree, cvt_list, cvtBase)
     else:
         install_cvt(thisFont, cvt_list, cvtBase)
     cvar_count = len(xgffile.xpath("/xgf:xgridfit/xgf:cvar", namespaces=ns))
@@ -660,28 +670,28 @@ def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
                                          namespaces=ns)[0].attrib['select'])
     maxFunction = etransform(xgffile, **{"function-count": "'yes'"})
     maxFunction = int(maxFunction) + predef_functions + functionBase
-    if ufo_mode:
-        d = {"maxSizeOfInstructions": maxInstructions + 50,
-             "maxTwilightPoints": twilightBase + 25,
-             "maxStorage": 64,
-             "maxStackElements": maxStack,
-             "maxFunctionDefs": maxFunction}
-        install_properties_ufo(ufo, d)
-    else:
-        thisFont['maxp'].maxSizeOfInstructions = maxInstructions + 50
-        thisFont['maxp'].maxTwilightPoints = twilightBase + 25
-        thisFont['maxp'].maxStorage = storageBase + 64
-        thisFont['maxp'].maxStackElements = maxStack
-        thisFont['maxp'].maxFunctionDefs = maxFunction
-        thisFont['head'].flags |= 0b0000000000001000
+    #if ufo_mode:
+    #    d = {"maxSizeOfInstructions": maxInstructions + 50,
+    #         "maxTwilightPoints": twilightBase + 25,
+    #         "maxStorage": 64,
+    #         "maxStackElements": maxStack,
+    #         "maxFunctionDefs": maxFunction}
+    #    install_properties_ufo(uw, ufo_lib_tree, d)
+    #else:
+    #    thisFont['maxp'].maxSizeOfInstructions = maxInstructions + 50
+    #    thisFont['maxp'].maxTwilightPoints = twilightBase + 25
+    #    thisFont['maxp'].maxStorage = storageBase + 64
+    #    thisFont['maxp'].maxStackElements = maxStack
+    #    thisFont['maxp'].maxFunctionDefs = maxFunction
+    #    thisFont['head'].flags |= 0b0000000000001000
     fpgm_code = etransform(xgffile, **{"fpgm-only": "'yes'"})
     if ufo_mode:
-        install_functions_ufo(ufo, fpgm_code, functionBase)
+        install_functions_ufo(uw, ufo_lib_tree, fpgm_code, functionBase)
     else:
         install_functions(thisFont, fpgm_code, functionBase)
     prep_code = etransform(xgffile, **{"prep-only": "'yes'"})
     if ufo_mode:
-        install_prep_ufo(ufo, prep_code, False, True)
+        install_prep_ufo(uw, ufo_lib_tree, prep_code, False, True)
     else:
         install_prep(thisFont, prep_code, False, True)
     failed_glyph_list = []
@@ -694,7 +704,11 @@ def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
             g_inst = etransform(xgffile, **glyph_args)
             g_inst_final = compact_instructions(str(g_inst), safe_calls)
             if ufo_mode:
-                install_glyph_program_ufo(ufo, g, g_inst_final)
+                ttglyph = thisFont['glyf'][g]
+                ttwidth = thisFont["hmtx"][g][0]
+                hash_pen = HashPointPen(ttwidth, thisFont.getGlyphSet())
+                ttglyph.drawPoints(hash_pen, thisFont["glyf"])
+                install_glyph_program_ufo(uw, g, g_inst_final, hash_pen.hash)
             else:
                 install_glyph_program(g, thisFont, g_inst_final)
         except Exception as e:
@@ -707,8 +721,20 @@ def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
             # sys.exit(1)
             failed_glyph_list.append(g)
     if ufo_mode:
-        ufo.save()
+        d = {"maxSizeOfInstructions": maxInstructions + 50,
+             "maxTwilightPoints": twilightBase + 25,
+             "maxStorage": 64,
+             "maxStackElements": maxStack,
+             "maxFunctionDefs": maxFunction}
+        install_properties_ufo(uw, ufo_lib_tree, d)
+        uw.save_lib(ufo_lib_tree)
     else:
+        thisFont['maxp'].maxSizeOfInstructions = maxInstructions + 50
+        thisFont['maxp'].maxTwilightPoints = twilightBase + 25
+        thisFont['maxp'].maxStorage = storageBase + 64
+        thisFont['maxp'].maxStackElements = maxStack
+        thisFont['maxp'].maxFunctionDefs = maxFunction
+        thisFont['head'].flags |= 0b0000000000001000
         with thisFont as f:
             f.save(new_file_name, 1)
     return failed_glyph_list
