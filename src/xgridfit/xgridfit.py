@@ -4,7 +4,7 @@ from fontTools.ttLib import ttFont, tables, newTable, TTFont
 from fontTools.ttLib.tables.TupleVariation import TupleVariation
 from fontTools.ufoLib.filenames import userNameToFileName
 from fontTools.pens.hashPointPen import HashPointPen
-import ufoLib2.objects as ufol
+# import ufoLib2.objects as ufol
 from lxml import etree
 from ast import literal_eval
 try:
