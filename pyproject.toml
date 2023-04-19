@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "xgridfit"
-version = "3.2.16"
+version = "3.2.17"
 authors = [
     { name="Peter S. Baker", email="b.tarde@mail.com" },
 ]
