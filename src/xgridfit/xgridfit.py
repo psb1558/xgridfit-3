@@ -445,20 +445,29 @@ def make_coordinate_index(glist, fo):
      glyph list, the font object. 
     """
     coordinateIndex = {}
+    bad_glyphs = []
     for gn in glist:
-        currentGlyph = fo['glyf'][gn]
-        if not currentGlyph.isComposite():
-            c = currentGlyph.getCoordinates(fo['glyf'])
-            pointIndex = 0
-            for point in zip(c[0], c[2]):
-                if point[1] & 0x01 == 0x01:
-                    pp = gn + "@" + str(point[0]).replace('(','').replace(')','').replace(',','x').replace(' ','')
-                    coordinateIndex[pp] = pointIndex
-                pointIndex += 1
-    return coordinateIndex
+        try:
+            currentGlyph = fo['glyf'][gn]
+            if not currentGlyph.isComposite():
+                c = currentGlyph.getCoordinates(fo['glyf'])
+                pointIndex = 0
+                for point in zip(c[0], c[2]):
+                    if point[1] & 0x01 == 0x01:
+                        pp = gn + "@" + str(point[0]).replace('(','').replace(')','').replace(',','x').replace(' ','')
+                        coordinateIndex[pp] = pointIndex
+                    pointIndex += 1
+        except Exception as e:
+            print("Error in glyph " + str(gn))
+            print("Removing it from glyphs list")
+            bad_glyphs.append(gn)
+    if len(bad_glyphs) > 0:
+        for gn in bad_glyphs:
+            glist.remove(gn)
+    return coordinateIndex, bad_glyphs
 
 def make_reverse_coordinate_index(glist, fo):
-    idx = make_coordinate_index(glist, fo)
+    idx, bad = make_coordinate_index(glist, fo)[0]
     return {val: key for key, val in idx.items()}
 
 def rewrite_point_string(original_point_string, coordinateIndex, coord_pattern, glyph_name,
@@ -494,11 +503,13 @@ def rewrite_point_string(original_point_string, coordinateIndex, coord_pattern, 
             except TypeError:
                 if crash:
                     print("In glyph " + glyph_name + ", can't resolve coordinates " + matched_string)
-                    sys.exit(1)
+                    # sys.exit(1)
+                    return original_point_string, False
                 else:
                     if quietcount < 2:
                         print("Can't resolve coordinate " + original_point_string + "; falling back to value")
-                    raise Exception("Can't resolve coordinate")
+                    # raise Exception("Can't resolve coordinate")
+                    return original_point_string, False
 
         # Reassemble the expression.
         string_counter = 0
@@ -509,9 +520,9 @@ def rewrite_point_string(original_point_string, coordinateIndex, coord_pattern, 
             else:
                 substitute_string = substitute_string + string_bit
             string_counter += 1
-        return substitute_string
+        return substitute_string, True
     else:
-        return original_point_string
+        return original_point_string, True
 
 def coordinateFuzzyMatch(coordID, coordinateIndex):
     # This is an extremely inefficient search, executed only if no match found
@@ -548,9 +559,11 @@ def coordinates_to_points(glist, xgffile, coordinateIndex, ns):
     """ glyph list, xgf program, coordinate index, namespaces.
         surveys all the glyph programs in the file and changes coordinate
         pairs (e.g. {125;-3}) to point numbers. """
+    bad_glyphs = []
     coord_pattern = re.compile(r'(\{[0-9\-]{1,4};[0-9\-]{1,4}\})')
     gPathString = "/xgf:xgridfit/xgf:glyph[@ps-name='{gnm}']"
     for gn in glist:
+        good_val = True
         try:
             xoffset = xgffile.xpath(gPathString.format(gnm=gn), namespaces=ns)[0].attrib['xoffset']
         except (KeyError, IndexError):
@@ -562,57 +575,63 @@ def coordinates_to_points(glist, xgffile, coordinateIndex, ns):
 
         points = xgffile.xpath((gPathString + "/descendant::xgf:point").format(gnm=gn), namespaces=ns)
         for p in points:
-            p.attrib['num'] = rewrite_point_string(p.attrib['num'],
-                                                   coordinateIndex,
-                                                   coord_pattern,
-                                                   gn,
-                                                   xoffset,
-                                                   yoffset)
+            p.attrib['num'], good_val = rewrite_point_string(p.attrib['num'],
+                                                             coordinateIndex,
+                                                             coord_pattern,
+                                                             gn,
+                                                             xoffset,
+                                                             yoffset)
         wparams = xgffile.xpath((gPathString + "/descendant::xgf:with-param").format(gnm=gn), namespaces=ns)
         for p in wparams:
             try:
-                p.attrib['value'] = rewrite_point_string(p.attrib['value'],
-                                                         coordinateIndex,
-                                                         coord_pattern,
-                                                         gn,
-                                                         xoffset,
-                                                         yoffset)
+                p.attrib['value'], good_val = rewrite_point_string(p.attrib['value'],
+                                                                   coordinateIndex,
+                                                                   coord_pattern,
+                                                                   gn,
+                                                                   xoffset,
+                                                                   yoffset)
             except:
                 pass
 
         params = xgffile.xpath((gPathString + "/descendant::xgf:param").format(gnm=gn), namespaces=ns)
         for p in params:
-            p.attrib['value'] = rewrite_point_string(p.attrib['value'],
-                                                     coordinateIndex,
-                                                     coord_pattern,
-                                                     gn,
-                                                     xoffset,
-                                                     yoffset)
+            p.attrib['value'], good_val = rewrite_point_string(p.attrib['value'],
+                                                               coordinateIndex,
+                                                               coord_pattern,
+                                                               gn,
+                                                               xoffset,
+                                                               yoffset)
 
         constants = xgffile.xpath((gPathString + "/descendant::xgf:constant").format(gnm=gn), namespaces=ns)
         for c in constants:
             orig_value = c.attrib['value']
             try:
                 orig_coord = c.attrib['coordinate']
-                point_num = rewrite_point_string(orig_coord,
-                                                 coordinateIndex,
-                                                 coord_pattern,
-                                                 gn,
-                                                 xoffset,
-                                                 yoffset,
-                                                 False)
+                point_num, good_val = rewrite_point_string(orig_coord,
+                                                           coordinateIndex,
+                                                           coord_pattern,
+                                                           gn,
+                                                           xoffset,
+                                                           yoffset,
+                                                           False)
                 if str(point_num) != orig_value:
                     if quietcount < 2:
                         print("Warning: In glyph '" + gn + "', changing value " + orig_value + " to " +
                               str(point_num) + " after coordinate " + orig_coord)
                     c.attrib['value'] = str(point_num)
             except:
-                c.attrib['value'] = rewrite_point_string(orig_value,
-                                                         coordinateIndex,
-                                                         coord_pattern,
-                                                         gn,
-                                                         xoffset,
-                                                         yoffset)
+                c.attrib['value'], good_val = rewrite_point_string(orig_value,
+                                                                   coordinateIndex,
+                                                                   coord_pattern,
+                                                                   gn,
+                                                                   xoffset,
+                                                                   yoffset)
+        if not good_val:
+            bad_glyphs.append(gn)
+    if len(bad_glyphs):
+        for b in bad_glyphs:
+            del glist[b]
+    return bad_glyphs
 
 def validate(f, syntax, noval):
     if noval and quietcount < 1:
@@ -628,6 +647,7 @@ def validate(f, syntax, noval):
 
 def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
     global ufo_mode
+    failed_glyph_list = []
     xgffile = ygridfit_parse_obj(yaml)
     ns = {"xgf": "http://xgridfit.sourceforge.net/Xgridfit2",
           "xi": "http://www.w3.org/2001/XInclude",
@@ -646,8 +666,12 @@ def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
     etransform = etree.XSLT(xslfile)
     glyph_list = str(etransform(xgffile, **{"get-glyph-list": "'yes'"}))
     glyph_list = list(glyph_list.split(" "))
-    coordinateIndex = make_coordinate_index(glyph_list, thisFont)
-    coordinates_to_points(glyph_list, xgffile, coordinateIndex, ns)
+    coordinateIndex, bad = make_coordinate_index(glyph_list, thisFont)
+    if len(bad) > 0:
+        failed_glyph_list.extend(bad)
+    bad = coordinates_to_points(glyph_list, xgffile, coordinateIndex, ns)
+    if len(bad) > 0:
+        failed_glyph_list.extend(bad)
     safe_calls = etransform(xgffile, **{"stack-safe-list": "'yes'"})
     safe_calls = literal_eval(str(safe_calls))
     cvt_list = str(etransform(xgffile, **{"get-cvt-list": "'yes'"}))
@@ -670,20 +694,6 @@ def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
                                          namespaces=ns)[0].attrib['select'])
     maxFunction = etransform(xgffile, **{"function-count": "'yes'"})
     maxFunction = int(maxFunction) + predef_functions + functionBase
-    #if ufo_mode:
-    #    d = {"maxSizeOfInstructions": maxInstructions + 50,
-    #         "maxTwilightPoints": twilightBase + 25,
-    #         "maxStorage": 64,
-    #         "maxStackElements": maxStack,
-    #         "maxFunctionDefs": maxFunction}
-    #    install_properties_ufo(uw, ufo_lib_tree, d)
-    #else:
-    #    thisFont['maxp'].maxSizeOfInstructions = maxInstructions + 50
-    #    thisFont['maxp'].maxTwilightPoints = twilightBase + 25
-    #    thisFont['maxp'].maxStorage = storageBase + 64
-    #    thisFont['maxp'].maxStackElements = maxStack
-    #    thisFont['maxp'].maxFunctionDefs = maxFunction
-    #    thisFont['head'].flags |= 0b0000000000001000
     fpgm_code = etransform(xgffile, **{"fpgm-only": "'yes'"})
     if ufo_mode:
         install_functions_ufo(uw, ufo_lib_tree, fpgm_code, functionBase)
@@ -694,7 +704,6 @@ def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
         install_prep_ufo(uw, ufo_lib_tree, prep_code, False, True)
     else:
         install_prep(thisFont, prep_code, False, True)
-    failed_glyph_list = []
     for g in glyph_list:
         try:
             gt = "'" + g + "'"
@@ -720,23 +729,28 @@ def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
                     print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
             # sys.exit(1)
             failed_glyph_list.append(g)
-    if ufo_mode:
-        d = {"maxSizeOfInstructions": maxInstructions + 50,
-             "maxTwilightPoints": twilightBase + 25,
-             "maxStorage": 64,
-             "maxStackElements": maxStack,
-             "maxFunctionDefs": maxFunction}
-        install_properties_ufo(uw, ufo_lib_tree, d)
-        uw.save_lib(ufo_lib_tree)
-    else:
-        thisFont['maxp'].maxSizeOfInstructions = maxInstructions + 50
-        thisFont['maxp'].maxTwilightPoints = twilightBase + 25
-        thisFont['maxp'].maxStorage = storageBase + 64
-        thisFont['maxp'].maxStackElements = maxStack
-        thisFont['maxp'].maxFunctionDefs = maxFunction
-        thisFont['head'].flags |= 0b0000000000001000
-        with thisFont as f:
-            f.save(new_file_name, 1)
+    try:
+        if ufo_mode:
+            d = {"maxSizeOfInstructions": maxInstructions + 50,
+                 "maxTwilightPoints": twilightBase + 25,
+                 "maxStorage": 64,
+                 "maxStackElements": maxStack,
+                 "maxFunctionDefs": maxFunction}
+            install_properties_ufo(uw, ufo_lib_tree, d)
+            uw.save_lib(ufo_lib_tree)
+        else:
+            thisFont['maxp'].maxSizeOfInstructions = maxInstructions + 50
+            thisFont['maxp'].maxTwilightPoints = twilightBase + 25
+            thisFont['maxp'].maxStorage = storageBase + 64
+            thisFont['maxp'].maxStackElements = maxStack
+            thisFont['maxp'].maxFunctionDefs = maxFunction
+            thisFont['head'].flags |= 0b0000000000001000
+            with thisFont as f:
+                f.save(new_file_name, 1)
+    except Exception as e:
+        print("Error while installing maxp and head settings:")
+        print(e.args)
+        print(e)
     return failed_glyph_list
 
 def compile_list(font: ttFont, yaml: dict, gname: str) -> tuple:
@@ -747,6 +761,7 @@ def compile_list(font: ttFont, yaml: dict, gname: str) -> tuple:
         glyphs that failed to compile.
     """
     # No output to console.
+    failed_glyph_list = []
     global quietcount
     quietcount = 3
     if type(gname) is list:
@@ -764,8 +779,12 @@ def compile_list(font: ttFont, yaml: dict, gname: str) -> tuple:
         glyph_list = [gname]
     else:
         glyph_list = gname
-    coordinateIndex = make_coordinate_index(glyph_list, thisFont)
-    coordinates_to_points(glyph_list, xgffile, coordinateIndex, ns)
+    coordinateIndex, bad = make_coordinate_index(glyph_list, thisFont)
+    if len(bad):
+        failed_glyph_list.extend(bad)
+    bad = coordinates_to_points(glyph_list, xgffile, coordinateIndex, ns)
+    if len(bad):
+        failed_glyph_list.extend(bad)
     safe_calls = etransform(xgffile, **{"stack-safe-list": "'yes'"})
     safe_calls = literal_eval(str(safe_calls))
     cvt_list = str(etransform(xgffile, **{"get-cvt-list": "'yes'"}))
@@ -789,7 +808,6 @@ def compile_list(font: ttFont, yaml: dict, gname: str) -> tuple:
     install_functions(thisFont, fpgm_code, 0)
     prep_code = etransform(xgffile, **{"prep-only": "'yes'"})
     install_prep(thisFont, prep_code, False, True)
-    failed_glyph_list = []
     for g in glyph_list:
         try:
             gt = "'" + g + "'"
@@ -829,8 +847,6 @@ def compile_list(font: ttFont, yaml: dict, gname: str) -> tuple:
     # Return: a handle to the temp file, the index of the target glyph, a list of
     # glyphs for which complilation failed
     return tf, glyph_id, failed_glyph_list
-
-
 
 
 def main():
@@ -1046,8 +1062,14 @@ def main():
     # Now that we have a glyph list, we can make the coordinate index
     # and substitute point numbers for coordinates.
 
-    coordinateIndex = make_coordinate_index(glyph_list, thisFont)
-    coordinates_to_points(glyph_list, xgffile, coordinateIndex, ns)
+    failed_glyph_list = []
+
+    coordinateIndex, bad = make_coordinate_index(glyph_list, thisFont)
+    if len(bad):
+        failed_glyph_list.extend(bad)
+    bad = coordinates_to_points(glyph_list, xgffile, coordinateIndex, ns)
+    if len(bad):
+        failed_glyph_list.extend(bad)
 
     # Back to the xgf file. We're also going to need a list of stack-safe
     # functions in this font.
@@ -1126,6 +1148,7 @@ def main():
                 if quietcount < 3:
                     print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
             # sys.exit(1)
+            failed_glyph_list.append(g)
             continue
         # Two lines added for (possible) debugging
         for entry in etransform.error_log:
@@ -1152,6 +1175,11 @@ def main():
     if quietcount < 1:
         print("Hinted " + str(len(glyph_list)) + " glyphs.")
         print("Cleaning up and writing the new font")
+    if len(failed_glyph_list):
+        print("There were problems with these glyphs:")
+        for f in failed_glyph_list:
+            print(f, end = " ")
+            print()
     thisFont['maxp'].maxSizeOfInstructions = maxInstructions + 50
     thisFont['maxp'].maxTwilightPoints = twilightBase + 25
     thisFont['maxp'].maxStorage = storageBase + 64
