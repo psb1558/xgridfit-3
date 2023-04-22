@@ -23,6 +23,8 @@ LIB_PLIST_TEMPLATE = """<?xml version='1.0' encoding='UTF-8'?>
   <dict>
     <key>public.truetype.instructions</key>
     <dict>
+      <key>formatVersion</key>
+      <string>1</string>
     </dict>
   </dict>
 </plist>"""
@@ -37,6 +39,16 @@ class xgfUFOWriter:
             self.valid = True
         else:
             self.valid = False
+
+    def add_truetype_key(self, parent) -> list:
+        k = [etree.SubElement(parent, "key")]
+        k.text = "public.truetype.instructions"
+        di = etree.SubElement(parent, "dict")
+        fv_k = etree.subElement(di, "key")
+        fv_k.text = "formatVersion"
+        fv_s = etree.subElement(di, "string")
+        fv_s.text = "1"
+        return [k]
 
     def install_glyph_program(self, glyph: str, hash: str, prog: str) -> None:
         """ Done and tested.
@@ -58,9 +70,7 @@ class xgfUFOWriter:
             d = tree.xpath("/glyph/lib/dict")
             if not len(d):
                 d = [etree.SubElement(l[0], "dict")]
-            k = [etree.SubElement(d[0], "key")]
-            k[0].text = "public.truetype.instructions"
-            di = etree.SubElement(d[0], "dict")
+            k = self.add_truetype_key(d[0])
         di = k[0].getnext()
         if di.tag != "dict":
             print("Error: no dict following key 'public.truetype.instructions'.")
@@ -121,9 +131,10 @@ class xgfUFOWriter:
             return None, None
         k = tree.xpath("/plist/dict/key[text()='public.truetype.instructions']")
         if not len(k):
-            k = [etree.SubElement(pdict, "key")]
-            k[0].text = "public.truetype.instructions"
-            di = etree.SubElement(pdict, "dict")
+            # k = [etree.SubElement(pdict, "key")]
+            # k[0].text = "public.truetype.instructions"
+            # di = etree.SubElement(pdict, "dict")
+            k = self.add_truetype_key(pdict)
         else:
             di = k[0].getnext()
             if di == None:
@@ -173,6 +184,8 @@ class xgfUFOWriter:
     def install_cvt(self, tree, c: list) -> None:
         # k       <key>public.truetype.instructions</key>
         # di        <dict>
+        #             <key>formatVersion</key>
+        #             <string>1</string>
         # di_kid      <key>controlValue</key>
         # val         <dict>
         # i             <key>i</key>
