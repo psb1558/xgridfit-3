@@ -41,12 +41,12 @@ class xgfUFOWriter:
             self.valid = False
 
     def add_truetype_key(self, parent) -> list:
-        k = [etree.SubElement(parent, "key")]
+        k = etree.SubElement(parent, "key")
         k.text = "public.truetype.instructions"
         di = etree.SubElement(parent, "dict")
-        fv_k = etree.subElement(di, "key")
+        fv_k = etree.SubElement(di, "key")
         fv_k.text = "formatVersion"
-        fv_s = etree.subElement(di, "string")
+        fv_s = etree.SubElement(di, "string")
         fv_s.text = "1"
         return [k]
 
@@ -135,6 +135,7 @@ class xgfUFOWriter:
             # k[0].text = "public.truetype.instructions"
             # di = etree.SubElement(pdict, "dict")
             k = self.add_truetype_key(pdict)
+            di = k[0].getnext()
         else:
             di = k[0].getnext()
             if di == None:
