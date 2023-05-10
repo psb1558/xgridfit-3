@@ -1,7 +1,7 @@
 from .xgridfit import (main, get_file_path, wipe_font, install_glyph_program,
                        compact_instructions, install_cvt, install_functions,
                        install_prep, install_cvar, validate, make_coordinate_index,
-                       coordinates_to_points, compile_list, compile_all)
+                       coordinates_to_points, compile_list, run)
 from .ygridfit import ygridfit_parse
 # from .ygModel import ygGlyph, ygPoint
 # from .ygHint import ygHint, ygHintNode

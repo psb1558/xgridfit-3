@@ -41,6 +41,28 @@ DELTA_TRANSLATE = {
     -4.0:   "-8/2",
 }
 
+DEFAULT_TYPES = [
+    "minimum-distance",
+    "control-value-cut-in",
+    "single-width",
+    "single-width-cut-in",
+    "delta-base",
+    "delta-shift",
+    "delta-break",
+    "push-break",
+    "max-twilight-points",
+    "max-storage",
+    "max-stack",
+    "use-truetype-defaults",
+    "cleartype",
+    "round-state",
+    "function-base",
+    "compile-globals",
+    "init-graphics",
+    "color",
+    "assume-always-y",
+]
+
 def closest_cv_delta(val):
     if val:
         l = list(DELTA_TRANSLATE.keys())
@@ -374,14 +396,16 @@ def build_input_output(source, xgf_doc):
 def build_defaults(source, xgf_doc):
     source_keys = source.keys()
     for d in source_keys:
-        default_el = etree.SubElement(xgf_doc, XGF + "default")
-        default_el.set("type", d)
-        v = source[d]
-        if type(v) is bool:
-            valstring = translate_bool(v)
-        else:
-            valstring = str(v)
-        default_el.set("value", valstring)
+        # ignore anything not recognized by Xgridfit (ygt's internal defaults)
+        if d in DEFAULT_TYPES:
+            default_el = etree.SubElement(xgf_doc, XGF + "default")
+            default_el.set("type", d)
+            v = source[d]
+            if type(v) is bool:
+                valstring = translate_bool(v)
+            else:
+                valstring = str(v)
+            default_el.set("value", valstring)
 
 def build_cvt_settings(source, cvt_source, xgf_doc):
     prep_el = etree.SubElement(xgf_doc, XGF + "pre-program")
@@ -404,8 +428,10 @@ def build_cvt_settings(source, cvt_source, xgf_doc):
         if "deltas" in cvt_entry:
             delta_list = cvt_entry["deltas"]
             # Rem each entry in the delta_list has a size and a distance. The
-            # distance encapsulates two values: dist and shift.
-            for d in delta_list:
+            # distance encapsulates two values: dist and shift. A list of
+            # deltas has to be sorted by size (resolution).
+            new_delta_list = sorted(delta_list, key=lambda s: s['size'])
+            for d in new_delta_list:
                 val = d["distance"]
                 dist = 0.0
                 sh =   8

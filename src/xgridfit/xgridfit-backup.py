@@ -640,8 +640,7 @@ def validate(f, syntax, noval):
         schemafile = "xgridfit.rng"
         if syntax == "compact":
             schemafile = "xgridfit-sh.rng"
-        schemapath = get_file_path(os.path.join(schemadir, schemafile))
-        # schemapath = get_file_path(schemadir + schemafile)
+        schemapath = get_file_path(schemadir + schemafile)
         schema = etree.RelaxNG(etree.parse(schemapath))
         schema.assertValid(f)
 
@@ -851,26 +850,27 @@ def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
 
 
 def run(
-        inputfile    = None,
-        quiet        = -1,
-        outputfile   = None,
-        inputfont    = None,
-        outputfont   = None,
-        skipval      = False,
-        skipcomp     = False,
-        expandonly   = False,
-        compactonly  = False,
-        yconvonly    = False,
-        mergemode    = False,
+        inputfile,
+        quiet = -1,
+        outputfile = None,
+        inputfont = None,
+        outputfont = None,
+        skipval = False,
+        skipcomp = False,
+        expandonly = False,
+        compactonly = False,
+        yconvonly = False,
+        mergemode = False,
         initgraphics = "yes",
-        assume_y     = "no",
-        glyphlist    = None,
-        replaceprep  = False,
+        assume_y = "no",
+        glyphlist = None,
+        replaceprep = False,
         saveprograms = False,
-        nocompact    = False,
-        cfuzz        = 1,
+        nocompact = False,
+        cfuzz = 1,
+        source: str = "xgf",
         font: ttFont = None,
-        yaml: dict   = None,
+        yaml: dict = None,
     ):
 
     # Return a tuple: (error_msg: str, failed glyphs: list)
@@ -888,20 +888,13 @@ def run(
     if cfuzz > 1:
         coordinateFuzz = cfuzz
 
-    source = "xgf"
-    if yaml != None:
-        # The source is a dict from ygt.
-        source = "ygt"
-        xgffile = ygridfit_parse_obj(yaml)
-    elif inputfile != None:
-        # inputfile is a file name from xgridfit.
-        source_ext = os.path.splitext(inputfile)[1]
-        if source_ext == ".yaml":
-            if quietcount < 1:
-                print("Converting yaml source to Xgridfit")
-            xgffile = ygridfit_parse(inputfile)
-        else:
-            xgffile = etree.parse(inputfile)
+    source_ext = os.path.splitext(inputfile)[1]
+    if source_ext == ".yaml":
+        if quietcount < 1:
+            print("Converting yaml source to Xgridfit")
+        xgffile = ygridfit_parse(inputfile)
+    else:
+        xgffile = etree.parse(inputfile)
 
     # We'll need namespaces
 
@@ -909,17 +902,6 @@ def run(
           "xi": "http://www.w3.org/2001/XInclude",
           "xsl": "http://www.w3.org/1999/XSL/Transform"}
     
-    # Get the filename of the font we're (eventually) going to write to.
-    if not outputfont:
-        outputfont = str(xgffile.xpath("/xgf:xgridfit/xgf:outputfont/text()",
-                                       namespaces=ns)[0])
-    if not outputfont:
-        print("Need the filename of a font to write. Use the --outputfont")
-        print("command-line argument or the <outputfont> element in your")
-        print("Xgridfit file.")
-        sys.exit(1)
-
-    # If the outputfont has extention .ufo, we shift into ufo_mode.
     split_fn = os.path.splitext(outputfont)
     extension = split_fn[1]
     ufo_mode = (extension == ".ufo")
@@ -984,7 +966,7 @@ def run(
             sys.exit(1)
 
     # Don't do this if called from ygt.
-    if skipcomp and quietcount < 1:
+    if source == "ygt" and skipcomp and quietcount < 1:
         print("Skipping compilation")
         sys.exit(0)
 
@@ -1075,7 +1057,7 @@ def run(
     safe_calls = etransform(xgffile, **{"stack-safe-list": "'yes'"})
     safe_calls = literal_eval(str(safe_calls))
 
-    # If this is ufo_mode (destination is a UFO), open the ufo with xgfUFOWriter.
+    # If this is ufo_mode, open the ufo with xgfUFOWriter.
     uw = None
     if ufo_mode:
         uw = xgfUFOWriter(outputfont)
@@ -1095,8 +1077,6 @@ def run(
         install_cvt(thisFont, cvt_list, cvtBase)
 
     # Test whether we have a cvar element (i.e. this is a variable font)
-    # N.B. we can't install a cvar table in a UFO. Should be store it in
-    # the data directory?
 
     cvar_count = len(xgffile.xpath("/xgf:xgridfit/xgf:cvar", namespaces=ns))
     if cvar_count > 0 and not ufo_mode:
@@ -1107,8 +1087,6 @@ def run(
 
     if quietcount < 1:
         print("Building fpgm table ...")
-
-    # Compile the predefined functions.
 
     predef_functions = int(xslfile.xpath("/xsl:stylesheet/xsl:variable[@name='predefined-functions']",
                                          namespaces=ns)[0].attrib['select'])
@@ -1160,7 +1138,7 @@ def run(
                 glyph_args['assume-always-y'] = "'" + assume_y + "'"
             g_inst = etransform(xgffile, **glyph_args)
         except Exception as e:
-            print("Error a: " + str(e))
+            print(e)
             for entry in etransform.error_log:
                 if quietcount < 3:
                     print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
@@ -1176,12 +1154,10 @@ def run(
         else:
             g_inst_final = compact_instructions(str(g_inst), safe_calls)
         if ufo_mode:
-            # Need to generate a hash if in ufo_mode.
             ttglyph = thisFont['glyf'][g]
             ttwidth = thisFont["hmtx"][g][0]
             hash_pen = HashPointPen(ttwidth, thisFont.getGlyphSet())
             ttglyph.drawPoints(hash_pen, thisFont["glyf"])
-            # And write the glyph program to the UFO.
             install_glyph_program_ufo(uw, g, g_inst_final, hash_pen.hash)
         else:
             install_glyph_program(g, thisFont, g_inst_final)
@@ -1231,19 +1207,18 @@ def run(
         if quietcount < 1:
             print("As --nocompilation flag is set, exiting without writing font file.")
         sys.exit(0)
-    #if not outputfont:
-    #    outputfont = str(xgffile.xpath("/xgf:xgridfit/xgf:outputfont/text()",
-    #                                   namespaces=ns)[0])
-    #if not outputfont:
-    #    print("Need the filename of a font to write. Use the --outputfont")
-    #    print("command-line argument or the <outputfont> element in your")
-    #    print("Xgridfit file.")
-    #    sys.exit(1)
+    if not outputfont:
+        outputfont = str(xgffile.xpath("/xgf:xgridfit/xgf:outputfont/text()",
+                                       namespaces=ns)[0])
+    if not outputfont:
+        print("Need the filename of a font to write. Use the --outputfont")
+        print("command-line argument or the <outputfont> element in your")
+        print("Xgridfit file.")
+        sys.exit(1)
     if not ufo_mode:
         with thisFont as f:
             f.save(outputfont, 1)
         # thisFont.save(outputfont, 1)
-    return "", failed_glyph_list
 
 
 def main():
@@ -1301,7 +1276,7 @@ def main():
     compactonly  = args.compact
     yconvonly    = args.yaml2xgf
     mergemode    = args.merge
-    qcount       = args.quiet
+    quietcount   = args.quiet
     initgraphics = args.initgraphics
     assume_y     = args.assume_y
     glyphlist    = args.glyphlist
@@ -1310,30 +1285,289 @@ def main():
     nocompact    = args.nocompact
     cfuzz        = args.coordinatefuzz
 
-    err, fails = run(
-        inputfile = inputfile,
-        outputfile = outputfile,
-        inputfont = inputfont,
-        outputfont = outputfont,
-        skipval = skipval,
-        skipcomp = skipcomp,
-        expandonly = expandonly,
-        compactonly = compactonly,
-        yconvonly = yconvonly,
-        mergemode = mergemode,
-        quiet = qcount,
-        initgraphics = initgraphics,
-        assume_y = assume_y,
-        glyphlist = glyphlist,
-        replaceprep = replaceprep,
-        saveprograms = saveprograms,
-        nocompact = nocompact,
-        cfuzz = cfuzz
-    )
-    if len(err):
-        print(err)
-    if len(fails):
-        print("Could not compile these glyphs: ")
-        for f in fails:
-            print(f, end=" ")
-        print("")
+    if quietcount < 1:
+        print("Opening the Xgridfit file ...")
+
+    if cfuzz > 1:
+        coordinateFuzz = cfuzz
+
+    source_ext = os.path.splitext(inputfile)[1]
+    if source_ext == ".yaml":
+        if quietcount < 1:
+            print("Converting yaml source to Xgridfit")
+        xgffile = ygridfit_parse(inputfile)
+        # print(xgffile)
+    else:
+        xgffile = etree.parse(inputfile)
+
+    # We'll need namespaces
+
+    ns = {"xgf": "http://xgridfit.sourceforge.net/Xgridfit2",
+          "xi": "http://www.w3.org/2001/XInclude",
+          "xsl": "http://www.w3.org/1999/XSL/Transform"}
+
+    # Do xinclude if this is a multipart file
+
+    #if len(xgffile.xpath("/xgf:xgridfit/xi:include", namespaces=ns)):
+    #    xgffile.xinclude()
+
+    # Next determine whether we are using long tagnames or short. Best way
+    # is to find out which tag is used for the required <pre-program> (<prep>)
+    # element. If we don't find it, print an error message and exit. Here's
+    # where we validate too; and if we're only expanding or compacting a file,
+    # do that and exit before we go to the trouble of opening the font.
+    if quietcount < 1:
+        print("Validating ...")
+
+    if len(xgffile.xpath("/xgf:xgridfit/xgf:prep", namespaces=ns)):
+        # first validate
+        validate(xgffile, "compact", skipval)
+        # as we can't use the compact syntax, always expand
+        if quietcount < 1:
+            print("Expanding compact to normal syntax ...")
+        xslfile = get_file_path("XSL/expand.xsl")
+        etransform = etree.XSLT(etree.parse(xslfile))
+        xgffile = etransform(xgffile)
+        if expandonly:
+            tstr = str(xgffile)
+            tstr = tstr.replace('xgf:','')
+            tstr = tstr.replace('xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"','')
+            if outputfile:
+                of = open(outputfile, "w")
+                of.write(tstr)
+                of.close()
+            else:
+                print(tstr)
+            sys.exit(0)
+    elif len(xgffile.xpath("/xgf:xgridfit/xgf:pre-program", namespaces=ns)):
+        # validate(xgffile, "normal", skipval)
+        if compactonly or yconvonly:
+            if compactonly:
+                xslfile = get_file_path("XSL/compact.xsl")
+                etransform = etree.XSLT(etree.parse(xslfile))
+                xgffile = etransform(xgffile)
+                tstr = str(xgffile)
+                tstr = tstr.replace('xgf:','')
+                tstr = tstr.replace('xmlns:xgf="http://xgridfit.sourceforge.net/Xgridfit2"','')
+                tstr = tstr.replace(' >','>')
+            if yconvonly:
+                tstr = str(etree.tostring(xgffile).decode())
+                # tstr = str(xgffile)
+            if outputfile:
+                of = open(outputfile, "w")
+                of.write(tstr)
+                of.close()
+            else:
+                print(tstr)
+            sys.exit(0)
+    else:
+        print("The xgridfit program must contain a pre-program (prep) element,")
+        print("even if it's empty.")
+        sys.exit(1)
+
+    if skipcomp and quietcount < 1:
+        print("Skipping compilation")
+        sys.exit(0)
+
+    # Now open the font. If we're in merge-mode, we need to know some things
+    # about the current state of it; otherwise we just wipe it.
+
+    if quietcount < 1:
+        print("Opening and evaluating the font ...")
+    if not inputfont:
+        inputfont = xgffile.xpath("/xgf:xgridfit/xgf:inputfont/text()", namespaces=ns)[0]
+    if not inputfont:
+        print("Need the filename of a font to read. Use the --inputfont")
+        print("command-line argument or the <inputfont> element in your")
+        print("Xgridfit file.")
+        sys.exit(1)
+    thisFont = ttLib.TTFont(inputfont)
+    functionBase = 0     # Offset to account for functions in existing font
+    cvtBase      = 0     # Offset to account for CVs in existing font
+    storageBase  = 0     # Offset to account for storage in existing font
+    maxStack     = 256   # Our (generous) default stack size
+    twilightBase = 0     # Offset to account for twilight space in existing font
+    if mergemode:
+        maxInstructions = max(maxInstructions, thisFont['maxp'].maxSizeOfInstructions)
+        storageBase = thisFont['maxp'].maxStorage
+        maxStack = max(maxStack, thisFont['maxp'].maxStackElements)
+        functionBase = thisFont['maxp'].maxFunctionDefs
+        twilightBase = thisFont['maxp'].maxTwilightPoints
+        try:
+            cvtBase = len(getattr(thisFont['cvt '], 'values'))
+        except:
+            cvtBase = 0
+    else:
+        wipe_font(thisFont)
+
+    # Get the xsl file, change some defaults (only relevant in merge-mode),
+    # and get a transform object
+
+    xslfile = etree.parse(get_file_path("XSL/xgridfit-ft.xsl"))
+    if mergemode:
+        xslfile.xpath("/xsl:stylesheet/xsl:param[@name='function-base']",
+                      namespaces=ns)[0].attrib['select'] = str(functionBase)
+        xslfile.xpath("/xsl:stylesheet/xsl:param[@name='cvt-base']",
+                      namespaces=ns)[0].attrib['select'] = str(cvtBase)
+        xslfile.xpath("/xsl:stylesheet/xsl:param[@name='storage-base']",
+                      namespaces=ns)[0].attrib['select'] = str(storageBase)
+    etransform = etree.XSLT(xslfile)
+
+    # Get a list of the glyphs to compile
+
+    if quietcount < 1:
+        print("Getting glyph list ...")
+
+    if glyphlist:
+        # a list passed in as a command-line argument
+        glyph_list = glyphlist
+    else:
+        # all the glyph programs in the file
+        glyph_list = str(etransform(xgffile, **{"get-glyph-list": "'yes'"}))
+    glyph_list = list(glyph_list.split(" "))
+    no_compact_list = str(etransform(xgffile, **{"get-no-compact-list": "'yes'"}))
+    if no_compact_list == None:
+        no_compact_list = []
+    else:
+        no_compact_list = list(no_compact_list.split(" "))
+
+    # Now that we have a glyph list, we can make the coordinate index
+    # and substitute point numbers for coordinates.
+
+    failed_glyph_list = []
+
+    coordinateIndex, bad = make_coordinate_index(glyph_list, thisFont)
+    if len(bad):
+        failed_glyph_list.extend(bad)
+    bad = coordinates_to_points(glyph_list, xgffile, coordinateIndex, ns)
+    if len(bad):
+        failed_glyph_list.extend(bad)
+
+    # Back to the xgf file. We're also going to need a list of stack-safe
+    # functions in this font.
+
+    if quietcount < 1:
+        print("Getting list of safe function calls ...")
+
+    safe_calls = etransform(xgffile, **{"stack-safe-list": "'yes'"})
+    safe_calls = literal_eval(str(safe_calls))
+
+    # Get cvt
+
+    if quietcount < 1:
+        print("Building control-value table ...")
+
+    cvt_list = str(etransform(xgffile, **{"get-cvt-list": "'yes'"}))
+    cvt_list = literal_eval("[" + cvt_list + "]")
+    install_cvt(thisFont, cvt_list, cvtBase)
+
+    # Test whether we have a cvar element (i.e. this is a variable font)
+
+    cvar_count = len(xgffile.xpath("/xgf:xgridfit/xgf:cvar", namespaces=ns))
+    if cvar_count > 0:
+        if quietcount < 1:
+            print("Building cvar table ...")
+        tuple_store = literal_eval(str(etransform(xgffile, **{"get-cvar": "'yes'"})))
+        install_cvar(thisFont, tuple_store, mergemode, cvtBase)
+
+    if quietcount < 1:
+        print("Building fpgm table ...")
+
+    predef_functions = int(xslfile.xpath("/xsl:stylesheet/xsl:variable[@name='predefined-functions']",
+                                         namespaces=ns)[0].attrib['select'])
+    maxFunction = etransform(xgffile, **{"function-count": "'yes'"})
+    maxFunction = int(maxFunction) + predef_functions + functionBase
+
+    fpgm_code = etransform(xgffile, **{"fpgm-only": "'yes'"})
+    install_functions(thisFont, fpgm_code, functionBase)
+    if saveprograms:
+        instf = open("fpgm.instructions", "w")
+        instf.write(str(fpgm_code))
+        instf.close
+
+    if quietcount < 1:
+        print("Building prep table ...")
+
+    prep_code = etransform(xgffile, **{"prep-only": "'yes'"})
+    install_prep(thisFont, prep_code, mergemode, replaceprep)
+    if saveprograms:
+        instf = open("prep.instructions", "w")
+        instf.write(str(prep_code))
+        instf.close
+
+    # Now loop through the glyphs for which there is code.
+
+    cycler = 0
+    for g in glyph_list:
+        if quietcount < 1:
+            print("Processing glyph " + g)
+        elif quietcount < 2 and cycler == 4:
+            print(".", end=" ", flush=True)
+        cycler += 1
+        if cycler == 5:
+            cycler = 0
+        try:
+            gt = "'" + g + "'"
+            glyph_args = {'singleGlyphId': gt}
+            if initgraphics:
+                glyph_args['init_graphics'] = "'" + initgraphics + "'"
+            if assume_y:
+                glyph_args['assume-always-y'] = "'" + assume_y + "'"
+            g_inst = etransform(xgffile, **glyph_args)
+        except Exception as e:
+            print(e)
+            for entry in etransform.error_log:
+                if quietcount < 3:
+                    print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
+            # sys.exit(1)
+            failed_glyph_list.append(g)
+            continue
+        # Two lines added for (possible) debugging
+        for entry in etransform.error_log:
+            if quietcount < 3:
+                print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
+        if nocompact or g in no_compact_list:
+            g_inst_final = str(g_inst)
+        else:
+            g_inst_final = compact_instructions(str(g_inst), safe_calls)
+        install_glyph_program(g, thisFont, g_inst_final)
+        if saveprograms:
+            gfn = userNameToFileName(g) + ".instructions"
+            gfnfile = open(gfn, "w")
+            if nocompact or g in no_compact_list:
+                gfnfile.write(g_inst_final)
+            else:
+                gfnfile.write("Uncompacted:\n\n")
+                gfnfile.write(str(g_inst))
+                gfnfile.write("\n\nCompacted:\n\n")
+                gfnfile.write(g_inst_final)
+            gfnfile.close
+    print("")
+
+    if quietcount < 1:
+        print("Hinted " + str(len(glyph_list)) + " glyphs.")
+        print("Cleaning up and writing the new font")
+    if len(failed_glyph_list):
+        print("There were problems with these glyphs:")
+        for f in failed_glyph_list:
+            print(f, end = " ")
+            print()
+    thisFont['maxp'].maxSizeOfInstructions = maxInstructions + 50
+    thisFont['maxp'].maxTwilightPoints = twilightBase + 25
+    thisFont['maxp'].maxStorage = storageBase + 64
+    thisFont['maxp'].maxStackElements = maxStack
+    thisFont['maxp'].maxFunctionDefs = maxFunction
+    thisFont['head'].flags |= 0b0000000000001000
+    if skipcomp:
+        if quietcount < 1:
+            print("As --nocompilation flag is set, exiting without writing font file.")
+        sys.exit(0)
+    if not outputfont:
+        outputfont = str(xgffile.xpath("/xgf:xgridfit/xgf:outputfont/text()",
+                                       namespaces=ns)[0])
+    if not outputfont:
+        print("Need the filename of a font to write. Use the --outputfont")
+        print("command-line argument or the <outputfont> element in your")
+        print("Xgridfit file.")
+        sys.exit(1)
+    thisFont.save(outputfont, 1)
