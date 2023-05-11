@@ -751,11 +751,11 @@ def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
     extension = split_fn[1]
     ufo_mode = (extension == ".ufo")
     thisFont = font
-    functionBase = 0     # Offset to account for functions in existing font
-    cvtBase      = 0     # Offset to account for CVs in existing font
-    storageBase  = 0     # Offset to account for storage in existing font
-    maxStack     = 256   # Our (generous) default stack size
-    twilightBase = 0     # Offset to account for twilight space in existing font
+    function_base = 0     # Offset to account for functions in existing font
+    cvtBase       = 0     # Offset to account for CVs in existing font
+    storageBase   = 0     # Offset to account for storage in existing font
+    maxStack      = 256   # Our (generous) default stack size
+    twilightBase  = 0     # Offset to account for twilight space in existing font
     wipe_font(thisFont)
     xslfile = etree.parse(get_file_path("XSL/xgridfit-ft.xsl"))
     etransform = etree.XSLT(xslfile)
@@ -789,12 +789,12 @@ def compile_all(font: ttFont, yaml: dict, new_file_name: str) -> list:
     predef_functions = int(xslfile.xpath("/xsl:stylesheet/xsl:variable[@name='predefined-functions']",
                                          namespaces=ns)[0].attrib['select'])
     maxFunction = etransform(xgffile, **{"function-count": "'yes'"})
-    maxFunction = int(maxFunction) + predef_functions + functionBase
+    maxFunction = int(maxFunction) + predef_functions + function_base
     fpgm_code = etransform(xgffile, **{"fpgm-only": "'yes'"})
     if ufo_mode:
-        install_functions_ufo(uw, ufo_lib_tree, fpgm_code, functionBase)
+        install_functions_ufo(uw, ufo_lib_tree, fpgm_code, function_base)
     else:
-        install_functions(thisFont, fpgm_code, functionBase)
+        install_functions(thisFont, fpgm_code, function_base)
     prep_code = etransform(xgffile, **{"prep-only": "'yes'"})
     if ufo_mode:
         install_prep_ufo(uw, ufo_lib_tree, prep_code, False, True)
@@ -862,6 +862,7 @@ def run(
         compactonly  = False,
         yconvonly    = False,
         mergemode    = False,
+        functionbase = 0,
         initgraphics = "yes",
         assume_y     = "no",
         glyphlist    = None,
@@ -1006,7 +1007,7 @@ def run(
     # If we're in merge-mode, we need to know some things about the current state
     # of it; otherwise we just wipe it.
 
-    functionBase = 0     # Offset to account for functions in existing font
+    function_base = 0     # Offset to account for functions in existing font
     cvtBase      = 0     # Offset to account for CVs in existing font
     storageBase  = 0     # Offset to account for storage in existing font
     maxStack     = 256   # Our (generous) default stack size
@@ -1015,7 +1016,10 @@ def run(
         maxInstructions = max(maxInstructions, thisFont['maxp'].maxSizeOfInstructions)
         storageBase = thisFont['maxp'].maxStorage
         maxStack = max(maxStack, thisFont['maxp'].maxStackElements)
-        functionBase = thisFont['maxp'].maxFunctionDefs
+        if functionbase > 0:
+            function_base = functionbase
+        else:
+            function_base = thisFont['maxp'].maxFunctionDefs
         twilightBase = thisFont['maxp'].maxTwilightPoints
         try:
             cvtBase = len(getattr(thisFont['cvt '], 'values'))
@@ -1030,7 +1034,7 @@ def run(
     xslfile = etree.parse(get_file_path("XSL/xgridfit-ft.xsl"))
     if mergemode:
         xslfile.xpath("/xsl:stylesheet/xsl:param[@name='function-base']",
-                      namespaces=ns)[0].attrib['select'] = str(functionBase)
+                      namespaces=ns)[0].attrib['select'] = str(function_base)
         xslfile.xpath("/xsl:stylesheet/xsl:param[@name='cvt-base']",
                       namespaces=ns)[0].attrib['select'] = str(cvtBase)
         xslfile.xpath("/xsl:stylesheet/xsl:param[@name='storage-base']",
@@ -1113,13 +1117,13 @@ def run(
     predef_functions = int(xslfile.xpath("/xsl:stylesheet/xsl:variable[@name='predefined-functions']",
                                          namespaces=ns)[0].attrib['select'])
     maxFunction = etransform(xgffile, **{"function-count": "'yes'"})
-    maxFunction = int(maxFunction) + predef_functions + functionBase
+    maxFunction = int(maxFunction) + predef_functions + function_base
 
     fpgm_code = etransform(xgffile, **{"fpgm-only": "'yes'"})
     if ufo_mode:
-        install_functions_ufo(uw, ufo_lib_tree, fpgm_code, functionBase)
+        install_functions_ufo(uw, ufo_lib_tree, fpgm_code, function_base)
     else:
-        install_functions(thisFont, fpgm_code, functionBase)
+        install_functions(thisFont, fpgm_code, function_base)
 
     if saveprograms:
         instf = open("fpgm.instructions", "w")
@@ -1154,10 +1158,11 @@ def run(
         try:
             gt = "'" + g + "'"
             glyph_args = {'singleGlyphId': gt}
-            if initgraphics:
-                glyph_args['init_graphics'] = "'" + initgraphics + "'"
-            if assume_y:
-                glyph_args['assume-always-y'] = "'" + assume_y + "'"
+            # Do we need these? Try without.
+            #if initgraphics:
+            #    glyph_args['init_graphics'] = "'" + initgraphics + "'"
+            #if assume_y:
+            #    glyph_args['assume-always-y'] = "'" + assume_y + "'"
             g_inst = etransform(xgffile, **glyph_args)
         except Exception as e:
             print("Error a: " + str(e))
@@ -1271,6 +1276,8 @@ def main():
                            help="Merge Xgridfit with existing instructions")
     argparser.add_argument('-r', '--replaceprep', action="store_true",
                            help="Whether to replace the existing prep table or append the new one (use with --merge)")
+    argparser.add_argument('--functionbase', type=int, default=0,
+                           help="Where to begin numbering Ygt’s functions in merge-mode")
     argparser.add_argument('--initgraphics', choices=['yes', 'no'],
                            help="Whether to initialize graphics-tracking variables at the beginning of glyph program")
     argparser.add_argument('-a', '--assume_y', choices=['yes', 'no'],
@@ -1309,6 +1316,7 @@ def main():
     saveprograms = args.saveprograms
     nocompact    = args.nocompact
     cfuzz        = args.coordinatefuzz
+    functionbase = args.functionbase
 
     err, fails = run(
         inputfile = inputfile,
@@ -1328,7 +1336,8 @@ def main():
         replaceprep = replaceprep,
         saveprograms = saveprograms,
         nocompact = nocompact,
-        cfuzz = cfuzz
+        cfuzz = cfuzz,
+        functionbase = functionbase,
     )
     if len(err):
         print(err)
