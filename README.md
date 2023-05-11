@@ -15,6 +15,9 @@ Alternatively, download the code from GitHub, change to the project's root direc
 ```
 pip install .
 ```
+Version 3.3.0  merges most of main() (command line) and the former compile_all (called from Ygt) into one routine (run()). This enables 
+merge-mode for Ygt.
+
 Version 3.2.18 logs certain errors rather than exiting (an improvement when a backend for Ygt).
 
 Version 3.2.17 has its own code for exporting to UFO rather than relying on ufoLib2.
