@@ -407,6 +407,7 @@ def install_cvar(fo, cvarstore, keepold, cvtbase):
                     # table is okay), but we'll warn.
                     complications = True
             except Exception as err:
+                print("Error in install_cvar: ")
                 print(err)
                 print("Here are the regions in the existing font:")
                 for tup in oldcvarstore:
@@ -645,7 +646,7 @@ def validate(f, syntax, noval):
         schema = etree.RelaxNG(etree.parse(schemapath))
         schema.assertValid(f)
 
-def compile_list(font: ttFont, yaml: dict, gname: str) -> tuple:
+def compile_list(font: ttFont, yaml: dict, gname: str, write_font: bool = False) -> tuple:
     """
         Compile code either for a single glyph or a list of glyphs. This will
         generate a hinted font (as a SpooledTemporaryFile) with *only* those glyphs
@@ -713,13 +714,14 @@ def compile_list(font: ttFont, yaml: dict, gname: str) -> tuple:
             # install_glyph_program(g, thisFont, g_inst_final)
             install_glyph_program(g, thisFont, str(g_inst))
         except Exception as e:
+            print("Error in compile_list(1)")
             print(e)
             for entry in etransform.error_log:
                 if quietcount < 3:
                     print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
             failed_glyph_list.append(g)
     try:
-        # Grab the font, subset it with just the one glyph we're
+        # Grab the font, subset it with just the glyphs we're
         # previewing, and write it to a spooled temporary file.
         tf = SpooledTemporaryFile(max_size=1000000, mode='b')
         options = subset.Options(glyph_names=True)
@@ -731,10 +733,12 @@ def compile_list(font: ttFont, yaml: dict, gname: str) -> tuple:
         for g in glyph_list:
             glyph_id[g] = thisFont.getGlyphID(g)
         # temp diagnostic:
-        # thisFont.save("temp_font.ttf", 1)
+        if write_font:
+            thisFont.save("temp_font.ttf", 1)
         thisFont.save(tf, 1)
         tf.seek(0)
     except Exception as e:
+        print("Exception in compile_list(2):", end=" ")
         print(e)
     # Return: a handle to the temp file, the index of the target glyph, a list of
     # glyphs for which complilation failed
@@ -1165,7 +1169,7 @@ def run(
             #    glyph_args['assume-always-y'] = "'" + assume_y + "'"
             g_inst = etransform(xgffile, **glyph_args)
         except Exception as e:
-            print("Error a: " + str(e))
+            print("Error in run (a): " + str(e))
             for entry in etransform.error_log:
                 if quietcount < 3:
                     print('message from line %s, col %s: %s' % (entry.line, entry.column, entry.message))
