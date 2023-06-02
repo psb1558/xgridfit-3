@@ -630,7 +630,8 @@ def coordinates_to_points(glist, xgffile, coordinateIndex, ns):
             bad_glyphs.append(gn)
     if len(bad_glyphs):
         for b in bad_glyphs:
-            del glist[b]
+            # del glist[b]
+            glist.remove(b)
     return bad_glyphs
 
 def validate(f, syntax, noval):
