@@ -156,56 +156,62 @@ def is_rounded(source, dflt):
             return True
     return dflt
 
-def install_refs(ref, parent_el):
+def install_refs(source, ref, parent_el):
     ref_element = etree.SubElement(parent_el, XGF + "reference")
     if type(ref) is list:
         for p in ref:
-            build_point_el(ref_element, str(p))
+            build_point_el(source, ref_element, str(p))
             # point_element = etree.SubElement(ref_element, XGF + "point")
             # point_element.set("num", str(p))
     else:
-        build_point_el(ref_element, str(ref))
+        build_point_el(source, ref_element, str(ref))
         # point_element = etree.SubElement(ref_element, XGF + "point")
         # point_element.set("num", str(ref))
 
-def build_dependent_moves(source, parent_el, move_type, refpt = None):
+def build_dependent_moves(pt, source, parent_el, move_type, refpt = None):
     move_el = etree.SubElement(parent_el, XGF + move_type)
-    if is_rounded(source, False):
-        b = source["round"]
+    if is_rounded(pt, False):
+        b = pt["round"]
         if type(b) is bool:
             b = translate_bool(b)
         move_el.set("round", b)
         # move_el.set("round", "yes")
-    if 'ref' in source:
-        install_refs(source['ref'], move_el)
+    if 'ref' in pt:
+        install_refs(source, pt['ref'], move_el)
     elif refpt != None:
-        install_refs([refpt], move_el)
-    if type(source['ptid']) is list:
-        ancestor_point = source['ptid'][0]
-        for p in source['ptid']:
-            build_point_el(move_el, str(p))
+        install_refs(source, [refpt], move_el)
+    if type(pt['ptid']) is list:
+        ancestor_point = pt['ptid'][0]
+        for p in pt['ptid']:
+            build_point_el(source, move_el, str(p))
             # point_element = etree.SubElement(move_el, XGF + "point")
             # point_element.set("num", str(p))
     else:
-        if "alt-ptid" in source:
-            ancestor_point = source["alt-ptid"]
+        if "alt-ptid" in pt:
+            ancestor_point = pt["alt-ptid"]
         else:
-            ancestor_point = source['ptid']
-        build_point_el(move_el, ancestor_point)
+            ancestor_point = pt['ptid']
+        build_point_el(source, move_el, ancestor_point)
         # point_element = etree.SubElement(move_el, XGF + "point")
-        # point_element.set("num", str(source['ptid']))
+        # point_element.set("num", str(pt['ptid']))
     return ancestor_point
 
-def build_point(source, parent_el, refpt = None):
+def build_point(pt, source, parent_el, refpt = None):
+    """
+        pt: source for this point.
+        source: source for the glyph.
+        parent-el: The element for which we are adding children.
+        refpt: reference point for this point.
+    """
     try:
-        move_type = source["rel"]
+        move_type = pt["rel"]
     except KeyError:
         move_type = "move"
     if move_type in MOVETYPES:
         move_element = etree.SubElement(parent_el, XGF + "move")
         color = None
-        if "col" in source:
-            color = source['col']
+        if "col" in pt:
+            color = pt['col']
         else:
             if move_type == "whitedist":
                 color = "white"
@@ -214,55 +220,56 @@ def build_point(source, parent_el, refpt = None):
         if color:
             move_element.set("color", color)
         distance = None
-        if 'dist' in source:
-            distance = str(source['dist'])
-        if 'pos' in source:
-            distance = str(source['pos'])
+        if 'dist' in pt:
+            distance = str(pt['dist'])
+        if 'pos' in pt:
+            distance = str(pt['pos'])
         if distance:
             move_element.set("distance", distance)
-        if 'min' in source:
-            min_dist = source['min']
+        if 'min' in pt:
+            min_dist = pt['min']
             if type(min_dist) is bool:
                 move_element.set("min-distance", translate_bool(min_dist))
-        if not is_rounded(source, True):
+        if not is_rounded(pt, True):
             move_element.set("round", "no")
         else:
             try:
-                if type(source['round']) is str:
-                    move_element.set("round", source['round'])
+                if type(pt['round']) is str:
+                    move_element.set("round", pt['round'])
             except Exception:
                 pass
-        if 'ref' in source:
-            install_refs(source['ref'], move_element)
+        if 'ref' in pt:
+            install_refs(source, pt['ref'], move_element)
         elif refpt != None:
-            install_refs([refpt], move_element)
-        if type(source['ptid']) is list:
-            for p in source['ptid']:
-                build_point_el(move_element, p)
+            install_refs(source, [refpt], move_element)
+        if type(pt['ptid']) is list:
+            for p in pt['ptid']:
+                build_point_el(source, move_element, p)
         else:
-            build_point_el(move_element, source['ptid'])
-        if 'points' in source:
-            source['points'].sort(key=point_key)
-            for pp in source['points']:
-                build_point(pp, move_element)
+            build_point_el(source, move_element, pt['ptid'])
+        if 'points' in pt:
+            pt['points'].sort(key=point_key)
+            for pp in pt['points']:
+                build_point(pp, source, move_element)
     else:
         if move_type == "interpolate":
             refpt = None
         # logging.info("In else clause of build_point; refpt is " + str(refpt))
-        ancestor_point = build_dependent_moves(source, parent_el, move_type, refpt)
-        if 'points' in source:
-            # source['points'].sort(key=point_key)
-            for pp in source['points']:
+        ancestor_point = build_dependent_moves(pt, source, parent_el, move_type, refpt)
+        if 'points' in pt:
+            # pt['points'].sort(key=point_key)
+            for pp in pt['points']:
                 # logging.info("About to recurse: " + str(pp))
-                build_point(pp, parent_el, ancestor_point)
+                # pp: one element of the "points" section we are working through
+                build_point(pp, source, parent_el, ancestor_point)
 
-def build_macro_function_call(source, glyph_el):
+def build_macro_function_call(pt, source, glyph_el):
     # figure out whether we're calling a macro or a function.
     call_type = None
-    if "macro" in source:
+    if "macro" in pt:
         call_type = "macro"
         call_el_name = "call-macro"
-    elif "function" in source:
+    elif "function" in pt:
         call_type = "function"
         call_el_name = "call-function"
     assert call_type != None
@@ -270,36 +277,36 @@ def build_macro_function_call(source, glyph_el):
     # For the "macro" or "function" item, we can have either a dict or a
     # string (if a string, it's the name of the function; if a dict, it's
     # got to have a nm key)
-    if type(source[call_type]) is dict:
-        keylist = source[call_type].keys()
+    if type(pt[call_type]) is dict:
+        keylist = pt[call_type].keys()
         for k in keylist:
             if k == "nm":
-                call_el.set("name", source[call_type][k])
+                call_el.set("name", pt[call_type][k])
             else:
                 param_el = etree.SubElement(call_el, XGF + "with-param")
                 param_el.set("name", k)
-                param_el.set("value", str(source[call_type][k]))
+                param_el.set("value", str(pt[call_type][k]))
     else:
         try:
-            call_el.set("name", source[call_type])
+            call_el.set("name", pt[call_type])
         except TypeError:
-            print("Error with name" + str(source[call_type]))
+            print("Error with name" + str(pt[call_type]))
             sys.exit(1)
     # Now the point numbers. These must be key-value pairs. If we're calling a
     # macro, the value in such a pair can be a list (translated into an Xgridfit
     # set).
-    keylist = source["ptid"].keys()
+    keylist = pt["ptid"].keys()
     ancestor_point = None
     for k in keylist:
         param_el = etree.SubElement(call_el, XGF + "with-param")
         param_el.set("name", k)
-        content = source['ptid'][k]
+        content = pt['ptid'][k]
         if type(content) is list:
             assert call_type == "macro"
             set_el = etree.SubElement(param_el, XGF + "set")
             get_ancestor_point = (len(content) == 1)
             for p in content:
-                build_point_el(set_el, str(p))
+                build_point_el(source, set_el, str(p))
                 if get_ancestor_point:
                     ancestor_point = str(p)
                 # point_el = etree.SubElement(set_el, XGF + "point")
@@ -307,15 +314,19 @@ def build_macro_function_call(source, glyph_el):
         else:
             param_el.set("value", str(content))
             ancestor_point = str(content)
-    if 'points' in source:
-        # source['points'].sort(key=point_key)
-        for pp in source['points']:
+    if 'points' in pt:
+        # pt['points'].sort(key=point_key)
+        for pp in pt['points']:
             # logging.info("About to recurse: " + str(pp))
-            build_point(pp, glyph_el, ancestor_point)
+            build_point(pp, source, glyph_el, ancestor_point)
 
-def build_point_el(parent_el, point_num):
-    point_el = etree.SubElement(parent_el, XGF + "point")
-    point_el.set("num", str(point_num))
+def build_point_el(source, parent_el, point_num):
+    if "names" in source and point_num in source["names"] and type(source["names"][point_num]) is list:
+        set_el = etree.SubElement(parent_el, XGF + "set")
+        set_el.set("ref", str(point_num))
+    else:
+        point_el = etree.SubElement(parent_el, XGF + "point")
+        point_el.set("num", str(point_num))
 
 def build_xy_block(nm, source, glyph_element, axis):
     try:
@@ -334,9 +345,9 @@ def build_xy_block(nm, source, glyph_element, axis):
             # xysection[skk].sort(key=point_key)
             for p in xysection[skk]:
                 if "macro" in p or "function" in p:
-                    build_macro_function_call(p, glyph_element)
+                    build_macro_function_call(p, source, glyph_element)
                 else:
-                    build_point(p, glyph_element)
+                    build_point(p, source, glyph_element)
     except KeyError:
         pass
         #if axis == "y":
@@ -359,6 +370,7 @@ def build_glyph_program(nm, source, xgf_doc):
             glyph_element.set("compact", translate_bool(p['compact']))
     if "y" in source and "x" in source:
         glyph_element.set("assume-y", translate_bool(False))
+    # Deal with the "names" section of a glyph program.
     try:
         names = source["names"]
         nk = names.keys()
@@ -372,7 +384,7 @@ def build_glyph_program(nm, source, xgf_doc):
                 set_element = etree.SubElement(glyph_element, XGF + "set")
                 set_element.set("name", n)
                 for p in names[n]:
-                  build_point_el(set_element, str(p))
+                  build_point_el(source, set_element, str(p))
     except KeyError as e:
         # An Exception here just means there is no "names" block for this glyph.
         # print(e)

@@ -7,10 +7,10 @@
   <!--
       This file is part of xgridfit, version 3.
       Licensed under the Apache License, Version 2.0.
-      Copyright (c) 2006-20 by Peter S. Baker
+      Copyright (c) 2006-25 by Peter S. Baker
   -->
 
-  <xsl:variable name="xgf-version" select="'3.3.0'"/>
+  <xsl:variable name="xgf-version" select="'3.3.1'"/>
   <!--
       First in the Storage Area is a block of locations used by legacy
       code (e.g. from ttfautohint). Next come some

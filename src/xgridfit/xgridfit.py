@@ -26,7 +26,7 @@ import unicodedata
 
 #      This file is part of xgridfit, version 3.
 #      Licensed under the Apache License, Version 2.0.
-#      Copyright (c) 2006-20 by Peter S. Baker
+#      Copyright (c) 2006-25 by Peter S. Baker
 
 neutral_instructions = [ 'IUP', 'RDTG', 'ROFF', 'RTDG', 'RTG', 'RTHG', 'RUTG',
                          'SFVTCA', 'SFVTPV', 'SPVTCA', 'SVTCA', 'FLIPOFF',
@@ -741,6 +741,9 @@ def compile_list(font: ttFont, yaml: dict, gname: str, write_font: bool = False)
     except Exception as e:
         print("Exception in compile_list(2):", end=" ")
         print(e)
+        #type, value, traceback = sys.exc_info()
+        #print('Error opening %s: %s' % (value.filename, value.strerror))
+        #print(traceback)
     # Return: a handle to the temp file, the index of the target glyph, a list of
     # glyphs for which complilation failed
     return tf, glyph_id, failed_glyph_list
