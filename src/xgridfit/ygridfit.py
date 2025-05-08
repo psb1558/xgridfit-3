@@ -238,6 +238,8 @@ def build_point(pt, source, parent_el, refpt = None):
                     move_element.set("round", pt['round'])
             except Exception:
                 pass
+            if "cut-in" in pt:
+                move_element.set("cut-in", str(pt['cut-in']))
         if 'ref' in pt:
             install_refs(source, pt['ref'], move_element)
         elif refpt != None:
@@ -562,6 +564,7 @@ def build_macros(source, xgf_doc):
         for ff in ffk:
             if ff == "code":
                 newcode = source[f]['code'].replace("\n", '')
+                # print(newcode)
                 newxml = etree.XML(newcode)
                 for n in newxml:
                     macro_el.append(n)
